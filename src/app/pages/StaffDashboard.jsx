@@ -52,7 +52,7 @@ export function StaffDashboard() {
     };
 
     const [newBooking, setNewBooking] = useState({
-        customerName: "", customerAge: "", persons: 1, slot: "06:00 AM", phone: "", date: "", package: "premium", paymentMethod: "UPI", passengers: [], isVipCheckin: false, isBreakfast: false
+        customerName: "", customerAge: "", customerWeight: "", customerGender: "M", customerCity: "", persons: 1, slot: "06:00 AM", phone: "", date: "", package: "premium", paymentMethod: "UPI", passengers: [], isVipCheckin: false, isBreakfast: false
     });
     const [offlineBookingSuccess, setOfflineBookingSuccess] = useState(null);
     const [dashboardLocation, setDashboardLocation] = useState("Goa");
@@ -106,21 +106,23 @@ export function StaffDashboard() {
         }
         const createdBooking = {
             id: `GW-${Math.floor(Math.random() * 900000 + 100000)}`,
-            customerName: newBooking.customerName,
+            customerPhone: newBooking.phone,
+            customerCity: newBooking.customerCity,
             persons: personsCount,
             passengers: [
-                { name: newBooking.customerName, age: newBooking.customerAge },
+                { name: newBooking.customerName, age: newBooking.customerAge, weight: newBooking.customerWeight, gender: newBooking.customerGender },
                 ...newBooking.passengers.slice(0, personsCount - 1)
             ],
             slot: newBooking.slot,
-            category: newBooking.persons === 1 ? "SOLO" : newBooking.persons === 2 ? "COUPLE" : "GROUP",
+            category: newBooking.category === "SHARING" ? "SHARING" : (newBooking.persons === 1 ? "SOLO" : newBooking.persons === 2 ? "COUPLE" : "GROUP"),
             type: "OFFLINE",
             date: newBooking.date,
             status: "Confirmed",
             price: Math.round(finalTotalAmount),
             paymentMethod: newBooking.paymentMethod,
             isVipCheckin: newBooking.isVipCheckin,
-            isBreakfast: newBooking.isBreakfast
+            isBreakfast: newBooking.isBreakfast,
+            isFemaleSharing: newBooking.isFemaleSharing || false
         };
         bookingStore.addBooking(createdBooking);
         setOfflineBookingSuccess(createdBooking);
@@ -166,6 +168,16 @@ export function StaffDashboard() {
         doc.text(`Tour: Premium Ride`, 15, y); y += 6;
         doc.text(`Tour Date: ${b.date.split("-").reverse().join("/")}`, 15, y); y += 6;
         doc.text(`Slot Time: ${b.slot}`, 15, y); y += 6;
+        if (b.category === "SHARING") {
+            doc.setFont("times", "bolditalic");
+            doc.text(`Ride Type: SHARING RIDE`, 15, y); y += 6;
+            if (b.isFemaleSharing) {
+                doc.setTextColor(255, 0, 150);
+                doc.text(`PREFERENCE: FEMALE SHARING`, 15, y); y += 6;
+                doc.setTextColor(0, 0, 0);
+            }
+            doc.setFont("times", "normal");
+        }
         drawDivider();
         setCenteredText("Passenger Details", "bold", 10, 8);
         doc.setFont("times", "bold");
@@ -231,6 +243,14 @@ export function StaffDashboard() {
         setCenteredText("This is a computer-generated ticket.", "normal", 10, 6);
         setCenteredText("Mandatory insurance included.", "normal", 10, 6);
         setCenteredText("Report 30 minutes before slot time.", "normal", 10, 8);
+        if (b.category === "SHARING") {
+            setCenteredText("SHARING DISCLAIMER:", "bold", 9, 5);
+            setCenteredText("You may share the flight with another rider.", "normal", 8, 4);
+            if (b.isFemaleSharing) {
+                setCenteredText("Waiting for another female rider may apply.", "normal", 8, 4);
+            }
+            y += 4;
+        }
         setCenteredText("Thank You & Ride Safe!", "bold", 11, 8);
         drawDivider();
         doc.save(`Goldwing_Ticket_${b.id}.pdf`);
@@ -245,7 +265,7 @@ export function StaffDashboard() {
     return (
         <div className={`min-h-screen transition-colors duration-300 ${isLightTheme ? "bg-gray-50 text-gray-900" : "bg-[#05070A] text-white"} p-4 md:p-8 font-sans`}>
             <AnimatePresence>
-                {errorMsg && (<motion.div initial={{ opacity: 0, y: -20, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: -20, x: "-50%" }} className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl font-semibold max-w-sm w-[90%]">
+                {errorMsg && (<motion.div initial={{ opacity: 0, y: -20, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: -20, x: "-50%" }} className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl font-normal max-w-sm w-[90%]">
                     <AlertCircle className="w-6 h-6 shrink-0" />
                     <span className="flex-1 text-sm">{errorMsg}</span>
                     <button onClick={() => setErrorMsg("")} className="shrink-0 p-1 hover:bg-white/20 rounded-full transition">
@@ -261,20 +281,20 @@ export function StaffDashboard() {
                             <Home className="w-5 h-5 group-hover:text-[#D4AF37]" />
                         </button>
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-bold">Staff Dashboard</h1>
+                            <h1 className="text-2xl md:text-3xl font-black">Staff Dashboard</h1>
                             <p className={`text-xs md:sm ${isLightTheme ? "text-gray-500" : "text-white/60"}`}>Manage bookings and offline ticketing</p>
                         </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                         <div className="flex gap-2">
-                            <button onClick={() => setIsOfflineModalOpen(true)} className="bg-[#D4AF37] hover:bg-[#F7C948] text-black font-bold px-4 py-3 rounded-xl flex items-center justify-center transition shadow-lg shadow-amber-500/10">
+                            <button onClick={() => setIsOfflineModalOpen(true)} className="bg-[#D4AF37] hover:bg-[#F7C948] text-black font-normal px-4 py-3 rounded-xl flex items-center justify-center transition shadow-lg shadow-amber-500/10">
                                 <Plus className="w-5 h-5 mr-1" /> Create Ticket
                             </button>
-                            <button onClick={() => navigate("/gate?skipLoader=true")} className={`font-bold px-4 py-3 rounded-xl flex items-center justify-center transition border ${isLightTheme ? 'bg-white hover:bg-gray-100 text-gray-800 border-gray-200 shadow-sm' : 'bg-white/5 hover:bg-white/10 text-white border-white/10'}`}>
+                            <button onClick={() => navigate("/gate?skipLoader=true")} className={`font-normal px-4 py-3 rounded-xl flex items-center justify-center transition border ${isLightTheme ? 'bg-white hover:bg-gray-100 text-gray-800 border-gray-200 shadow-sm' : 'bg-white/5 hover:bg-white/10 text-white border-white/10'}`}>
                                 <QrCode className="w-5 h-5 mr-2 text-blue-500" /> Scanner
                             </button>
-                            <select value={dashboardLocation} onChange={(e) => setDashboardLocation(e.target.value)} className={`px-4 py-3 rounded-xl border font-bold text-sm focus:outline-none transition-colors appearance-none cursor-pointer flex items-center bg-no-repeat
+                            <select value={dashboardLocation} onChange={(e) => setDashboardLocation(e.target.value)} className={`px-4 py-3 rounded-xl border font-normal text-sm focus:outline-none transition-colors appearance-none cursor-pointer flex items-center bg-no-repeat
                                 ${isLightTheme ? 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50' : 'bg-white/5 border-white/10 text-white hover:bg-white/10'}
                                 `} style={{
                                     backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='${isLightTheme ? '%234B5563' : '%23D1D5DB'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
@@ -288,23 +308,81 @@ export function StaffDashboard() {
                         <button onClick={() => {
                             localStorage.removeItem("isStaffLoggedIn");
                             navigate("/login?skipLoader=true");
-                        }} className="flex items-center justify-center gap-2 px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 rounded-xl font-bold transition-all group">
+                        }} className="flex items-center justify-center gap-2 px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 rounded-xl font-normal transition-all group">
                             <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                             Logout
                         </button>
                     </div>
                 </div>
 
+                {/* NEW: Sharing Ride Requests Section */}
+                <div className={`${isLightTheme ? "bg-white border-pink-200" : "bg-[#1A1015] border-pink-500/20"} rounded-2xl shadow-sm border overflow-hidden`}>
+                    <div className={`p-6 border-b ${isLightTheme ? "border-pink-100 bg-pink-50" : "border-pink-500/10 bg-pink-500/5"} flex justify-between items-center`}>
+                        <h2 className={`text-xl font-black flex items-center ${isLightTheme ? "text-pink-700" : "text-pink-400"}`}>
+                            <Users className="w-5 h-5 mr-2" /> Sharing Ride Queue
+                        </h2>
+                        <span className={`px-3 py-1 rounded-full text-xs font-black ${isLightTheme ? "bg-pink-100 text-pink-700" : "bg-pink-500/20 text-pink-400"}`}>
+                            {activeBookings.filter(b => b.category === "SHARING").length} Requests
+                        </span>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                            <thead className={`text-xs uppercase font-normal tracking-wider ${isLightTheme ? "text-gray-700 bg-gray-100" : "text-white/60 bg-white/5"}`}>
+                                <tr>
+                                    <th className="px-6 py-4">Name</th>
+                                    <th className="px-6 py-4">Gender</th>
+                                    <th className="px-6 py-4">Weight</th>
+                                    <th className="px-6 py-4">Date & Slot</th>
+                                    <th className="px-6 py-4">Preference</th>
+                                    <th className="px-6 py-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody className={`divide-y ${isLightTheme ? "divide-gray-100" : "divide-white/10"}`}>
+                                {activeBookings.filter(b => b.category === "SHARING").length > 0 ? activeBookings.filter(b => b.category === "SHARING").map((b) => (
+                                    <tr key={b.id} className={`${isLightTheme ? "hover:bg-gray-50" : "hover:bg-white/5"} transition-colors text-white`}>
+                                        <td className={`px-6 py-4 font-normal ${isLightTheme ? "text-gray-900" : "text-white"}`}>
+                                            {b.customerName}
+                                            <div className="text-[10px] opacity-50">{b.id}</div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {b.passengers[0]?.gender === 'F' ? 'Female' : 'Male'}
+                                        </td>
+                                        <td className="px-6 py-4">{b.passengers[0]?.age} KG</td>
+                                        <td className="px-6 py-4">
+                                            <div className="font-normal">{b.date}</div>
+                                            <div className="text-[10px] opacity-70">{b.slot}</div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {b.isFemaleSharing ? (
+                                                <span className="px-2 py-1 rounded-md bg-pink-500/20 text-pink-400 text-[10px] font-black uppercase">Female Sharing Only</span>
+                                            ) : (
+                                                <span className="px-2 py-1 rounded-md bg-blue-500/20 text-blue-400 text-[10px] font-black uppercase">Standard Sharing</span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button className="p-2 hover:bg-white/10 rounded-lg text-white/50 hover:text-white" title="Print Ticket"><Ticket className="w-4 h-4" /></button>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan={6} className="px-6 py-10 text-center text-white/30 uppercase tracking-widest text-xs font-black">No Sharing Requests</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div className={`${isLightTheme ? "bg-white border-gray-200" : "bg-[#111827] border-white/10"} rounded-2xl shadow-sm border overflow-hidden`}>
                     <div className={`p-6 border-b ${isLightTheme ? "border-gray-200 bg-[#F1F5F9]" : "border-white/10 bg-[#0f172a]"} flex flex-col md:flex-row justify-between items-start md:items-center gap-4`}>
-                        <h2 className="text-xl font-bold flex items-center">
+                        <h2 className="text-xl font-black flex items-center">
                             <Ticket className="w-5 h-5 mr-2 text-[#D4AF37]" /> All Bookings
                         </h2>
                     </div>
 
                     <div className={`p-5 grid grid-cols-1 md:grid-cols-4 gap-4 ${isLightTheme ? "bg-gray-50" : "bg-white/5"} border-b ${isLightTheme ? "border-gray-200" : "border-white/10"}`}>
                         <div>
-                            <label className={`text-xs font-bold uppercase tracking-wider ${isLightTheme ? "text-gray-600" : "text-white/50"} mb-1.5 block`}>Type</label>
+                            <label className={`text-xs font-normal uppercase tracking-wider ${isLightTheme ? "text-gray-600" : "text-white/50"} mb-1.5 block`}>Type</label>
                             <select value={filterType} onChange={e => setFilterType(e.target.value)} className={`w-full ${isLightTheme ? "bg-white border-gray-300 text-gray-900 shadow-sm" : "bg-[#0B0F19] border-white/10 text-white"} rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#D4AF37] transition-all`}>
                                 <option value="All">All Types</option>
                                 <option value="Online">Online</option>
@@ -312,7 +390,7 @@ export function StaffDashboard() {
                             </select>
                         </div>
                         <div>
-                            <label className={`text-xs font-bold uppercase tracking-wider ${isLightTheme ? "text-gray-600" : "text-white/50"} mb-1.5 block`}>Status</label>
+                            <label className={`text-xs font-normal uppercase tracking-wider ${isLightTheme ? "text-gray-600" : "text-white/50"} mb-1.5 block`}>Status</label>
                             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className={`w-full ${isLightTheme ? "bg-white border-gray-300 text-gray-900 shadow-sm" : "bg-[#0B0F19] border-white/10 text-white"} rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#D4AF37] transition-all`}>
                                 <option value="All">All Statuses</option>
                                 <option value="Confirmed">Confirmed</option>
@@ -321,14 +399,14 @@ export function StaffDashboard() {
                             </select>
                         </div>
                         <div>
-                            <label className={`text-xs font-bold uppercase tracking-wider ${isLightTheme ? "text-gray-600" : "text-white/50"} mb-1.5 block`}>Date Flight</label>
+                            <label className={`text-xs font-normal uppercase tracking-wider ${isLightTheme ? "text-gray-600" : "text-white/50"} mb-1.5 block`}>Date Flight</label>
                             <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className={`w-full ${isLightTheme ? "bg-white border-gray-300 text-gray-900 shadow-sm" : "bg-[#0B0F19] border-white/10 text-white"} rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#D4AF37] transition-all`} />
                         </div>
                     </div>
 
                     <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left text-sm">
-                            <thead className={`text-xs uppercase font-bold tracking-wider ${isLightTheme ? "text-gray-700 bg-gray-100" : "text-white/60 bg-white/5"}`}>
+                            <thead className={`text-xs uppercase font-normal tracking-wider ${isLightTheme ? "text-gray-700 bg-gray-100" : "text-white/60 bg-white/5"}`}>
                                 <tr>
                                     <th className="px-6 py-4 rounded-tl-lg">Ticket No.</th>
                                     <th className="px-6 py-4">Name & Persons</th>
@@ -344,24 +422,24 @@ export function StaffDashboard() {
                             <tbody className={`divide-y ${isLightTheme ? "divide-gray-100" : "divide-white/10"}`}>
                                 {filteredBookings.length > 0 ? filteredBookings.map((booking) => (<React.Fragment key={booking.id}>
                                     <tr className={`${isLightTheme ? "hover:bg-gray-50" : "hover:bg-white/5"} transition-colors text-white`}>
-                                        <td className={`px-6 py-4 font-bold ${isLightTheme ? "text-gray-900" : "text-white"} whitespace-nowrap`}>{booking.id}</td>
+                                        <td className={`px-6 py-4 font-normal ${isLightTheme ? "text-gray-900" : "text-white"} whitespace-nowrap`}>{booking.id}</td>
                                         <td className="px-6 py-4">
-                                            <div className={`font-medium ${isLightTheme ? "text-gray-900" : "text-white"}`}>{booking.customerName}</div>
+                                            <div className={`font-normal ${isLightTheme ? "text-gray-900" : "text-white"}`}>{booking.customerName}</div>
                                             <div className={`inline-flex items-center gap-1 text-xs mt-1 select-none ${booking.persons > 1 ? "cursor-pointer hover:text-[#D4AF37] transition-colors" : ""} ${isLightTheme ? "text-gray-500" : "text-white/50"}`} onClick={() => booking.persons > 1 && toggleExpand(booking.id)}>
                                                 {booking.persons} {booking.persons === 1 ? 'Person' : 'Persons'}
                                                 {booking.persons > 1 && (expandedBookingId === booking.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
                                             </div>
                                         </td>
-                                        <td className={`px-6 py-4 font-semibold ${isLightTheme ? "text-gray-700" : "text-white/80"}`}>
+                                        <td className={`px-6 py-4 font-normal ${isLightTheme ? "text-gray-700" : "text-white/80"}`}>
                                             {(booking.category || "SOLO").toUpperCase()}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 text-xs rounded-lg font-semibold ${booking.type === 'ONLINE' ? 'bg-blue-500/20 text-blue-500 border border-blue-500/20' : 'bg-orange-500/20 text-orange-500 border border-orange-500/20'}`}>
+                                            <span className={`px-2 py-1 text-xs rounded-lg font-normal ${booking.type === 'ONLINE' ? 'bg-blue-500/20 text-blue-500 border border-blue-500/20' : 'bg-orange-500/20 text-orange-500 border border-orange-500/20'}`}>
                                                 {booking.type}
                                             </span>
                                         </td>
                                         <td className={`px-6 py-4 tabular-nums ${isLightTheme ? "text-gray-600" : "text-white/80"}`}>{booking.date}</td>
-                                        <td className={`px-6 py-4 font-semibold ${isLightTheme ? "text-gray-700" : "text-white/80"} whitespace-nowrap`}>{booking.slot}</td>
+                                        <td className={`px-6 py-4 font-normal ${isLightTheme ? "text-gray-700" : "text-white/80"} whitespace-nowrap`}>{booking.slot}</td>
                                         <td className="px-6 py-4">
                                             <select value={booking.status} onChange={(e) => handleStatusChange(booking.id, e.target.value)} className={`bg-transparent border ${booking.status === 'Confirmed' ? 'border-green-500 text-green-500' : booking.status === 'Pending' ? 'border-yellow-500 text-yellow-600' : 'border-red-500 text-red-500'} rounded-lg px-2 py-1 text-xs focus:outline-none`}>
                                                 <option value="Confirmed" className={isLightTheme ? "bg-white text-black" : "bg-[#111827] text-white"}>Confirmed</option>
@@ -369,7 +447,7 @@ export function StaffDashboard() {
                                                 <option value="Cancelled" className={isLightTheme ? "bg-white text-black" : "bg-[#111827] text-white"}>Cancelled</option>
                                             </select>
                                         </td>
-                                        <td className="px-6 py-4 text-[#D4AF37] tabular-nums font-semibold">₹{booking.price}</td>
+                                        <td className="px-6 py-4 text-[#D4AF37] tabular-nums font-normal">₹{booking.price}</td>
                                         <td className="px-6 py-4 text-right flex justify-end gap-2 text-white">
                                             <button className={`${isLightTheme ? "text-gray-400 hover:text-gray-600 hover:bg-gray-100" : "text-white/50 hover:text-white hover:bg-white/10"} p-2 rounded-lg transition`} title="Print Ticket"><Ticket className="w-4 h-4" /></button>
                                             <button className={`${isLightTheme ? "text-gray-400 hover:text-gray-600 hover:bg-gray-100" : "text-white/50 hover:text-white hover:bg-white/10"} p-2 rounded-lg transition`} title="Edit (Disabled)"><Edit className="w-4 h-4" /></button>
@@ -379,14 +457,14 @@ export function StaffDashboard() {
                                     {expandedBookingId === booking.id && booking.passengers && booking.passengers.length > 0 && (<tr className={isLightTheme ? "bg-green-50/50" : "bg-white/[0.02]"}>
                                         <td colSpan={8} className="px-6 py-4">
                                             <div className={`p-4 rounded-xl border ${isLightTheme ? "bg-white border-yellow-200" : "bg-[#0B0F19] border-white/10"}`}>
-                                                <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 ${isLightTheme ? "text-gray-800" : "text-white/70"}`}>Passenger Details</h4>
+                                                <h4 className={`text-xs font-normal uppercase tracking-wider mb-3 ${isLightTheme ? "text-gray-800" : "text-white/70"}`}>Passenger Details</h4>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                                     {booking.passengers.map((p, idx) => (<div key={idx} className={`flex items-center gap-3 p-3 rounded-lg border ${isLightTheme ? "border-gray-100 bg-gray-50" : "border-white/5 bg-white/5"} transition-colors`}>
-                                                        <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center font-bold text-xs shrink-0">
+                                                        <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center font-normal text-xs shrink-0">
                                                             P{idx + 1}
                                                         </div>
                                                         <div>
-                                                            <div className={`text-sm font-semibold truncate ${isLightTheme ? "text-gray-900" : "text-white"}`}>{p.name || "N/A"}</div>
+                                                            <div className={`text-sm font-normal truncate ${isLightTheme ? "text-gray-900" : "text-white"}`}>{p.name || "N/A"}</div>
                                                             <div className={`text-xs ${isLightTheme ? "text-gray-500" : "text-white/50"}`}>Age: {p.age || "N/A"}</div>
                                                         </div>
                                                     </div>))}
@@ -405,8 +483,8 @@ export function StaffDashboard() {
                         {filteredBookings.length > 0 ? filteredBookings.map((booking) => (<div key={booking.id} className={`p-5 space-y-4 ${isLightTheme ? "bg-white" : "bg-[#111827]"}`}>
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <div className={`text-xs font-bold ${isLightTheme ? "text-gray-400" : "text-white/30"}`}>{booking.id}</div>
-                                    <div className={`text-lg font-bold ${isLightTheme ? "text-gray-900" : "text-white"}`}>{booking.customerName}</div>
+                                    <div className={`text-xs font-normal ${isLightTheme ? "text-gray-400" : "text-white/30"}`}>{booking.id}</div>
+                                    <div className={`text-lg font-normal ${isLightTheme ? "text-gray-900" : "text-white"}`}>{booking.customerName}</div>
                                     <div className={`inline-flex items-center gap-1 text-xs mt-0.5 select-none ${booking.persons > 1 ? "cursor-pointer text-[#D4AF37]" : ""} ${isLightTheme ? "text-gray-500" : "text-white/50"}`} onClick={() => booking.persons > 1 && toggleExpand(booking.id)}>
                                         {booking.persons} {booking.persons === 1 ? 'Person' : 'Persons'}
                                         {booking.persons > 1 && (expandedBookingId === booking.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
@@ -420,33 +498,33 @@ export function StaffDashboard() {
 
                             <div className="grid grid-cols-2 gap-4 text-sm">
                                 <div>
-                                    <p className={`text-[10px] uppercase font-bold tracking-wider ${isLightTheme ? "text-gray-400" : "text-white/30"}`}>Type & Date</p>
+                                    <p className={`text-[10px] uppercase font-normal tracking-wider ${isLightTheme ? "text-gray-400" : "text-white/30"}`}>Type & Date</p>
                                     <div className="mt-1 flex items-center gap-2">
-                                        <span className={`px-2 py-0.5 text-[10px] rounded-md font-bold ${booking.type === 'ONLINE' ? 'bg-blue-500/20 text-blue-500' : 'bg-orange-500/20 text-orange-500'}`}>
+                                        <span className={`px-2 py-0.5 text-[10px] rounded-md font-normal ${booking.type === 'ONLINE' ? 'bg-blue-500/20 text-blue-500' : 'bg-orange-500/20 text-orange-500'}`}>
                                             {booking.type}
                                         </span>
-                                        <span className={`px-2 py-0.5 text-[10px] rounded-md font-bold bg-pink-500/20 text-pink-500`}>
+                                        <span className={`px-2 py-0.5 text-[10px] rounded-md font-normal bg-pink-500/20 text-pink-500`}>
                                             {(booking.category || "SOLO").toUpperCase()}
                                         </span>
                                     </div>
                                     <div className={`text-[10px] mt-1 ${isLightTheme ? "text-gray-600" : "text-white/70"}`}>{booking.date}</div>
                                 </div>
                                 <div>
-                                    <p className={`text-[10px] uppercase font-bold tracking-wider ${isLightTheme ? "text-gray-400" : "text-white/30"}`}>Slot & Total</p>
+                                    <p className={`text-[10px] uppercase font-normal tracking-wider ${isLightTheme ? "text-gray-400" : "text-white/30"}`}>Slot & Total</p>
                                     <div className="mt-1">
-                                        <span className={`font-bold ${isLightTheme ? "text-gray-800" : "text-white"}`}>{booking.slot}</span>
+                                        <span className={`font-normal ${isLightTheme ? "text-gray-800" : "text-white"}`}>{booking.slot}</span>
                                         <span className="mx-1.5 opacity-30 text-white">|</span>
-                                        <span className="text-[#D4AF37] font-bold">₹{booking.price}</span>
+                                        <span className="text-[#D4AF37] font-normal">₹{booking.price}</span>
                                     </div>
                                 </div>
                             </div>
 
                             {expandedBookingId === booking.id && booking.passengers && booking.passengers.length > 0 && (<div className="pt-2">
                                 <div className={`p-3 rounded-xl border ${isLightTheme ? "bg-gray-50 border-yellow-200" : "bg-[#0B0F19] border-white/10"}`}>
-                                    <h4 className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${isLightTheme ? "text-gray-800" : "text-white/70"}`}>Passenger Details</h4>
+                                    <h4 className={`text-[10px] font-normal uppercase tracking-wider mb-2 ${isLightTheme ? "text-gray-800" : "text-white/70"}`}>Passenger Details</h4>
                                     <div className="space-y-2">
                                         {booking.passengers.map((p, idx) => (<div key={idx} className={`flex items-center justify-between p-2 rounded-lg border ${isLightTheme ? "border-gray-100 bg-white" : "border-white/5 bg-white/5"}`}>
-                                            <div className={`text-xs font-semibold ${isLightTheme ? "text-gray-900" : "text-white"}`}>P{idx + 1}. {p.name || "N/A"}</div>
+                                            <div className={`text-xs font-normal ${isLightTheme ? "text-gray-900" : "text-white"}`}>P{idx + 1}. {p.name || "N/A"}</div>
                                             <div className={`text-[10px] ${isLightTheme ? "text-gray-500" : "text-white/50"}`}>Age: {p.age || "-"}</div>
                                         </div>))}
                                     </div>
@@ -454,7 +532,7 @@ export function StaffDashboard() {
                             </div>)}
 
                             <div className="pt-2">
-                                <select value={booking.status} onChange={(e) => handleStatusChange(booking.id, e.target.value)} className={`w-full bg-transparent border ${booking.status === 'Confirmed' ? 'border-green-500 text-green-500' : booking.status === 'Pending' ? 'border-yellow-500 text-yellow-600' : 'border-red-500 text-red-500'} rounded-xl px-4 py-2.5 text-sm font-bold focus:outline-none`}>
+                                <select value={booking.status} onChange={(e) => handleStatusChange(booking.id, e.target.value)} className={`w-full bg-transparent border ${booking.status === 'Confirmed' ? 'border-green-500 text-green-500' : booking.status === 'Pending' ? 'border-yellow-500 text-yellow-600' : 'border-red-500 text-red-500'} rounded-xl px-4 py-2.5 text-sm font-normal focus:outline-none`}>
                                     <option value="Confirmed" className={isLightTheme ? "bg-white text-gray-900" : "bg-[#111827] text-white"}>Confirmed</option>
                                     <option value="Pending" className={isLightTheme ? "bg-white text-gray-900" : "bg-[#111827] text-white"}>Pending</option>
                                     <option value="Cancelled" className={isLightTheme ? "bg-white text-gray-900" : "bg-[#111827] text-white"}>Cancelled</option>
@@ -468,7 +546,7 @@ export function StaffDashboard() {
                     {isOfflineModalOpen && (<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className={`${isLightTheme ? "bg-white border-gray-200 text-gray-900" : "bg-[#111827] border-white/10 text-white"} border rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh] relative overflow-hidden`}>
                             <div className={`p-5 md:p-6 border-b flex justify-between items-center shrink-0 ${isLightTheme ? "bg-gray-50 border-gray-200" : "bg-gradient-to-r from-[#111827] to-[#1a2235] border-white/10"}`}>
-                                <h3 className="text-xl font-bold">Create Offline Ticket</h3>
+                                <h3 className="text-xl font-normal">Create Offline Ticket</h3>
                                 <button onClick={closeOfflineModal} className={`${isLightTheme ? "text-gray-400 hover:text-gray-900" : "text-white/50 hover:text-white"}`}><X className="w-5 h-5" /></button>
                             </div>
                             {offlineBookingSuccess ? (<div className="p-10 flex flex-col items-center justify-center text-center space-y-6">
@@ -476,12 +554,12 @@ export function StaffDashboard() {
                                     <Check className="w-10 h-10" />
                                 </div>
                                 <div>
-                                    <h2 className="text-3xl font-bold mb-2">Booking Confirmed!</h2>
+                                    <h2 className="text-3xl font-normal mb-2">Booking Confirmed!</h2>
                                     <p className={`${isLightTheme ? "text-gray-600" : "text-white/70"}`}>Ticket <strong className={isLightTheme ? "text-gray-900" : "text-white"}>{offlineBookingSuccess.id}</strong> has been generated successfully.</p>
                                 </div>
                                 <div className="flex gap-4 mt-4">
-                                    <button onClick={closeOfflineModal} className={`px-6 py-3 rounded-xl font-bold transition border ${isLightTheme ? "border-gray-200 hover:bg-gray-50 text-gray-700" : "border-white/10 hover:bg-white/5 text-white/70"}`}>Close</button>
-                                    <button onClick={handlePrintAdminTicket} className="px-6 py-3 bg-[#D4AF37] hover:bg-[#F7C948] text-black font-bold rounded-xl transition shadow-lg flex items-center">
+                                    <button onClick={closeOfflineModal} className={`px-6 py-3 rounded-xl font-normal transition border ${isLightTheme ? "border-gray-200 hover:bg-gray-50 text-gray-700" : "border-white/10 hover:bg-white/5 text-white/70"}`}>Close</button>
+                                    <button onClick={handlePrintAdminTicket} className="px-6 py-3 bg-[#D4AF37] hover:bg-[#F7C948] text-black font-normal rounded-xl transition shadow-lg flex items-center">
                                         <Ticket className="w-5 h-5 mr-2" /> Print PDF Ticket
                                     </button>
                                 </div>
@@ -499,24 +577,56 @@ export function StaffDashboard() {
                                             </div>
                                         </div>
                                         <div className="space-y-1">
+                                            <label className={`text-sm ${isLightTheme ? "text-gray-600" : "text-white/70"}`}>Mobile Number</label>
+                                            <input required type="tel" value={newBooking.phone} onChange={e => setNewBooking({ ...newBooking, phone: e.target.value })} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`} placeholder="Mobile" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className={`text-sm ${isLightTheme ? "text-gray-600" : "text-white/70"}`}>City</label>
+                                            <input required type="text" value={newBooking.customerCity} onChange={e => setNewBooking({ ...newBooking, customerCity: e.target.value })} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`} placeholder="City" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className={`text-sm ${isLightTheme ? "text-gray-600" : "text-white/70"}`}>Weight (KG)</label>
+                                            <input required type="number" value={newBooking.customerWeight} onChange={e => setNewBooking({ ...newBooking, customerWeight: e.target.value })} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`} placeholder="Weight" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className={`text-sm ${isLightTheme ? "text-gray-600" : "text-white/70"}`}>Gender</label>
+                                            <select value={newBooking.customerGender} onChange={e => setNewBooking({ ...newBooking, customerGender: e.target.value })} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`}>
+                                                <option value="M">Male</option>
+                                                <option value="F">Female</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-1">
                                             <label className={`text-sm ${isLightTheme ? "text-gray-600" : "text-white/70"}`}>Total Persons</label>
                                             <input required type="number" min="1" value={newBooking.persons} onChange={e => setNewBooking({ ...newBooking, persons: e.target.value === '' ? '' : parseInt(e.target.value) })} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`} placeholder="1" />
                                         </div>
                                     </div>
 
                                     {Number(newBooking.persons) > 1 && (<div className="space-y-3 pt-4 border-t border-gray-200 dark:border-white/10">
-                                        <label className={`text-sm font-bold ${isLightTheme ? "text-gray-800" : "text-white/90"}`}>Other Passenger Details</label>
-                                        {Array.from({ length: Number(newBooking.persons) - 1 }).map((_, i) => (<div key={i} className="flex gap-4">
-                                            <input required type="text" placeholder={`Passenger ${i + 2} Name`} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`} onChange={(e) => {
+                                        <label className={`text-sm font-normal ${isLightTheme ? "text-gray-800" : "text-white/90"}`}>Other Passenger Details</label>
+                                        {Array.from({ length: Number(newBooking.persons) - 1 }).map((_, i) => (<div key={i} className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                            <input required type="text" placeholder={`Name`} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`} onChange={(e) => {
                                                 const p = [...newBooking.passengers];
                                                 p[i] = { ...p[i], name: e.target.value };
                                                 setNewBooking({ ...newBooking, passengers: p });
                                             }} />
-                                            <input required type="number" placeholder="Age" className={`w-24 border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`} onChange={(e) => {
+                                            <input required type="number" placeholder="Age" className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`} onChange={(e) => {
                                                 const p = [...newBooking.passengers];
                                                 p[i] = { ...p[i], age: e.target.value };
                                                 setNewBooking({ ...newBooking, passengers: p });
                                             }} />
+                                            <input required type="number" placeholder="Weight" className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`} onChange={(e) => {
+                                                const p = [...newBooking.passengers];
+                                                p[i] = { ...p[i], weight: e.target.value };
+                                                setNewBooking({ ...newBooking, passengers: p });
+                                            }} />
+                                            <select required className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`} onChange={(e) => {
+                                                const p = [...newBooking.passengers];
+                                                p[i] = { ...p[i], gender: e.target.value };
+                                                setNewBooking({ ...newBooking, passengers: p });
+                                            }}>
+                                                <option value="M">M</option>
+                                                <option value="F">F</option>
+                                            </select>
                                         </div>))}
                                     </div>)}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -526,7 +636,7 @@ export function StaffDashboard() {
                                         </div>
                                         <div className="space-y-1">
                                             <label className={`text-sm ${isLightTheme ? "text-gray-600" : "text-white/70"}`}>Payment Method</label>
-                                            <select required value={newBooking.paymentMethod} onChange={e => setNewBooking({ ...newBooking, paymentMethod: e.target.value })} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-bold ${isLightTheme ? "bg-emerald-50 border-emerald-300 text-emerald-700" : "bg-[#0B0F19] border-emerald-500/50 text-emerald-400"}`}>
+                                            <select required value={newBooking.paymentMethod} onChange={e => setNewBooking({ ...newBooking, paymentMethod: e.target.value })} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-normal ${isLightTheme ? "bg-emerald-50 border-emerald-300 text-emerald-700" : "bg-[#0B0F19] border-emerald-500/50 text-emerald-400"}`}>
                                                 <option value="UPI">UPI Payment</option>
                                                 <option value="Card">Credit / Debit Card</option>
                                                 <option value="Cash">Cash Counter</option>
@@ -546,34 +656,34 @@ export function StaffDashboard() {
                                         </div>
                                         <div className="space-y-1">
                                             <label className={`text-sm ${isLightTheme ? "text-gray-600" : "text-white/70"} block`}>Package Selection</label>
-                                            <select required value={newBooking.package} onChange={e => setNewBooking({ ...newBooking, package: e.target.value })} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-1 focus:ring-[#D4AF37] font-bold ${isLightTheme ? "bg-yellow-50 border-yellow-300 text-yellow-800" : "bg-[#0B0F19] border-[#D4AF37] text-[#D4AF37]"}`}>
+                                            <select required value={newBooking.package} onChange={e => setNewBooking({ ...newBooking, package: e.target.value })} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-1 focus:ring-[#D4AF37] font-normal ${isLightTheme ? "bg-yellow-50 border-yellow-300 text-yellow-800" : "bg-[#0B0F19] border-[#D4AF37] text-[#D4AF37]"}`}>
                                                 {PACKAGES.map(pkg => <option key={pkg.id} value={pkg.id}>{pkg.name} (₹{pkg.price})</option>)}
                                             </select>
                                         </div>
                                     </div>
 
                                     <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-white/10">
-                                        <label className={`text-sm font-bold ${isLightTheme ? "text-gray-800" : "text-white/90"}`}>Optional Add-ons</label>
+                                        <label className={`text-sm font-normal ${isLightTheme ? "text-gray-800" : "text-white/90"}`}>Optional Add-ons</label>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             <label className={`flex items-center justify-between p-2.5 border rounded-xl cursor-pointer transition ${isLightTheme ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"}`}>
                                                 <div className="flex items-center gap-2">
                                                     <input type="checkbox" checked={newBooking.isVipCheckin} onChange={(e) => setNewBooking({ ...newBooking, isVipCheckin: e.target.checked })} className="w-4 h-4 accent-[#D4AF37]" />
                                                     <div>
-                                                        <p className={`font-semibold shrink-0 text-sm ${isLightTheme ? "text-gray-800" : "text-white"}`}>VIP Check-in</p>
+                                                        <p className={`font-normal shrink-0 text-sm ${isLightTheme ? "text-gray-800" : "text-white"}`}>VIP Check-in</p>
                                                         <p className={`text-[10px] ${isLightTheme ? "text-gray-500" : "text-white/50"}`}>Skip the queue</p>
                                                     </div>
                                                 </div>
-                                                <span className="font-mono font-bold text-[#D4AF37] text-sm">+₹500</span>
+                                                <span className="font-mono font-normal text-[#D4AF37] text-sm">+₹500</span>
                                             </label>
                                             <label className={`flex items-center justify-between p-2.5 border rounded-xl cursor-pointer transition ${isLightTheme ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"}`}>
                                                 <div className="flex items-center gap-2">
                                                     <input type="checkbox" checked={newBooking.isBreakfast} onChange={(e) => setNewBooking({ ...newBooking, isBreakfast: e.target.checked })} className="w-4 h-4 accent-[#D4AF37]" />
                                                     <div>
-                                                        <p className={`font-semibold shrink-0 text-sm ${isLightTheme ? "text-gray-800" : "text-white"}`}>Breakfast</p>
+                                                        <p className={`font-normal shrink-0 text-sm ${isLightTheme ? "text-gray-800" : "text-white"}`}>Breakfast</p>
                                                         <p className={`text-[10px] ${isLightTheme ? "text-gray-500" : "text-white/50"}`}>Hot beverages</p>
                                                     </div>
                                                 </div>
-                                                <span className="font-mono font-bold text-[#D4AF37] text-sm">+₹300</span>
+                                                <span className="font-mono font-normal text-[#D4AF37] text-sm">+₹300</span>
                                             </label>
                                         </div>
                                     </div>
@@ -614,13 +724,13 @@ export function StaffDashboard() {
                                                     <span>GST (18%)</span>
                                                     <span className={isLightTheme ? "text-gray-900" : "text-white"}>₹{gstAmount.toFixed(0)}</span>
                                                 </div>
-                                                <div className="flex justify-between pt-1 font-bold text-xl text-[#D4AF37]">
+                                                <div className="flex justify-between pt-1 font-normal text-xl text-[#D4AF37]">
                                                     <span>Final Total</span>
                                                     <span>₹{finalTotalAmount.toFixed(0)}</span>
                                                 </div>
                                             </div>
                                             <div className="flex flex-col gap-3">
-                                                <button type="submit" className="w-full py-3 bg-[#D4AF37] hover:bg-[#F7C948] text-black font-bold rounded-xl transition shadow-lg">Create Booking</button>
+                                                <button type="submit" className="w-full py-3 bg-[#D4AF37] hover:bg-[#F7C948] text-black font-normal rounded-xl transition shadow-lg">Create Booking</button>
                                                 <button type="button" onClick={closeOfflineModal} className={`w-full py-3 rounded-xl transition border ${isLightTheme ? "border-gray-200 text-gray-600 hover:bg-gray-50" : "border-white/10 text-white/70 hover:bg-white/10"}`}>Cancel</button>
                                             </div>
                                         </div>
@@ -640,11 +750,11 @@ export function StaffDashboard() {
                                 <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto text-red-500 mb-2">
                                     <AlertCircle className="w-8 h-8" />
                                 </div>
-                                <h3 className="text-xl font-bold">Delete Booking?</h3>
-                                <p className="text-white/60 text-sm">Are you sure you want to delete tracking for booking <span className="font-bold text-white">{deleteConfirmId}</span>? This action cannot be undone.</p>
+                                <h3 className="text-xl font-normal">Delete Booking?</h3>
+                                <p className="text-white/60 text-sm">Are you sure you want to delete tracking for booking <span className="font-normal text-white">{deleteConfirmId}</span>? This action cannot be undone.</p>
                                 <div className="flex justify-center gap-3 mt-6">
                                     <button onClick={() => setDeleteConfirmId(null)} className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">Cancel</button>
-                                    <button onClick={() => handleDelete(deleteConfirmId)} className="px-6 py-2 bg-red-500 hover:bg-red-600 font-bold rounded-xl transition">Yes, Delete</button>
+                                    <button onClick={() => handleDelete(deleteConfirmId)} className="px-6 py-2 bg-red-500 hover:bg-red-600 font-normal rounded-xl transition">Yes, Delete</button>
                                 </div>
                             </motion.div>
                         </div>

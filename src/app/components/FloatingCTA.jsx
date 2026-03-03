@@ -21,7 +21,7 @@ export function FloatingCTA({ onBookClick }) {
       {/* Sticky Book Now Button (Mobile) */}
       <AnimatePresence>
         {isVisible && (<motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0B0F19]/95 backdrop-blur-xl border-t border-white/10 p-4">
-            <button onClick={onBookClick} className="w-full bg-gradient-to-r from-[#E10600] to-[#E10600]/80 hover:shadow-[0_0_30px_rgba(225,6,0,0.6)] text-white py-4 rounded-full font-bold transition-all flex items-center justify-center gap-2">
+            <button onClick={onBookClick} className="w-full bg-gradient-to-r from-[#E10600] to-[#E10600]/80 hover:shadow-[0_0_30px_rgba(225,6,0,0.6)] text-white py-4 rounded-full font-normal transition-all flex items-center justify-center gap-2">
               <Phone className="w-5 h-5"/>
               <span>Book Your Flight Now</span>
             </button>

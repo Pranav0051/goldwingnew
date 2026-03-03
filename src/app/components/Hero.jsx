@@ -22,7 +22,7 @@ export function Hero({ onBookClick }) {
         </motion.div>
 
         {/* Main Heading */}
-        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 1 }} className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight wave-text" style={{
+        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 1 }} className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-normal tracking-tight wave-text" style={{
           fontFamily: "'Pacifico', cursive",
           color: '#FFFFFF',
           textShadow: '0 2px 8px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 255, 255, 0.3)',
@@ -43,9 +43,9 @@ export function Hero({ onBookClick }) {
           <div className="flex flex-col items-start text-left pt-1">
             <div className="flex items-center gap-2">
               <span className="text-white font-extrabold text-2xl tracking-tight">4.9</span>
-              <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-[0.2em]">Excellent</span>
+              <span className="text-[#D4AF37] text-xs font-normal uppercase tracking-[0.2em]">Excellent</span>
             </div>
-            <span className="text-white/70 text-xs font-semibold whitespace-nowrap">2,000+ Adventure Seekers</span>
+            <span className="text-white/70 text-xs font-normal whitespace-nowrap">2,000+ Adventure Seekers</span>
           </div>
         </motion.div>
 

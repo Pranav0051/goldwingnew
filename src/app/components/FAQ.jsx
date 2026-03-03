@@ -49,7 +49,7 @@ export function FAQ() {
 
     <div className="container mx-auto px-4 relative z-10">
       <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal text-white mb-4">
           Frequently Asked Questions
         </h2>
         <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto">
@@ -69,7 +69,7 @@ export function FAQ() {
       <div className="max-w-3xl mx-auto space-y-4">
         {filteredFaqs.map((faq, index) => (<motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05, duration: 0.5 }} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden hover:border-[#D4AF37]/50 transition-all">
           <button onClick={() => setOpenIndex(openIndex === index ? null : index)} className="w-full flex items-center justify-between p-6 text-left">
-            <span className="text-white font-semibold pr-4">{faq.question}</span>
+            <span className="text-white font-normal pr-4">{faq.question}</span>
             <motion.div animate={{ rotate: openIndex === index ? 180 : 0 }} transition={{ duration: 0.3 }} className="flex-shrink-0">
               <ChevronDown className="w-5 h-5 text-[#D4AF37]" />
             </motion.div>

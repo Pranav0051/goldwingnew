@@ -2,6 +2,30 @@
    LIGHT THEME STYLES
    =================================== */
 
+/* ===================================
+   CARD FLIP EFFECT (3D)
+   =================================== */
+.perspective-1000 {
+    perspective: 1000px;
+}
+
+.preserve-3d {
+    transform-style: preserve-3d;
+}
+
+.backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.shadow-glow {
+    box-shadow: 0 0 20px rgba(244, 180, 0, 0.2);
+}
+
+.shadow-glow:hover {
+    box-shadow: 0 0 30px rgba(244, 180, 0, 0.4);
+}
+
 /* Root level - apply to html element */
 .light-theme {
     background-color: #f8f9fa !important;

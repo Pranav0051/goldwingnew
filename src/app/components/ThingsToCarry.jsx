@@ -32,7 +32,7 @@ export function ThingsToCarry() {
     return (<section className="py-20 md:py-32 bg-gradient-to-b from-[#0B0F19] to-[#111827] relative overflow-hidden">
       <div className="container mx-auto px-4">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal text-white mb-4">
             Things To Carry
           </h2>
           <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto">
@@ -45,7 +45,7 @@ export function ThingsToCarry() {
               <motion.div whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }} transition={{ duration: 0.5 }} className="w-16 h-16 mx-auto bg-gradient-to-br from-[#D4AF37] to-[#F7C948] rounded-xl flex items-center justify-center mb-4">
                 <item.icon className="w-8 h-8 text-[#0B0F19]"/>
               </motion.div>
-              <h3 className="text-white font-semibold mb-2 text-sm md:text-base">
+              <h3 className="text-white font-normal mb-2 text-sm md:text-base">
                 {item.title}
               </h3>
               <p className="text-white/60 text-xs md:text-sm">{item.description}</p>
@@ -56,7 +56,7 @@ export function ThingsToCarry() {
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.5, duration: 0.8 }} className="mt-12 text-center">
           <div className="inline-block bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl px-8 py-4">
             <p className="text-white/70">
-              <span className="text-[#D4AF37] font-semibold">Note:</span> All safety equipment provided by us
+              <span className="text-[#D4AF37] font-normal">Note:</span> All safety equipment provided by us
             </p>
           </div>
         </motion.div>

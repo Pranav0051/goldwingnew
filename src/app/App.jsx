@@ -11,6 +11,7 @@ const AgentDashboard = React.lazy(() => import("./pages/AgentDashboard").then(m 
 const LoginPage = React.lazy(() => import("./pages/LoginPage").then(m => ({ default: m.LoginPage })));
 const ScannerPage = React.lazy(() => import("./pages/ScannerPage").then(m => ({ default: m.ScannerPage })));
 const StaffDashboard = React.lazy(() => import("./pages/StaffDashboard").then(m => ({ default: m.StaffDashboard })));
+const PilotDashboard = React.lazy(() => import("./pages/PilotDashboard").then(m => ({ default: m.PilotDashboard })));
 
 export default function App() {
   return (<BrowserRouter>
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/staff" element={<StaffDashboard />} />
         <Route path="/agent" element={<AgentDashboard />} />
+        <Route path="/pilot" element={<PilotDashboard />} />
         <Route path="/gate" element={<ScannerPage />} />
       </Routes>
     </Suspense>

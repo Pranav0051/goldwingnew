@@ -31,7 +31,7 @@ export function ExperienceHighlights() {
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal text-white mb-4">
             Experience The Thrill
           </h2>
           <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto">
@@ -49,7 +49,7 @@ export function ExperienceHighlights() {
                   <stat.icon className="w-6 h-6 md:w-8 md:h-8 text-[#0B0F19]"/>
                 </div>
                 
-                {isVisible ? (<CountUp end={stat.value} suffix={stat.suffix} duration={2}/>) : (<div className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+                {isVisible ? (<CountUp end={stat.value} suffix={stat.suffix} duration={2}/>) : (<div className="text-3xl md:text-4xl lg:text-5xl font-normal text-white">
                     0{stat.suffix}
                   </div>)}
                 
@@ -80,7 +80,7 @@ function CountUp({ end, suffix, duration }) {
         animationFrame = requestAnimationFrame(animate);
         return () => cancelAnimationFrame(animationFrame);
     }, [end, duration]);
-    return (<div className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+    return (<div className="text-3xl md:text-4xl lg:text-5xl font-normal text-white">
       {count.toLocaleString()}{suffix}
     </div>);
 }

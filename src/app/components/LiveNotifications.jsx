@@ -50,7 +50,7 @@ export function LiveNotifications() {
               <CheckCircle className="w-5 h-5 text-[#16A34A]"/>
             </div>
             <div className="flex-1">
-              <div className="text-white font-medium text-sm">
+              <div className="text-white font-normal text-sm">
                 {notification.name} from {notification.location}
               </div>
               <div className="text-white/70 text-xs mt-0.5">

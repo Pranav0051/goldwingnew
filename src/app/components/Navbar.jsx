@@ -37,7 +37,7 @@ export function Navbar() {
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="flex items-center gap-3">
             <img src="/goldwing-logo.png" alt="Goldwing Adventure Tour" className="h-10 md:h-14 w-auto object-contain"/>
             <div className="block">
-              <h1 className={`font-bold tracking-tight text-sm md:text-lg leading-tight transition-colors ${isScrolled && isLightTheme ? "text-[#0B0F19]" : "text-white"}`}>
+              <h1 className={`font-normal tracking-tight text-sm md:text-lg leading-tight transition-colors ${isScrolled && isLightTheme ? "text-[#0B0F19]" : "text-white"}`}>
                 GOLDWING
               </h1>
               <p className="text-[#D4AF37] text-[8px] md:text-xs tracking-wider">ADVENTURE TOUR</p>
@@ -46,17 +46,17 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#experiences" className={`transition-colors font-medium ${(isScrolled && isLightTheme) ? "text-[#0B0F19]/80 hover:text-[#D4AF37]" : "text-white/80 hover:text-[#D4AF37]"}`}>
+            <a href="#experiences" className={`transition-colors font-normal ${(isScrolled && isLightTheme) ? "text-[#0B0F19]/80 hover:text-[#D4AF37]" : "text-white/80 hover:text-[#D4AF37]"}`}>
               Experiences
             </a>
-            <a href="#pricing" className={`transition-colors font-medium ${(isScrolled && isLightTheme) ? "text-[#0B0F19]/80 hover:text-[#D4AF37]" : "text-white/80 hover:text-[#D4AF37]"}`}>
+            <a href="#pricing" className={`transition-colors font-normal ${(isScrolled && isLightTheme) ? "text-[#0B0F19]/80 hover:text-[#D4AF37]" : "text-white/80 hover:text-[#D4AF37]"}`}>
               Pricing
             </a>
-            <a href="#safety" className={`transition-colors font-medium ${(isScrolled && isLightTheme) ? "text-[#0B0F19]/80 hover:text-[#D4AF37]" : "text-white/80 hover:text-[#D4AF37]"}`}>
+            <a href="#safety" className={`transition-colors font-normal ${(isScrolled && isLightTheme) ? "text-[#0B0F19]/80 hover:text-[#D4AF37]" : "text-white/80 hover:text-[#D4AF37]"}`}>
               Safety
             </a>
 
-            <a href="tel:+911234567890" className={`flex items-center gap-2 transition-colors group font-medium ${(isScrolled && isLightTheme) ? "text-[#0B0F19]/80 hover:text-[#D4AF37]" : "text-white/80 hover:text-[#D4AF37]"}`}>
+            <a href="tel:+911234567890" className={`flex items-center gap-2 transition-colors group font-normal ${(isScrolled && isLightTheme) ? "text-[#0B0F19]/80 hover:text-[#D4AF37]" : "text-white/80 hover:text-[#D4AF37]"}`}>
               <motion.div animate={{
             rotate: [0, -10, 10, -10, 10, 0],
         }} transition={{
@@ -89,19 +89,19 @@ export function Navbar() {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className={`md:hidden mt-4 pb-4 space-y-4 max-h-[80vh] overflow-y-auto rounded-2xl p-4 transition-colors ${isLightTheme ? "bg-white shadow-xl border border-black/5" : "bg-[#0B0F19] shadow-xl border border-white/5"}`}>
             <div className="flex flex-col gap-6 text-lg">
-              <a href="#experiences" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-medium ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
+              <a href="#experiences" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-normal ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
                 Experiences
               </a>
-              <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-medium ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
+              <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-normal ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
                 Pricing
               </a>
-              <a href="#safety" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-medium ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
+              <a href="#safety" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-normal ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
                 Safety
               </a>
-              <a href="#testimonials" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-medium ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
+              <a href="#testimonials" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-normal ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
                 Reviews
               </a>
-              <a href="tel:+911234567890" className={`flex items-center gap-3 transition-colors group font-semibold ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
+              <a href="tel:+911234567890" className={`flex items-center gap-3 transition-colors group font-normal ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
                 <motion.div animate={{
                 rotate: [0, -10, 10, -10, 10, 0],
             }} transition={{

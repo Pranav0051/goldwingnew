@@ -38,7 +38,7 @@ export function ScannerPage() {
     return (<div className="min-h-screen bg-[#0B0F19] text-white p-4 font-sans flex flex-col items-center">
         {/* Success Toast */}
         <AnimatePresence>
-            {successMsg && (<motion.div initial={{ opacity: 0, y: -20, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: -20, x: "-50%" }} className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl font-semibold max-w-sm w-[90%]">
+            {successMsg && (<motion.div initial={{ opacity: 0, y: -20, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: -20, x: "-50%" }} className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl font-normal max-w-sm w-[90%]">
                 <CheckCircle className="w-6 h-6 shrink-0" />
                 <span className="flex-1 text-sm">{successMsg}</span>
                 <button onClick={() => setSuccessMsg("")} className="shrink-0 p-1 hover:bg-white/20 rounded-full transition">
@@ -52,7 +52,7 @@ export function ScannerPage() {
                 <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
                 Staff Panel
             </Link>
-            <div className="font-bold text-[#D4AF37] border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 rounded-full text-xs">
+            <div className="font-normal text-[#D4AF37] border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-3 py-1 rounded-full text-xs">
                 DIGITAL GATE
             </div>
         </div>
@@ -63,7 +63,7 @@ export function ScannerPage() {
                 <div className="w-16 h-16 bg-blue-500/10 border border-blue-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <QrCode className="w-8 h-8 text-blue-500" />
                 </div>
-                <h1 className="text-2xl font-bold">Ticket Scanner</h1>
+                <h1 className="text-2xl font-normal">Ticket Scanner</h1>
                 <p className="text-white/50 text-sm mt-1">Scan customer QR or enter ID manually</p>
             </div>
 
@@ -77,7 +77,7 @@ export function ScannerPage() {
             {error && (<motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-2xl flex items-start gap-3">
                 <XCircle className="w-6 h-6 shrink-0" />
                 <div>
-                    <p className="font-bold">Scan Failed</p>
+                    <p className="font-normal">Scan Failed</p>
                     <p className="text-sm opacity-80">{error}</p>
                 </div>
             </motion.div>)}
@@ -86,33 +86,33 @@ export function ScannerPage() {
                 <div className={`p-5 rounded-2xl border ${result.status === 'Cancelled' ? 'bg-red-500/10 border-red-500/30' : result.status === 'Completed' ? 'bg-gray-800/50 border-gray-700' : 'bg-[#D4AF37]/10 border-[#D4AF37]/30'}`}>
                     <div className="flex justify-between items-start mb-4">
                         <div>
-                            <h2 className="text-xl font-bold text-white">{result.customerName}</h2>
+                            <h2 className="text-xl font-normal text-white">{result.customerName}</h2>
                             <p className="text-white/60 font-mono mt-1 text-sm">{result.id}</p>
                         </div>
-                        {result.status === 'Cancelled' ? (<span className="bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"><XCircle className="w-4 h-4 inline mr-1" /> CANCELLED</span>) : result.status === 'Completed' ? (<span className="bg-gray-500/20 text-gray-400 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"><ShieldCheck className="w-4 h-4 inline mr-1" /> ATTENDED</span>) : (<span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"><ShieldCheck className="w-4 h-4 inline mr-1" /> VALID ENTRY</span>)}
+                        {result.status === 'Cancelled' ? (<span className="bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-xs font-normal whitespace-nowrap"><XCircle className="w-4 h-4 inline mr-1" /> CANCELLED</span>) : result.status === 'Completed' ? (<span className="bg-gray-500/20 text-gray-400 px-3 py-1 rounded-full text-xs font-normal whitespace-nowrap"><ShieldCheck className="w-4 h-4 inline mr-1" /> ATTENDED</span>) : (<span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-normal whitespace-nowrap"><ShieldCheck className="w-4 h-4 inline mr-1" /> VALID ENTRY</span>)}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mt-4 bg-black/20 p-4 rounded-xl">
                         <div>
                             <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">DATE</p>
-                            <p className="font-bold text-sm">{result.date}</p>
+                            <p className="font-normal text-sm">{result.date}</p>
                         </div>
                         <div>
                             <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">SLOT</p>
-                            <p className="font-bold text-sm">{result.slot}</p>
+                            <p className="font-normal text-sm">{result.slot}</p>
                         </div>
                         <div>
                             <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">PASSENGERS</p>
-                            <p className="font-bold text-sm flex items-center"><Ticket className="w-4 h-4 mr-1 text-[#D4AF37]" /> {result.persons} {result.persons > 1 ? 'PAX' : 'PERSON'}</p>
+                            <p className="font-normal text-sm flex items-center"><Ticket className="w-4 h-4 mr-1 text-[#D4AF37]" /> {result.persons} {result.persons > 1 ? 'PAX' : 'PERSON'}</p>
                         </div>
                         <div>
                             <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">PAYMENT</p>
-                            <p className="font-bold text-sm text-green-400">{result.paymentMethod}</p>
+                            <p className="font-normal text-sm text-green-400">{result.paymentMethod}</p>
                         </div>
                     </div>
                 </div>
 
-                {result.status !== 'Cancelled' && result.status !== 'Completed' && (<button onClick={handleAdmit} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl flex justify-center items-center shadow-[0_0_20px_rgba(22,163,74,0.3)] transition-all">
+                {result.status !== 'Cancelled' && result.status !== 'Completed' && (<button onClick={handleAdmit} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-normal rounded-xl flex justify-center items-center shadow-[0_0_20px_rgba(22,163,74,0.3)] transition-all">
                     AUTHORIZE ENTRY <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
                 </button>)}
             </motion.div>)}

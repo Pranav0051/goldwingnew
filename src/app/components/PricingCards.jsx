@@ -69,11 +69,14 @@ export function PricingCards({ onBookClick }) {
 
     <div className="container mx-auto px-4 relative z-10">
       <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="text-center mb-16">
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4">
           Choose Your Flight
         </h2>
         <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto">
           Select the perfect package for your adventure
+        </p>
+        <p className="text-sm md:text-base text-red-500 font-normal mt-4 italic animate-pulse bg-white/5 py-2 px-6 rounded-full inline-block backdrop-blur-md border border-red-500/20">
+          * Subject to climate change, there may be delays in flight schedules.
         </p>
       </motion.div>
 
@@ -85,7 +88,7 @@ export function PricingCards({ onBookClick }) {
           {pkg.popular && (<div className="absolute -top-5 left-1/2 -translate-x-1/2 z-20">
             <div className="bg-gradient-to-r from-[#D4AF37] to-[#F7C948] text-[#0B0F19] px-6 py-2 rounded-full flex items-center gap-2 shadow-lg">
               <Sparkles className="w-4 h-4" />
-              <span className="font-bold text-sm whitespace-nowrap">MOST POPULAR</span>
+              <span className="font-normal text-sm whitespace-nowrap">MOST POPULAR</span>
             </div>
           </div>)}
 
@@ -97,11 +100,11 @@ export function PricingCards({ onBookClick }) {
           <div className="relative z-10 space-y-6">
             {/* Header */}
             <div className="space-y-2">
-              <h3 className="text-2xl md:text-3xl font-bold text-white">
+              <h3 className="text-2xl md:text-3xl font-black text-white">
                 {pkg.name}
               </h3>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl md:text-5xl font-bold text-[#D4AF37]">
+                <span className="text-4xl md:text-5xl font-black text-[#D4AF37]">
                   {pkg.price}
                 </span>
                 <span className="text-white/60">/person</span>
@@ -112,17 +115,17 @@ export function PricingCards({ onBookClick }) {
             <div className="space-y-3 py-6 border-y border-white/10">
               <div className="flex justify-between items-center">
                 <span className="text-white/70">Duration</span>
-                <span className="text-white font-semibold">{pkg.duration}</span>
+                <span className="text-white font-normal">{pkg.duration}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-white/70">Max Height</span>
-                <span className="text-white font-semibold">{pkg.height}</span>
+                <span className="text-white font-normal">{pkg.height}</span>
               </div>
             </div>
 
             {/* Includes */}
             <div className="space-y-3">
-              <p className="text-white/90 font-semibold">Includes:</p>
+              <p className="text-white/90 font-normal">Includes:</p>
               <ul className="space-y-2">
                 {pkg.includes.map((item) => (<li key={item} className="flex items-start gap-2">
                   <Check className="w-5 h-5 text-[#16A34A] flex-shrink-0 mt-0.5" />
@@ -133,7 +136,7 @@ export function PricingCards({ onBookClick }) {
 
             {/* Excludes */}
             {pkg.excludes.length > 0 && (<div className="space-y-3">
-              <p className="text-white/90 font-semibold">Excludes:</p>
+              <p className="text-white/90 font-normal">Excludes:</p>
               <ul className="space-y-2">
                 {pkg.excludes.map((item) => (<li key={item} className="flex items-start gap-2">
                   <X className="w-5 h-5 text-white/40 flex-shrink-0 mt-0.5" />
@@ -143,7 +146,7 @@ export function PricingCards({ onBookClick }) {
             </div>)}
 
             {/* CTA Button */}
-            <button onClick={() => onBookClick(pkg.id)} className={`w-full py-4 rounded-full font-semibold transition-all ${pkg.popular
+            <button onClick={() => onBookClick(pkg.id)} className={`w-full py-4 rounded-full font-black transition-all ${pkg.popular
               ? "bg-gradient-to-r from-[#D4AF37] to-[#F7C948] text-[#0B0F19] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-105"
               : "bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-[#D4AF37]/50"}`}>
               Book Now

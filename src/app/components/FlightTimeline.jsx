@@ -37,7 +37,7 @@ export function FlightTimeline() {
     return (<section className="py-20 md:py-32 bg-gradient-to-b from-[#111827] to-[#0B0F19] relative overflow-hidden">
       <div className="container mx-auto px-4">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal text-white mb-4">
             Your Flight Journey
           </h2>
           <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto">
@@ -59,7 +59,7 @@ export function FlightTimeline() {
                   <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#F7C948] rounded-xl flex items-center justify-center mb-4">
                     <step.icon className="w-8 h-8 text-[#0B0F19]"/>
                   </motion.div>
-                  <h3 className="text-white font-bold mb-2">{step.title}</h3>
+                  <h3 className="text-white font-normal mb-2">{step.title}</h3>
                   <p className="text-white/60 text-sm">{step.description}</p>
                 </div>
               </motion.div>))}
@@ -82,7 +82,7 @@ export function FlightTimeline() {
                       <step.icon className="w-6 h-6 text-[#0B0F19]"/>
                     </div>
                     <div>
-                      <h3 className="text-white font-bold mb-1">{step.title}</h3>
+                      <h3 className="text-white font-normal mb-1">{step.title}</h3>
                       <p className="text-white/70 text-sm">{step.description}</p>
                     </div>
                   </div>

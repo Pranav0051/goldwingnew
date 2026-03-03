@@ -9,7 +9,7 @@ export function Footer() {
             <div className="flex items-center gap-3">
               <img src="/goldwing-logo.png" alt="Goldwing Adventure Tour" className="h-16 w-auto object-contain"/>
               <div>
-                <h1 className="text-white font-bold tracking-tight text-lg">
+                <h1 className="text-white font-normal tracking-tight text-lg">
                   GOLDWING
                 </h1>
                 <p className="text-[#D4AF37] text-xs tracking-widest">ADVENTURE TOUR</p>
@@ -36,7 +36,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-white font-bold mb-4">Quick Links</h3>
+            <h3 className="text-white font-normal mb-4">Quick Links</h3>
             <ul className="space-y-3">
               <li>
                 <a href="#experiences" className="text-white/70 hover:text-[#D4AF37] transition-colors">
@@ -68,7 +68,7 @@ export function Footer() {
 
           {/* Policies */}
           <div>
-            <h3 className="text-white font-bold mb-4">Policies</h3>
+            <h3 className="text-white font-normal mb-4">Policies</h3>
             <ul className="space-y-3">
               <li>
                 <a href="#" className="text-white/70 hover:text-[#D4AF37] transition-colors">
@@ -100,7 +100,7 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-white font-bold mb-4">Contact Us</h3>
+            <h3 className="text-white font-normal mb-4">Contact Us</h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-[#D4AF37] flex-shrink-0 mt-1"/>

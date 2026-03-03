@@ -64,7 +64,7 @@ export function Testimonials() {
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal text-white mb-4">
             What Our Flyers Say
           </h2>
           <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto">
@@ -77,7 +77,7 @@ export function Testimonials() {
               {[...Array(5)].map((_, i) => (<Star key={i} className="w-5 h-5 fill-[#D4AF37] text-[#D4AF37]"/>))}
             </div>
             <div className="text-left">
-              <div className="text-2xl font-bold text-white">4.9/5</div>
+              <div className="text-2xl font-normal text-white">4.9/5</div>
               <div className="text-white/70 text-sm">Based on 2000+ reviews</div>
             </div>
           </motion.div>
@@ -108,7 +108,7 @@ export function Testimonials() {
                   <img src={testimonials[currentIndex].image} alt={testimonials[currentIndex].name} className="w-full h-full object-cover"/>
                 </div>
                 <div>
-                  <div className="text-white font-bold text-lg">
+                  <div className="text-white font-normal text-lg">
                     {testimonials[currentIndex].name}
                   </div>
                   <div className="text-white/60 text-sm">

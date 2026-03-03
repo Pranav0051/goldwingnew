@@ -51,7 +51,7 @@ export function SafetySection() {
             <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
               <div className="flex justify-center">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-[#D4AF37]">2000+</div>
+                  <div className="text-3xl font-normal text-[#D4AF37]">2000+</div>
                   <div className="text-white/70 text-sm">Safe Flights</div>
                 </div>
               </div>
@@ -66,7 +66,7 @@ export function SafetySection() {
         {/* Right: Safety Points */}
         <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="space-y-8">
           <div className="space-y-4">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal text-white">
               Safety First, Thrills Always
             </h2>
             <p className="text-white/70 text-lg">
@@ -81,7 +81,7 @@ export function SafetySection() {
                   <point.icon className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold mb-1">{point.title}</h3>
+                  <h3 className="text-white font-normal mb-1">{point.title}</h3>
                   <p className="text-white/60 text-sm">{point.description}</p>
                 </div>
               </div>

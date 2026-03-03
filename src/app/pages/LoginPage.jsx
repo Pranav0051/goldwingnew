@@ -20,6 +20,8 @@ export function LoginPage() {
             navigate("/admin");
         } else if (localStorage.getItem("isStaffLoggedIn") === "true") {
             navigate("/staff");
+        } else if (localStorage.getItem("isPilotLoggedIn") === "true") {
+            navigate("/pilot");
         }
     });
     const handleLogin = (e) => {
@@ -42,8 +44,15 @@ export function LoginPage() {
             } else {
                 showError("Incorrect password for Staff access.");
             }
+        } else if (loginRole === "pilot") {
+            if (password === "pilot123" || email.includes("pilot")) {
+                localStorage.setItem("isPilotLoggedIn", "true");
+                navigate("/pilot");
+            } else {
+                showError("Incorrect password for Pilot access.");
+            }
         } else {
-            if (!email.includes("admin") && !email.includes("staff")) {
+            if (!email.includes("admin") && !email.includes("staff") && !email.includes("pilot")) {
                 navigate("/agent");
             } else {
                 showError("Please select the correct role access to login.");
@@ -53,7 +62,7 @@ export function LoginPage() {
     return (<div className="min-h-[100dvh] bg-gradient-to-br from-[#9Bc2d3] to-[#e4a8c9] flex items-center justify-center p-4 md:p-12 font-sans relative overflow-x-hidden">
         {/* Error Toast */}
         <AnimatePresence>
-            {errorMsg && (<motion.div initial={{ opacity: 0, y: -20, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: -20, x: "-50%" }} className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl font-semibold max-w-sm w-[90%]">
+            {errorMsg && (<motion.div initial={{ opacity: 0, y: -20, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: -20, x: "-50%" }} className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl font-normal max-w-sm w-[90%]">
                 <AlertCircle className="w-6 h-6 shrink-0" />
                 <span className="flex-1 text-sm">{errorMsg}</span>
                 <button onClick={() => setErrorMsg("")} className="shrink-0 p-1 hover:bg-white/20 rounded-full transition">
@@ -62,7 +71,7 @@ export function LoginPage() {
             </motion.div>)}
         </AnimatePresence>
 
-        <Link to="/?skipLoader=true" className="absolute top-6 left-6 inline-flex items-center text-white/90 font-bold hover:text-white transition drop-shadow-md">
+        <Link to="/?skipLoader=true" className="absolute top-6 left-6 inline-flex items-center text-white/90 font-normal hover:text-white transition drop-shadow-md">
             ← Back to Home
         </Link>
 
@@ -73,34 +82,37 @@ export function LoginPage() {
 
                 {/* Admin/Agent/Staff Toggle via small pills at top right for functionality */}
                 <div className="absolute top-8 right-8 flex gap-2">
-                    <button onClick={() => setLoginRole("agent")} className={`px-3 py-1 text-xs rounded-full font-bold transition ${loginRole === "agent" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                    <button onClick={() => setLoginRole("agent")} className={`px-3 py-1 text-xs rounded-full font-normal transition ${loginRole === "agent" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
                         Agent
                     </button>
-                    <button onClick={() => setLoginRole("staff")} className={`px-3 py-1 text-xs rounded-full font-bold transition ${loginRole === "staff" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                    <button onClick={() => setLoginRole("pilot")} className={`px-3 py-1 text-xs rounded-full font-normal transition ${loginRole === "pilot" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                        Pilot
+                    </button>
+                    <button onClick={() => setLoginRole("staff")} className={`px-3 py-1 text-xs rounded-full font-normal transition ${loginRole === "staff" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
                         Staff
                     </button>
-                    <button onClick={() => setLoginRole("admin")} className={`px-3 py-1 text-xs rounded-full font-bold transition ${loginRole === "admin" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                    <button onClick={() => setLoginRole("admin")} className={`px-3 py-1 text-xs rounded-full font-normal transition ${loginRole === "admin" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
                         Admin
                     </button>
                 </div>
 
                 <div className="mb-2">
-                    <h2 className="text-2xl font-bold text-[#d98cb3]">Goldwing</h2>
+                    <h2 className="text-2xl font-normal text-[#d98cb3]">Goldwing</h2>
                 </div>
 
-                <p className="text-sm text-gray-400 mb-6 font-medium">Welcome back !!!</p>
+                <p className="text-sm text-gray-400 mb-6 font-normal">Welcome back !!!</p>
 
                 <h1 className="text-5xl font-extrabold text-[#1a1a1a] mb-8 tracking-tight">Log In</h1>
 
                 <form onSubmit={handleLogin} className="space-y-5">
                     <div className="space-y-1">
-                        <label className="text-xs font-semibold text-gray-500">Email</label>
+                        <label className="text-xs font-normal text-gray-500">Email</label>
                         <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#dae9f2] text-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#d98cb3]" placeholder="login@gmail.com" />
                     </div>
 
                     <div className="space-y-1 relative">
                         <div className="flex justify-between items-center">
-                            <label className="text-xs font-semibold text-gray-500">Password</label>
+                            <label className="text-xs font-normal text-gray-500">Password</label>
                             <a href="#" onClick={(e) => { e.preventDefault(); showError("Password reset link sent to your email!"); }} className="text-[10px] text-gray-400 hover:text-[#d98cb3]">Forgot Password ?</a>
                         </div>
                         <div className="relative">
@@ -112,7 +124,7 @@ export function LoginPage() {
                     </div>
 
                     <div className="pt-2">
-                        <button type="submit" className="bg-[#cc7a9c] hover:bg-[#b06181] text-white text-sm font-bold py-3 px-8 rounded-full flex items-center justify-center transition shadow-lg shadow-[#cc7a9c]/30">
+                        <button type="submit" className="bg-[#cc7a9c] hover:bg-[#b06181] text-white text-sm font-normal py-3 px-8 rounded-full flex items-center justify-center transition shadow-lg shadow-[#cc7a9c]/30">
                             LOGIN <ArrowRight className="w-4 h-4 ml-2" />
                         </button>
                     </div>
@@ -137,7 +149,7 @@ export function LoginPage() {
                     </div>
 
                     <p className="text-center text-xs text-gray-400 mt-8">
-                        Don't have an account yet? <a href="#" className="text-[#cc7a9c] font-bold">Sign up for free</a>
+                        Don't have an account yet? <a href="#" className="text-[#cc7a9c] font-normal">Sign up for free</a>
                     </p>
                 </div>
             </div>

@@ -55,7 +55,7 @@ export function FutureAdventures() {
     return (<section className="py-20 md:py-32 bg-gradient-to-b from-[#0B0F19] to-[#111827] relative overflow-hidden">
       <div className="container mx-auto px-4">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal text-white mb-4">
             More Adventures
           </h2>
           <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto">
@@ -72,7 +72,7 @@ export function FutureAdventures() {
 
                 {/* Status Badge */}
                 {!adventure.available && (<div className="absolute top-4 right-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1">
-                    <span className="text-white text-sm font-semibold">Coming Soon</span>
+                    <span className="text-white text-sm font-normal">Coming Soon</span>
                   </div>)}
 
                 {/* Icon */}
@@ -85,10 +85,10 @@ export function FutureAdventures() {
 
               {/* Content */}
               <div className="p-6">
-                <h3 className="text-white font-bold text-xl mb-2">{adventure.title}</h3>
+                <h3 className="text-white font-normal text-xl mb-2">{adventure.title}</h3>
                 <p className="text-white/70">{adventure.description}</p>
 
-                {adventure.available && (<button className="mt-4 text-[#D4AF37] font-semibold hover:text-[#F7C948] transition-colors">
+                {adventure.available && (<button className="mt-4 text-[#D4AF37] font-normal hover:text-[#F7C948] transition-colors">
                     Explore →
                   </button>)}
               </div>

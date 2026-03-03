@@ -61,7 +61,7 @@ export function BookingModal({ isOpen, onClose, selectedPackageId }) {
           {/* Header */}
           <div className="sticky top-0 bg-[#111827] border-b border-white/10 p-6 flex items-center justify-between z-10">
             <div>
-              <h2 className="text-2xl font-bold text-white">Book Your Flight</h2>
+              <h2 className="text-2xl font-normal text-white">Book Your Flight</h2>
               <p className="text-white/60 text-sm mt-1">Step {step} of 5</p>
             </div>
             <button onClick={onClose} className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center transition-all">
@@ -77,13 +77,13 @@ export function BookingModal({ isOpen, onClose, selectedPackageId }) {
           {/* Content */}
           <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
             {step === 1 && (<div className="space-y-4">
-                <h3 className="text-xl font-bold text-white mb-4">Select Package</h3>
+                <h3 className="text-xl font-normal text-white mb-4">Select Package</h3>
                 {packages.map((pkg) => (<button key={pkg.id} onClick={() => setSelectedPackage(pkg.id)} className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${selectedPackage === pkg.id
                     ? "border-[#D4AF37] bg-[#D4AF37]/10"
                     : "border-white/10 bg-white/5 hover:border-white/20"}`}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-white font-bold text-lg">{pkg.name}</div>
+                        <div className="text-white font-normal text-lg">{pkg.name}</div>
                         <div className="text-white/60 text-sm">₹{pkg.price.toLocaleString()} per person</div>
                       </div>
                       {selectedPackage === pkg.id && (<Check className="w-6 h-6 text-[#D4AF37]"/>)}
@@ -92,7 +92,7 @@ export function BookingModal({ isOpen, onClose, selectedPackageId }) {
               </div>)}
 
             {step === 2 && (<div className="space-y-4">
-                <h3 className="text-xl font-bold text-white mb-4">Choose Date</h3>
+                <h3 className="text-xl font-normal text-white mb-4">Choose Date</h3>
                 <div className="relative">
                   <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#D4AF37] pointer-events-none"/>
                   <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} min={new Date().toISOString().split("T")[0]} className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3 text-white focus:outline-none focus:border-[#D4AF37]/50 cursor-pointer hover:bg-white/10 transition-all" style={{
@@ -114,8 +114,8 @@ export function BookingModal({ isOpen, onClose, selectedPackageId }) {
                 const isFull = remaining === 0;
                 return (<button key={slot.time} disabled={isFull} className={`flex flex-col text-left border rounded-lg p-3 transition-all ${isFull ? 'border-red-500/30 bg-red-500/10 opacity-50 cursor-not-allowed' : 'bg-white/5 hover:bg-[#D4AF37]/10 border-white/10 hover:border-[#D4AF37]/50'} `}>
                             <div className="flex justify-between w-full items-center mb-1">
-                              <span className="text-white font-bold">{slot.time}</span>
-                              <span className={isFull ? "text-red-400 text-xs" : "text-[#D4AF37] text-xs font-bold"}>
+                              <span className="text-white font-normal">{slot.time}</span>
+                              <span className={isFull ? "text-red-400 text-xs" : "text-[#D4AF37] text-xs font-normal"}>
                                 {isFull ? "FULL" : `🔥 ${remaining} Left`}
                               </span>
                             </div>
@@ -129,18 +129,18 @@ export function BookingModal({ isOpen, onClose, selectedPackageId }) {
               </div>)}
 
             {step === 3 && (<div className="space-y-4">
-                <h3 className="text-xl font-bold text-white mb-4">Add Travelers</h3>
+                <h3 className="text-xl font-normal text-white mb-4">Add Travelers</h3>
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-white font-semibold">Number of Travelers</div>
+                      <div className="text-white font-normal">Number of Travelers</div>
                       <div className="text-white/60 text-sm">Age 12+</div>
                     </div>
                     <div className="flex items-center gap-4">
                       <button onClick={() => setTravelers(Math.max(1, travelers - 1))} className="w-10 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white transition-all">
                         -
                       </button>
-                      <span className="text-white font-bold text-xl w-8 text-center">{travelers}</span>
+                      <span className="text-white font-normal text-xl w-8 text-center">{travelers}</span>
                       <button onClick={() => setTravelers(Math.min(10, travelers + 1))} className="w-10 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white transition-all">
                         +
                       </button>
@@ -150,19 +150,19 @@ export function BookingModal({ isOpen, onClose, selectedPackageId }) {
                 <div className="bg-gradient-to-r from-[#D4AF37]/10 to-transparent border border-[#D4AF37]/30 rounded-2xl p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-white">Total Price</span>
-                    <span className="text-[#D4AF37] font-bold text-2xl">₹{totalPrice.toLocaleString()}</span>
+                    <span className="text-[#D4AF37] font-normal text-2xl">₹{totalPrice.toLocaleString()}</span>
                   </div>
                 </div>
               </div>)}
 
             {step === 4 && (<div className="space-y-4">
-                <h3 className="text-xl font-bold text-white mb-4">Enter Details</h3>
+                <h3 className="text-xl font-normal text-white mb-4">Enter Details</h3>
                 <input type="text" placeholder="Full Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#D4AF37]/50"/>
                 <input type="email" placeholder="Email Address" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#D4AF37]/50"/>
                 <input type="tel" placeholder="Phone Number" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#D4AF37]/50"/>
                 <div className="flex gap-2">
                   <input type="text" placeholder="Coupon Code" value={couponCode} onChange={(e) => setCouponCode(e.target.value)} className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#D4AF37]/50"/>
-                  <button className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-[#0B0F19] px-6 rounded-2xl font-semibold transition-all">
+                  <button className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-[#0B0F19] px-6 rounded-2xl font-normal transition-all">
                     Apply
                   </button>
                 </div>
@@ -175,7 +175,7 @@ export function BookingModal({ isOpen, onClose, selectedPackageId }) {
                     <span>Advance Payment</span>
                     <span>₹{advancePayment.toLocaleString()}</span>
                   </div>
-                  <div className="border-t border-white/10 pt-2 flex justify-between text-white font-bold">
+                  <div className="border-t border-white/10 pt-2 flex justify-between text-white font-normal">
                     <span>Pay Now</span>
                     <span className="text-[#D4AF37]">₹{advancePayment.toLocaleString()}</span>
                   </div>
@@ -189,12 +189,12 @@ export function BookingModal({ isOpen, onClose, selectedPackageId }) {
                 <motion.div animate={{ rotate: 360, scale: [1, 1.2, 1] }} transition={{ duration: 0.8 }} className="w-24 h-24 mx-auto bg-gradient-to-br from-[#16A34A] to-[#16A34A]/70 rounded-full flex items-center justify-center mb-6">
                   <Check className="w-12 h-12 text-white"/>
                 </motion.div>
-                <h3 className="text-3xl font-bold text-white mb-4">Booking Confirmed!</h3>
+                <h3 className="text-3xl font-normal text-white mb-4">Booking Confirmed!</h3>
                 <p className="text-white/70 mb-2">Your adventure awaits!</p>
                 <p className="text-white/60 text-sm mb-8">
                   Confirmation sent to {formData.email}
                 </p>
-                <button onClick={onClose} className="bg-gradient-to-r from-[#D4AF37] to-[#F7C948] text-[#0B0F19] px-8 py-3 rounded-full font-semibold hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all">
+                <button onClick={onClose} className="bg-gradient-to-r from-[#D4AF37] to-[#F7C948] text-[#0B0F19] px-8 py-3 rounded-full font-normal hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all">
                   Done
                 </button>
               </motion.div>)}
@@ -202,10 +202,10 @@ export function BookingModal({ isOpen, onClose, selectedPackageId }) {
 
           {/* Footer */}
           {step < 5 && (<div className="sticky bottom-0 bg-[#111827] border-t border-white/10 p-6 flex gap-3">
-              <button onClick={step > 1 ? handleBack : onClose} className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white py-3 rounded-full font-semibold transition-all">
+              <button onClick={step > 1 ? handleBack : onClose} className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white py-3 rounded-full font-normal transition-all">
                 Back
               </button>
-              <button onClick={step === 4 ? handleSubmit : handleNext} className="flex-1 bg-gradient-to-r from-[#D4AF37] to-[#F7C948] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] text-[#0B0F19] py-3 rounded-full font-semibold transition-all">
+              <button onClick={step === 4 ? handleSubmit : handleNext} className="flex-1 bg-gradient-to-r from-[#D4AF37] to-[#F7C948] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] text-[#0B0F19] py-3 rounded-full font-normal transition-all">
                 {step === 4 ? "Confirm & Pay" : "Continue"}
               </button>
             </div>)}

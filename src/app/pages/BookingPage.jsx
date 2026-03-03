@@ -18,38 +18,38 @@ const MOCK_SLOTS = [
 ];
 
 const SOLO_PACKAGES = [
-    { id: "basic", name: "Solo Basic", duration: "5-7 Minutes", price: 3499, points: ["Certified Pilot", "Safety Gear", "Ground Photos", "Basic Insurance"] },
-    { id: "premium", name: "Solo Premium", duration: "10-15 Minutes", price: 5999, ribbon: "Most Popular", points: ["HD Video Recording", "Premium Safety Gear", "Full Insurance"] },
-    { id: "sunrise", name: "Solo Sunrise", duration: "15-20 Minutes", price: 8999, ribbon: "Bestseller", points: ["4K Video", "Sunrise Slot", "Breakfast & Merch", "Professional Photoshoot"] },
+    { id: "basic", name: "Single Basic", duration: "5-7 KM", price: 3499, points: ["Certified Pilot", "Safety Gear", "Ground Photos", "Basic Insurance"] },
+    { id: "premium", name: "Single Premium", duration: "10-15 KM", price: 5999, ribbon: "Most Popular", points: ["HD Video Recording", "Premium Safety Gear", "Full Insurance"] },
+    { id: "sunrise", name: "Single Sunrise", duration: "15-20 KM", price: 8999, ribbon: "Bestseller", points: ["4K Video", "Sunrise Slot", "Breakfast & Merch", "Professional Photoshoot"] },
 ];
 
 const COUPLE_PACKAGES = [
-    { id: "basic", name: "Couple Basic", duration: "5-7 Minutes", price: 3499, points: ["Certified Pilots", "Dual Safety Gear", "Ground Photos", "Basic Insurance"] },
-    { id: "premium", name: "Romantic Premium", duration: "10-15 Minutes", price: 5999, discountBadge: "Special Couple Deal", ribbon: "Most Popular", points: ["HD Video Recording", "Couples Photography", "Full Insurance"] },
-    { id: "sunrise", name: "Romantic Sunrise", duration: "15-20 Minutes", price: 8999, ribbon: "Bestseller", points: ["4K Video", "Sunrise Slot", "Breakfast & Merch", "Premium Photoshoot"] },
+    { id: "basic", name: "Couple Basic", duration: "5-7 KM", price: 6499, points: ["Certified Pilots", "Dual Safety Gear", "Ground Photos", "Basic Insurance"] },
+    { id: "premium", name: "Romantic Premium", duration: "10-15 KM", price: 9999, discountBadge: "Special Couple Deal", ribbon: "Most Popular", points: ["HD Video Recording", "Couples Photography", "Full Insurance"] },
+    { id: "sunrise", name: "Romantic Sunrise", duration: "15-20 KM", price: 12999, ribbon: "Bestseller", points: ["4K Video", "Sunrise Slot", "Breakfast & Merch", "Premium Photoshoot"] },
 ];
 
 const FAMILY_PACKAGES = [
-    { id: "basic", name: "Family Basic", duration: "5-7 Minutes", price: 3499, points: ["Certified Pilots", "Group Safety Gear", "Ground Photos", "Basic Insurance"] },
-    { id: "premium", name: "Family Premium", duration: "10-15 Minutes", price: 5999, discountBadge: "Family Deal", ribbon: "Most Popular", points: ["HD Video", "Family Photography", "Full Insurance"] },
-    { id: "sunrise", name: "Family Sunrise", duration: "15-20 Minutes", price: 8999, ribbon: "Bestseller", points: ["4K Video", "Sunrise Slot", "Breakfast & Merch", "Pro Photoshoot"] },
+    { id: "basic", name: "Family Basic", duration: "5-7 KM", price: 8999, points: ["Certified Pilots", "Group Safety Gear", "Ground Photos", "Basic Insurance"] },
+    { id: "premium", name: "Family Premium", duration: "10-15 KM", price: 13999, discountBadge: "Family Deal", ribbon: "Most Popular", points: ["HD Video", "Family Photography", "Full Insurance"] },
+    { id: "sunrise", name: "Family Sunrise", duration: "15-20 KM", price: 19999, ribbon: "Bestseller", points: ["4K Video", "Sunrise Slot", "Breakfast & Merch", "Pro Photoshoot"] },
 ];
 
 const SHARING_PACKAGES = [
-    { id: "basic", name: "Shared Basic", duration: "5-7 Minutes", price: 3499, points: ["Certified Pilot", "Safety Gear", "Shared Flight Buddy", "Basic Insurance"] },
-    { id: "premium", name: "Shared Premium", duration: "10-15 Minutes", price: 5999, ribbon: "Most Popular", points: ["HD Video Recording", "Premium Safety Gear", "Full Insurance"] },
-    { id: "sunrise", name: "Shared Sunrise", duration: "15-20 Minutes", price: 8999, ribbon: "Bestseller", points: ["4K Video", "Sunrise Slot", "Breakfast & Merch", "Pro Photoshoot"] },
+    { id: "basic", name: "Shared Basic", duration: "5-7 KM", price: 2999, points: ["Certified Pilot", "Safety Gear", "Shared Flight Buddy", "Basic Insurance"] },
+    { id: "premium", name: "Shared Premium", duration: "10-12 KM", price: 4499, ribbon: "Most Popular", points: ["HD Video Recording", "Premium Safety Gear", "Full Insurance"] },
+    { id: "sunrise", name: "Shared Sunrise", duration: "15 KM", price: 7999, ribbon: "Bestseller", points: ["4K Video", "Sunrise Slot", "Breakfast & Merch", "Pro Photoshoot"] },
 ];
 
 const PACKAGES_DATA = {
-    SOLO: SOLO_PACKAGES,
+    SINGLE: SOLO_PACKAGES,
     COUPLE: COUPLE_PACKAGES,
     FAMILY: FAMILY_PACKAGES,
     SHARING: SHARING_PACKAGES
 };
 
 const CATEGORIES = [
-    { id: "SOLO", title: "Solo", icon: "/images/icon/single-person.png", bg: "/images/background/single para.webp", tagline: "Fly High & Free" },
+    { id: "SINGLE", title: "Single", icon: "/images/icon/single-person.png", bg: "/images/background/single para.webp", tagline: "Fly High & Free" },
     { id: "COUPLE", title: "Couple", icon: "/images/icon/couple.png", bg: "/images/background/2 seat para.avif", tagline: "Share the Sky" },
     { id: "FAMILY", title: "Family", icon: "/images/icon/family.png", bg: "/images/background/3 seat para.jpg", tagline: "Memories Together" },
     { id: "SHARING", title: "Sharing", icon: "/images/icon/share-ride.png", bg: "/images/background/2 seater para.avif", tagline: "Share & Save" }
@@ -106,21 +106,16 @@ export function BookingPage() {
     // Handlers for selection
     const handleCategorySelect = (catId) => {
         setSelectedCat(catId);
-        setSelectedPkg(null); // Explicitly unselect the package from previous choice
-        // Initialize passengers array based on category
-        if (catId === "SOLO" || catId === "SHARING") {
+        setSelectedPkg(null);
+        if (catId === "SINGLE" || catId === "SHARING") {
             setPassengers([{ gender: "M", weight: "", age: "" }]);
         } else if (catId === "COUPLE") {
             setPassengers([
                 { gender: "M", weight: "", age: "" },
-                { gender: "F", weight: "", age: "" }
+                { gender: "F", weight: "", age: "", coPassengerName: "" }
             ]);
         } else if (catId === "FAMILY") {
-            setPassengers([
-                { gender: "M", weight: "", age: "" },
-                { gender: "F", weight: "", age: "" },
-                { gender: "M", weight: "", age: "" }
-            ]);
+            setPassengers([{ gender: "M", weight: "", age: "" }]);
         }
     };
 
@@ -142,7 +137,7 @@ export function BookingPage() {
             if (!age || age < 12) return showError(`Passenger ${i + 1} must be at least 12 years old.`);
         }
 
-        if (selectedCat === "SOLO" || selectedCat === "SHARING") {
+        if (selectedCat === "SINGLE" || selectedCat === "SHARING") {
             const w = parseInt(passengers[0].weight);
             if (!w || w <= 0) return showError("Please enter a valid weight.");
             if (w > 75) {
@@ -153,6 +148,7 @@ export function BookingPage() {
             const w1 = parseInt(passengers[0].weight) || 0;
             const w2 = parseInt(passengers[1].weight) || 0;
             if (!w1 || !w2) return showError("Please enter weight for both individuals.");
+            if (!passengers[1].coPassengerName?.trim()) return showError("Please enter Co-Passenger Name.");
             if (w1 + w2 > 150) {
                 showError("Combined weight exceeds 150 KG limit for Couple ride.");
                 return false;
@@ -207,14 +203,17 @@ export function BookingPage() {
         const newBooking = {
             id,
             customerName: formData.name,
+            customerPhone: formData.phone,
+            customerCity: formData.city,
             persons: passengers.length,
             passengers: passengers.map(p => ({ name: "TBD", age: p.weight })), // Using weight creatively or need real names?
-            slot: slotObj ? slotObj.time : "06:00 AM",
+            slot: MOCK_SLOTS.find(s => s.id === selectedSlot)?.time,
             category: selectedCat,
             type: "ONLINE",
             date: selectedDate,
             status: "Confirmed",
-            price: calc.total,
+            price: calculateTotal().total,
+            isFemaleSharing: passengers[0]?.isFemaleSharing || false,
             paymentMethod: paymentMethod,
             consentAccepted: true,
             consentTimestamp: new Date().toISOString(),
@@ -276,6 +275,19 @@ export function BookingPage() {
         y += 6;
         doc.text(`Slot Time: ${slotTime}`, 15, y);
         y += 6;
+
+        if (selectedCat === "SHARING") {
+            doc.setFont("times", "bolditalic");
+            doc.text(`Ride Type: SHARING RIDE`, 15, y);
+            y += 6;
+            if (passengers[0]?.isFemaleSharing) {
+                doc.setTextColor(255, 0, 150);
+                doc.text(`PREFERENCE: FEMALE SHARING`, 15, y);
+                y += 6;
+                doc.setTextColor(0, 0, 0);
+            }
+            doc.setFont("times", "normal");
+        }
         drawDivider();
         setCenteredText("Passenger Details", "bold", 10, 8);
         doc.setFont("times", "bold");
@@ -335,7 +347,18 @@ export function BookingPage() {
         drawDivider();
         setCenteredText("This is a computer-generated ticket.", "normal", 10, 6);
         setCenteredText("Mandatory insurance included.", "normal", 10, 6);
+        setCenteredText("Subject to climate change, delays may occur.", "normal", 10, 6);
         setCenteredText("Report 30 minutes before slot time.", "normal", 10, 8);
+
+        if (selectedCat === "SHARING") {
+            setCenteredText("SHARING DISCLAIMER:", "bold", 9, 5);
+            setCenteredText("You may share the flight with another rider.", "normal", 8, 4);
+            if (passengers[0]?.isFemaleSharing) {
+                setCenteredText("Waiting for another female rider may apply.", "normal", 8, 4);
+            }
+            y += 4;
+        }
+
         setCenteredText("Thank You & Ride Safe!", "bold", 11, 8);
         drawDivider();
         doc.save(`Goldwing_Ticket_${bookingId}.pdf`);
@@ -451,7 +474,7 @@ export function BookingPage() {
                         initial={{ opacity: 0, y: -20, x: "-50%" }}
                         animate={{ opacity: 1, y: 0, x: "-50%" }}
                         exit={{ opacity: 0, y: -20, x: "-50%" }}
-                        className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-red-600 px-6 py-4 rounded-full shadow-2xl font-bold max-w-sm w-[90%]"
+                        className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-red-600 px-6 py-4 rounded-full shadow-2xl font-normal max-w-sm w-[90%]"
                     >
                         <AlertCircle className="w-5 h-5 shrink-0" />
                         <span className="flex-1 text-sm">{errorMsg}</span>
@@ -460,7 +483,7 @@ export function BookingPage() {
                 )}
             </AnimatePresence>
 
-            <div className="relative z-10 p-4 md:p-12 w-full max-w-6xl mx-auto min-h-[100dvh] flex flex-col justify-start md:justify-center pt-24 md:pt-16 pb-20">
+            <div className="relative z-10 p-4 md:p-12 w-full max-w-6xl mx-auto min-h-[100dvh] flex flex-col justify-start md:justify-center pt-24 md:pt-16 pb-32">
 
                 {/* Back navigation & Header */}
                 <div className="absolute top-4 left-4 right-4 md:top-6 md:left-6 md:right-6 flex justify-between items-center z-50">
@@ -503,10 +526,10 @@ export function BookingPage() {
                         >
                             <div className="text-center mb-8 md:mb-10">
                                 <div className="inline-block bg-white/70 dark:bg-black/40 px-6 py-5 md:px-8 md:py-6 rounded-3xl shadow-xl border border-white/50 dark:border-white/10">
-                                    <h1 className="text-3xl md:text-6xl font-black mb-2 md:mb-4 tracking-tight text-gray-900 dark:text-white">
+                                    <h1 className="text-3xl md:text-6xl font-normal mb-2 md:mb-4 tracking-tight text-gray-900 dark:text-white">
                                         Select Your Ride Pattern
                                     </h1>
-                                    <p className="text-base md:text-lg text-gray-900 dark:text-white font-bold">Choose how you want to experience the skies.</p>
+                                    <p className="text-base md:text-lg text-gray-900 dark:text-white font-normal">Choose how you want to experience the skies.</p>
                                 </div>
                             </div>
 
@@ -528,7 +551,7 @@ export function BookingPage() {
                                                 <div className="w-24 h-24 mb-6 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center p-4">
                                                     <img src={cat.icon} alt={cat.title} className="w-full h-full object-contain filter drop-shadow-lg transition-transform duration-500 group-hover:scale-110" />
                                                 </div>
-                                                <h3 className="text-3xl font-black tracking-wide text-gray-900 dark:text-white">{cat.title}</h3>
+                                                <h3 className="text-3xl font-normal tracking-wide text-gray-900 dark:text-white">{cat.title}</h3>
                                             </div>
 
                                             {/* Back Face */}
@@ -539,14 +562,14 @@ export function BookingPage() {
                                                     <div className="mb-4 transform group-hover:scale-110 transition-transform duration-500">
                                                         <img src={cat.icon} alt={cat.title} className="w-20 h-20 object-contain filter brightness-200 invert opacity-100" />
                                                     </div>
-                                                    <h3 className="text-4xl font-black mb-2 text-white leading-snug">{cat.title}</h3>
-                                                    <p className="text-yellow-500 font-semibold italic text-center text-lg">{cat.tagline}</p>
+                                                    <h3 className="text-4xl font-normal mb-2 text-white leading-snug">{cat.title}</h3>
+                                                    <p className="text-yellow-500 font-normal italic text-center text-lg">{cat.tagline}</p>
                                                 </div>
 
                                                 <div className="w-full mt-auto mb-2 z-10">
                                                     <button
                                                         onClick={() => handleProceedToDetails(cat.id)}
-                                                        className="w-full py-4 rounded-xl bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-[1.02] active:scale-95 font-black transition-all flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.3)]"
+                                                        className="w-full py-4 rounded-xl bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-[1.02] active:scale-95 font-normal transition-all flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.3)]"
                                                     >
                                                         Book Now <ArrowRight className="w-5 h-5 ml-2" />
                                                     </button>
@@ -571,11 +594,14 @@ export function BookingPage() {
                             <div className="text-center mb-6 md:mb-10">
                                 <div className="inline-block bg-white/70 dark:bg-black/40 px-6 py-5 md:px-8 md:py-6 rounded-3xl shadow-xl border border-white/50 dark:border-white/10">
                                     <h2 className="text-3xl md:text-5xl font-black mb-2 md:mb-4 text-gray-900 dark:text-white">Select {selectedCat} Package</h2>
-                                    <p className="text-base md:text-lg text-gray-900 dark:text-white font-bold">Pick the flight duration that suits you best.</p>
+                                    <p className="text-base md:text-lg text-gray-900 dark:text-white font-normal">Pick the flight duration that suits you best.</p>
+                                    <p className="text-sm md:text-base text-red-500 font-normal mt-3 italic animate-pulse bg-white/10 dark:bg-black/40 py-2 px-6 rounded-full inline-block border border-red-500/20">
+                                        * Subject to climate change, there may be delays in flight schedules.
+                                    </p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:flex lg:justify-center gap-6 max-w-7xl mx-auto pb-8 px-4 w-full">
+                            <div className={`${PACKAGES_DATA[selectedCat]?.length < 4 ? "flex flex-wrap justify-center" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"} gap-6 max-w-7xl mx-auto pb-8 px-4 w-full`}>
                                 {PACKAGES_DATA[selectedCat]?.map((pkg, idx) => (
                                     <motion.div
                                         key={pkg.id}
@@ -587,7 +613,7 @@ export function BookingPage() {
                                             }`}
                                     >
                                         {pkg.ribbon && (
-                                            <div className="absolute top-4 right-[-30px] bg-red-600 text-white text-xs font-bold px-10 py-1 rotate-45 shadow-lg">
+                                            <div className="absolute top-4 right-[-30px] bg-red-600 text-white text-xs font-normal px-10 py-1 rotate-45 shadow-lg">
                                                 {pkg.ribbon}
                                             </div>
                                         )}
@@ -598,21 +624,21 @@ export function BookingPage() {
                                                 ₹{pkg.price.toLocaleString()}
                                             </div>
                                             {pkg.discountBadge && (
-                                                <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold ${selectedPkg === pkg.id ? "bg-black text-yellow-400" : "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border border-green-500/30"}`}>
+                                                <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-normal ${selectedPkg === pkg.id ? "bg-black text-yellow-400" : "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border border-green-500/30"}`}>
                                                     {pkg.discountBadge}
                                                 </span>
                                             )}
                                         </div>
 
-                                        <div className={`flex items-center gap-3 font-semibold text-lg py-4 border-t ${selectedPkg === pkg.id ? "border-black/20 text-black" : "border-black/10 dark:border-white/10 text-gray-900 dark:text-white"}`}>
-                                            <span className="text-3xl">⏱</span> {pkg.duration} Airtime
+                                        <div className={`flex items-center gap-3 font-black text-lg py-4 border-t ${selectedPkg === pkg.id ? "border-black/20 text-black" : "border-black/10 dark:border-white/10 text-gray-900 dark:text-white"}`}>
+                                            <span className="text-3xl">📍</span> {pkg.duration} Experience
                                         </div>
 
                                         {/* Points rendering */}
                                         {pkg.points && pkg.points.length > 0 && (
                                             <div className="space-y-2 mb-4">
                                                 {pkg.points.map((point, i) => (
-                                                    <div key={i} className={`flex items-start gap-2 text-sm font-semibold ${selectedPkg === pkg.id ? 'text-black/80' : 'text-gray-900 dark:text-white'}`}>
+                                                    <div key={i} className={`flex items-start gap-2 text-sm font-normal ${selectedPkg === pkg.id ? 'text-black/80' : 'text-gray-900 dark:text-white'}`}>
                                                         <Check className={`w-4 h-4 flex-shrink-0 ${selectedPkg === pkg.id ? "text-green-800" : "text-green-600 dark:text-green-400"}`} />
                                                         <span>{point}</span>
                                                     </div>
@@ -620,7 +646,7 @@ export function BookingPage() {
                                             </div>
                                         )}
 
-                                        <div className={`mt-auto w-full font-bold text-center py-3 rounded-xl border-2 transition-colors ${selectedPkg === pkg.id ? "border-black bg-black text-yellow-500" : "border-black/20 dark:border-white/20 text-gray-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10 group-hover:border-black/40 dark:group-hover:border-white/40"}`}>
+                                        <div className={`mt-auto w-full font-black text-center py-3 rounded-xl border-2 transition-colors ${selectedPkg === pkg.id ? "border-black bg-black text-yellow-500" : "border-black/20 dark:border-white/20 text-gray-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10 group-hover:border-black/40 dark:group-hover:border-white/40"}`}>
                                             {selectedPkg === pkg.id ? "Selected" : "Choose this"}
                                         </div>
                                     </motion.div>
@@ -639,35 +665,48 @@ export function BookingPage() {
                             className="w-full max-w-2xl mx-auto px-2"
                         >
                             <div className="bg-white/10 dark:bg-black/60 backdrop-blur-sm border border-white/30 dark:border-white/5 p-5 md:p-8 rounded-3xl shadow-xl dark:shadow-none">
-                                <h2 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900 dark:text-white">{selectedCat} Verification</h2>
+                                <h2 className="text-2xl md:text-3xl font-normal mb-2 text-gray-900 dark:text-white">{selectedCat} Verification</h2>
                                 <p className="text-sm md:text-base text-gray-700 dark:text-white/60 mb-6">Safety parameter verification for your ride category.</p>
 
                                 {/* Contact form for booking lead - Moved to top */}
                                 <div className="mb-8 border-b border-gray-200 dark:border-white/10 pb-8">
-                                    <h3 className="font-bold text-gray-900 dark:text-white mb-4">Lead Contact Details</h3>
-                                    <div className="flex flex-col md:flex-row gap-4">
-                                        <input
-                                            type="text"
-                                            placeholder="Lead Contact Name"
-                                            className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-500 text-gray-900 dark:text-white"
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        />
-                                        <input
-                                            type="tel"
-                                            placeholder="Mobile Number"
-                                            className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-500 text-gray-900 dark:text-white"
-                                            value={formData.phone}
-                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                        />
+                                    <h3 className="font-normal text-gray-900 dark:text-white mb-4">Lead Contact Details</h3>
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            <input
+                                                type="text"
+                                                placeholder="Lead Contact Name"
+                                                className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-500 text-gray-900 dark:text-white"
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            />
+                                            <input
+                                                type="tel"
+                                                placeholder="Mobile Number"
+                                                className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-500 text-gray-900 dark:text-white"
+                                                value={formData.phone}
+                                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                            />
+                                        </div>
+                                        <select
+                                            className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-500 text-gray-900 dark:text-white appearance-none cursor-pointer"
+                                            value={formData.city}
+                                            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                        >
+                                            <option value="" className="text-black">Select Your City</option>
+                                            {["Delhi", "Mumbai", "Pune", "Goa", "Bangalore", "Chennai", "Hyderabad", "Chandigarh", "Jaipur", "Ahmedabad"].map(city => (
+                                                <option key={city} value={city} className="text-black">{city}</option>
+                                            ))}
+                                            <option value="Other" className="text-black">Other</option>
+                                        </select>
                                     </div>
                                 </div>
 
                                 <div className="space-y-6">
-                                    <h3 className="font-bold text-gray-900 dark:text-white mb-2">Passenger Information</h3>
+                                    <h3 className="font-normal text-gray-900 dark:text-white mb-2">Passenger Information</h3>
                                     {passengers.map((p, idx) => (
                                         <div key={idx} className="flex items-center gap-4 bg-gray-50 dark:bg-black/30 p-4 rounded-2xl border border-gray-200 dark:border-white/5">
-                                            <div className="w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-500/20 flex items-center justify-center font-bold text-yellow-600 dark:text-yellow-400">
+                                            <div className="w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-500/20 flex items-center justify-center font-normal text-yellow-600 dark:text-yellow-400">
                                                 #{idx + 1}
                                             </div>
                                             <div className="flex-1 flex gap-4 flex-wrap">
@@ -675,10 +714,11 @@ export function BookingPage() {
                                                     {['M', 'F'].map(g => (
                                                         <button
                                                             key={g}
-                                                            className={`flex-1 py-3 px-2 rounded-lg font-bold flex items-center justify-center gap-2 transition-all ${p.gender === g ? 'bg-yellow-500 text-black shadow-lg' : 'text-gray-600 dark:text-white/50 hover:text-gray-900 dark:hover:text-white'}`}
+                                                            className={`flex-1 py-3 px-2 rounded-lg font-normal flex items-center justify-center gap-2 transition-all ${p.gender === g ? 'bg-yellow-500 text-black shadow-lg' : 'text-gray-600 dark:text-white/50 hover:text-gray-900 dark:hover:text-white'}`}
                                                             onClick={() => {
                                                                 const newP = [...passengers];
                                                                 newP[idx].gender = g;
+                                                                if (g !== 'F') newP[idx].isFemaleSharing = false;
                                                                 setPassengers(newP);
                                                             }}
                                                         >
@@ -687,10 +727,42 @@ export function BookingPage() {
                                                         </button>
                                                     ))}
                                                 </div>
+                                                {selectedCat === "SHARING" && p.gender === "F" && (
+                                                    <div className="flex flex-col gap-2 w-full">
+                                                        <label className="flex items-center gap-2 cursor-pointer group">
+                                                            <div className={`w-10 h-6 rounded-full p-1 transition-colors ${p.isFemaleSharing ? 'bg-pink-500' : 'bg-gray-300 dark:bg-white/10'}`} onClick={() => {
+                                                                const newP = [...passengers];
+                                                                newP[idx].isFemaleSharing = !newP[idx].isFemaleSharing;
+                                                                setPassengers(newP);
+                                                            }}>
+                                                                <div className={`w-4 h-4 bg-white rounded-full transition-transform ${p.isFemaleSharing ? 'translate-x-4' : 'translate-x-0'}`} />
+                                                            </div>
+                                                            <span className="text-sm font-normal text-gray-700 dark:text-white/70 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Pair with female rider only</span>
+                                                        </label>
+                                                        {p.isFemaleSharing && (
+                                                            <p className="text-[10px] text-pink-500 font-normal italic animate-pulse">
+                                                                * Warning: You may have to wait until another female rider books this slot.
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {idx === 1 && selectedCat === "COUPLE" && (
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Co-Passenger Name"
+                                                        className="w-full bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-normal outline-none focus:border-yellow-500"
+                                                        value={p.coPassengerName}
+                                                        onChange={(e) => {
+                                                            const newP = [...passengers];
+                                                            newP[idx].coPassengerName = e.target.value;
+                                                            setPassengers(newP);
+                                                        }}
+                                                    />
+                                                )}
                                                 <input
                                                     type="number"
                                                     placeholder="Age"
-                                                    className="w-24 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none focus:border-yellow-500 text-center"
+                                                    className="w-24 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-normal outline-none focus:border-yellow-500 text-center"
                                                     value={p.age}
                                                     onChange={(e) => {
                                                         const newP = [...passengers];
@@ -701,15 +773,15 @@ export function BookingPage() {
                                                 <input
                                                     type="number"
                                                     placeholder="Weight (KG)"
-                                                    className="w-32 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none focus:border-yellow-500 text-center"
+                                                    className="w-32 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-normal outline-none focus:border-yellow-500 text-center"
                                                     value={p.weight}
                                                     onChange={(e) => {
                                                         const newP = [...passengers];
                                                         newP[idx].weight = e.target.value;
                                                         setPassengers(newP);
                                                         // Auto Suggest Logic for overweight
-                                                        if (selectedCat === "SOLO" && parseInt(e.target.value) > 75) {
-                                                            showError("Solo ride limit is 75 KG. We recommend Couple option.");
+                                                        if (selectedCat === "SINGLE" && parseInt(e.target.value) > 75) {
+                                                            showError("Single ride limit is 75 KG. We recommend Couple option.");
                                                         }
                                                         if (selectedCat === "COUPLE" && idx === 1 && parseInt(newP[0].weight) + parseInt(e.target.value) > 150) {
                                                             showError("Combined weight exceeds 150 KG limit for Couple ride.");
@@ -723,7 +795,7 @@ export function BookingPage() {
 
                                     {selectedCat === "FAMILY" && (
                                         <button
-                                            className="w-full py-3 border border-dashed border-gray-400 dark:border-white/30 rounded-xl text-gray-700 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-600 dark:hover:border-white/50 transition-colors bg-gray-100 dark:bg-white/5 font-bold flex items-center justify-center"
+                                            className="w-full py-3 border border-dashed border-gray-400 dark:border-white/30 rounded-xl text-gray-700 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-600 dark:hover:border-white/50 transition-colors bg-gray-100 dark:bg-white/5 font-normal flex items-center justify-center"
                                             onClick={() => setPassengers([...passengers, { gender: "M", weight: "", age: "" }])}
                                         >
                                             <Users className="w-5 h-5 mr-2" /> Add Family Member
@@ -734,14 +806,19 @@ export function BookingPage() {
 
                                     <button
                                         onClick={validateDetailsForm}
-                                        className="w-full py-4 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 font-bold text-black text-lg hover:shadow-[0_0_20px_rgba(234,179,8,0.4)] transition-all"
+                                        className="w-full py-4 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 font-normal text-black text-lg hover:shadow-[0_0_20px_rgba(234,179,8,0.4)] transition-all"
                                     >
                                         Submit & Verify Slot
                                     </button>
 
                                     {selectedCat === "SHARING" && (
-                                        <div className="text-center text-sm text-yellow-400 mt-2">
-                                            "You may be paired with another rider based on slot availability."
+                                        <div className="text-center text-xs space-y-1 mt-2">
+                                            <div className="text-yellow-400">
+                                                "In sharing ride, you may share the flight with another male or female rider."
+                                            </div>
+                                            <div className="text-white/40 italic">
+                                                (Based on slot availability and pilot configuration)
+                                            </div>
                                         </div>
                                     )}
 
@@ -762,14 +839,19 @@ export function BookingPage() {
                         >
                             {/* Slot Selection Panel */}
                             <div className="flex-1 bg-white/10 dark:bg-black/60 backdrop-blur-sm border border-white/30 dark:border-white/5 rounded-3xl p-8 h-fit shadow-xl dark:shadow-none">
-                                <h3 className="text-2xl font-bold mb-6">Schedule Your Flight</h3>
+                                <div className="mb-6">
+                                    <h3 className="text-2xl font-normal text-gray-900 dark:text-white">Schedule Your Flight</h3>
+                                    <p className="text-sm text-red-500 font-normal mt-1 italic bg-black/5 dark:bg-black/40 py-1 px-4 rounded-lg border border-red-500/10 inline-block">
+                                        * Subject to climate change, there may be delays in flight schedules.
+                                    </p>
+                                </div>
 
                                 <input
                                     type="date"
                                     value={selectedDate}
                                     onChange={(e) => { setSelectedDate(e.target.value); setSelectedSlot(null); }}
                                     min={new Date().toISOString().split("T")[0]}
-                                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-4 text-lg font-bold text-gray-900 dark:text-white outline-none focus:border-yellow-500 mb-6 dark:[color-scheme:dark]"
+                                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-4 text-lg font-normal text-gray-900 dark:text-white outline-none focus:border-yellow-500 mb-6 dark:[color-scheme:dark]"
                                 />
 
                                 <div className="space-y-3">
@@ -782,15 +864,15 @@ export function BookingPage() {
                                                 disabled={isFull}
                                                 onClick={() => setSelectedSlot(slot.id)}
                                                 className={`w-full p-4 rounded-xl border-2 flex justify-between items-center transition-all ${isFull ? 'opacity-50 bg-red-100 dark:bg-red-900/20 border-red-300 dark:border-red-500/30 cursor-not-allowed' :
-                                                    selectedSlot === slot.id ? 'bg-yellow-500 border-yellow-500 text-black font-bold shadow-[0_0_20px_rgba(234,179,8,0.3)]' :
+                                                    selectedSlot === slot.id ? 'bg-yellow-500 border-yellow-500 text-black font-normal shadow-[0_0_20px_rgba(234,179,8,0.3)]' :
                                                         'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-yellow-500/50 dark:hover:border-yellow-500/50'
                                                     }`}
                                             >
-                                                <span className={`text-xl font-bold ${selectedSlot === slot.id ? 'text-black' : 'text-gray-900 dark:text-white'}`}>{slot.time}</span>
+                                                <span className={`text-xl font-normal ${selectedSlot === slot.id ? 'text-black' : 'text-gray-900 dark:text-white'}`}>{slot.time}</span>
                                                 {isFull ? (
-                                                    <span className="text-red-600 dark:text-red-400 font-bold">SOLD OUT</span>
+                                                    <span className="text-red-600 dark:text-red-400 font-normal">SOLD OUT</span>
                                                 ) : (
-                                                    <span className={selectedSlot === slot.id ? 'text-black font-black text-sm' : 'text-green-600 dark:text-green-400 font-bold text-sm'}>
+                                                    <span className={selectedSlot === slot.id ? 'text-black font-normal text-sm' : 'text-green-600 dark:text-green-400 font-normal text-sm'}>
                                                         {available} Seats Left
                                                     </span>
                                                 )}
@@ -802,43 +884,43 @@ export function BookingPage() {
 
                             {/* Payment Summary Panel */}
                             <div className="flex-[0.8] bg-white/80 dark:bg-black/60 backdrop-blur-sm text-black dark:text-white rounded-3xl p-8 relative overflow-hidden flex flex-col shadow-xl border border-white/30 dark:border-white/5">
-                                <h3 className="text-2xl font-black mb-6">Booking Summary</h3>
+                                <h3 className="text-2xl font-normal mb-6">Booking Summary</h3>
 
                                 <div className="space-y-4 mb-8 flex-1">
                                     <div className="flex justify-between items-end border-b border-gray-200 pb-4">
                                         <div>
-                                            <div className="font-bold text-gray-500 text-sm">{selectedCat} Package</div>
-                                            <div className="text-xl font-black">{PACKAGES_DATA[selectedCat]?.find(p => p.id === selectedPkg)?.name}</div>
+                                            <div className="font-normal text-gray-500 text-sm">{selectedCat} Package</div>
+                                            <div className="text-xl font-normal">{PACKAGES_DATA[selectedCat]?.find(p => p.id === selectedPkg)?.name}</div>
                                         </div>
-                                        <div className="text-xl font-bold">₹{calculateTotal().base.toLocaleString()}</div>
+                                        <div className="text-xl font-normal">₹{calculateTotal().base.toLocaleString()}</div>
                                     </div>
 
-                                    <div className="flex justify-between font-medium text-gray-600">
+                                    <div className="flex justify-between font-normal text-gray-600">
                                         <span>Safety Insurance ({calculateTotal().travelers} Pax)</span>
                                         <span>₹{calculateTotal().ins.toLocaleString()}</span>
                                     </div>
 
-                                    <div className="flex justify-between font-medium text-gray-600">
+                                    <div className="flex justify-between font-normal text-gray-600">
                                         <span>GST (18%)</span>
                                         <span>₹{calculateTotal().gst.toLocaleString()}</span>
                                     </div>
 
                                     <div className="mt-4 bg-gray-100 p-4 rounded-xl border border-gray-200">
                                         <div className="flex justify-between items-center">
-                                            <span className="font-bold text-gray-500">GRAND TOTAL</span>
-                                            <span className="text-3xl font-black text-yellow-600">₹{calculateTotal().total.toLocaleString()}</span>
+                                            <span className="font-normal text-gray-500">GRAND TOTAL</span>
+                                            <span className="text-3xl font-normal text-yellow-600">₹{calculateTotal().total.toLocaleString()}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-3 mb-6">
-                                    <p className="font-bold text-sm text-gray-500">PAY VIA</p>
+                                    <p className="font-normal text-sm text-gray-500">PAY VIA</p>
                                     <div className="grid grid-cols-2 gap-2">
                                         {['UPI', 'Card', 'NetBanking', 'Pay Later'].map(method => (
                                             <button
                                                 key={method}
                                                 onClick={() => setPaymentMethod(method)}
-                                                className={`py-3 rounded-xl border-2 font-bold transition-all ${paymentMethod === method ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : 'border-gray-200 text-gray-400 hover:border-gray-300'}`}
+                                                className={`py-3 rounded-xl border-2 font-normal transition-all ${paymentMethod === method ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : 'border-gray-200 text-gray-400 hover:border-gray-300'}`}
                                             >
                                                 {method}
                                             </button>
@@ -857,17 +939,17 @@ export function BookingPage() {
                             className="w-full max-w-4xl mx-auto mt-6"
                         >
                             <div className="bg-white/10 dark:bg-black/60 backdrop-blur-sm border border-white/30 dark:border-white/5 rounded-3xl p-8 shadow-xl">
-                                <h3 className="text-2xl font-black mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
+                                <h3 className="text-2xl font-normal mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
                                     <Shield className="w-6 h-6 text-green-600 dark:text-green-400" />
                                     Participant Confirmation
                                 </h3>
-                                <p className="text-gray-600 dark:text-white/60 mb-6 font-medium text-sm">Review & accept the mandatory terms before proceeding.</p>
+                                <p className="text-gray-600 dark:text-white/60 mb-6 font-normal text-sm">Review & accept the mandatory terms before proceeding.</p>
 
                                 <div className="space-y-4 mb-8">
                                     <div className="space-y-3 p-5 rounded-2xl bg-yellow-50 dark:bg-black/40 border border-yellow-200 dark:border-yellow-500/20">
                                         <label className="flex items-start gap-3 cursor-pointer group">
                                             <input type="checkbox" className="mt-1 w-5 h-5 rounded border-2 border-gray-300 text-yellow-500 focus:ring-yellow-500 transition-colors" checked={consent.terms} onChange={(e) => setConsent({ ...consent, terms: e.target.checked })} />
-                                            <span className="text-sm font-semibold text-gray-800 dark:text-white/90 group-hover:text-black dark:group-hover:text-white flex-1 leading-relaxed">
+                                            <span className="text-sm font-normal text-gray-800 dark:text-white/90 group-hover:text-black dark:group-hover:text-white flex-1 leading-relaxed">
                                                 I confirm that I am medically fit, not under the influence of alcohol, and my weight is within the permitted limits (Solo/Sharing: 75kg max, Couple: 150kg combined max). I understand the risks involved, agree to follow all safety instructions, and accept the <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }} className="underline text-blue-600 dark:text-blue-400 hover:text-blue-800">Terms & Conditions</a>. Incorrect info may result in cancellation without refund.
                                             </span>
                                         </label>
@@ -875,16 +957,19 @@ export function BookingPage() {
 
                                     {/* Optional Checkbox */}
                                     <div className="p-4 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20">
-                                        <h4 className="text-xs font-bold text-gray-500 dark:text-white/50 mb-2 uppercase tracking-wider">Optional Media Consent</h4>
+                                        <h4 className="text-xs font-normal text-gray-500 dark:text-white/50 mb-2 uppercase tracking-wider">Optional Media Consent</h4>
                                         <label className="flex items-start gap-3 cursor-pointer group">
                                             <input type="checkbox" className="mt-1 w-5 h-5 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500" checked={consent.media} onChange={(e) => setConsent({ ...consent, media: e.target.checked })} />
-                                            <span className="text-sm font-semibold text-gray-700 dark:text-white/70 group-hover:text-black dark:group-hover:text-white">I allow Goldwing Adventure Tours to use my photos/videos for promotional purposes.</span>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-sm font-normal text-gray-800 dark:text-white uppercase tracking-wider">Social Media Consent (Optional)</span>
+                                                <p className="text-xs text-gray-500 dark:text-white/50 leading-relaxed font-normal">Allow Goldwing to capture and share your adventure highlights on our Instagram and official social media platforms.</p>
+                                            </div>
                                         </label>
                                     </div>
                                 </div>
 
                                 <div className="text-center mb-6">
-                                    <p className="text-xs text-gray-500 dark:text-white/50 font-medium max-w-lg mx-auto leading-relaxed">
+                                    <p className="text-xs text-gray-500 dark:text-white/50 font-normal max-w-lg mx-auto leading-relaxed">
                                         By clicking “Confirm Booking”, I digitally agree to the above terms and acknowledge this as a legally binding electronic consent. <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }} className="underline text-blue-600 dark:text-blue-400 hover:text-blue-800">View Full Terms & Conditions</a>
                                     </p>
                                 </div>
@@ -892,7 +977,7 @@ export function BookingPage() {
                                 <button
                                     disabled={!selectedSlot || !isConsentValid}
                                     onClick={handlePayment}
-                                    className={`w-full py-5 rounded-2xl font-black text-xl hover:bg-gray-800 transition-all flex items-center justify-center gap-3 ${!selectedSlot || !isConsentValid ? 'bg-gray-300 dark:bg-white/10 text-gray-500 dark:text-white/30 cursor-not-allowed' : 'bg-black text-white hover:scale-[1.01] shadow-2xl'}`}
+                                    className={`w-full py-5 rounded-2xl font-normal text-xl hover:bg-gray-800 transition-all flex items-center justify-center gap-3 ${!selectedSlot || !isConsentValid ? 'bg-gray-300 dark:bg-white/10 text-gray-500 dark:text-white/30 cursor-not-allowed' : 'bg-black text-white hover:scale-[1.01] shadow-2xl'}`}
                                 >
                                     <CreditCard className="w-6 h-6" /> Pay & Confirm Booking
                                 </button>
@@ -911,43 +996,43 @@ export function BookingPage() {
                             <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_50px_rgba(34,197,94,0.4)]">
                                 <Check className="w-12 h-12 text-white" />
                             </div>
-                            <h2 className="text-4xl font-black mb-2">Booking Confirmed!</h2>
+                            <h2 className="text-4xl font-normal mb-2">Booking Confirmed!</h2>
                             <p className="text-white/70 mb-8">Adventure awaits. Your slot is securely locked.</p>
 
                             <div className="bg-white/30 dark:bg-white/5 border border-white/30 dark:border-white/5 p-8 rounded-3xl text-left mb-8 shadow-2xl relative overflow-hidden text-gray-900 dark:text-white">
-                                <p className="text-yellow-600 dark:text-yellow-400 font-bold text-sm mb-1">BOOKING ID</p>
-                                <p className="text-3xl font-mono tracking-wider font-bold mb-6 text-gray-900 dark:text-white">{bookingId}</p>
+                                <p className="text-yellow-600 dark:text-yellow-400 font-normal text-sm mb-1">BOOKING ID</p>
+                                <p className="text-3xl font-mono tracking-wider font-normal mb-6 text-gray-900 dark:text-white">{bookingId}</p>
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <div>
-                                        <p className="text-gray-500 dark:text-white/50 text-sm font-semibold mb-1">DATE & TIME</p>
-                                        <p className="font-bold text-lg">{selectedDate} / {MOCK_SLOTS.find(s => s.id === selectedSlot)?.time}</p>
+                                        <p className="text-gray-500 dark:text-white/50 text-sm font-normal mb-1">DATE & TIME</p>
+                                        <p className="font-normal text-lg">{selectedDate} / {MOCK_SLOTS.find(s => s.id === selectedSlot)?.time}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-500 dark:text-white/50 text-sm font-semibold mb-1">RIDE TYPE</p>
-                                        <p className="font-bold text-lg">{PACKAGES_DATA[selectedCat]?.find(p => p.id === selectedPkg)?.name}</p>
+                                        <p className="text-gray-500 dark:text-white/50 text-sm font-normal mb-1">RIDE TYPE</p>
+                                        <p className="font-normal text-lg">{PACKAGES_DATA[selectedCat]?.find(p => p.id === selectedPkg)?.name}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-500 dark:text-white/50 text-sm font-semibold mb-1">PASSENGERS</p>
-                                        <p className="font-bold text-lg">{passengers.length} Persons</p>
+                                        <p className="text-gray-500 dark:text-white/50 text-sm font-normal mb-1">PASSENGERS</p>
+                                        <p className="font-normal text-lg">{passengers.length} Persons</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="flex flex-col md:flex-row gap-4 justify-center">
-                                <button onClick={handleDownloadTicket} className="flex items-center justify-center px-8 py-4 bg-yellow-500 text-black hover:bg-yellow-400 rounded-xl font-bold transition shadow-lg">
+                                <button onClick={handleDownloadTicket} className="flex items-center justify-center px-8 py-4 bg-yellow-500 text-black hover:bg-yellow-400 rounded-xl font-normal transition shadow-lg">
                                     <Download className="w-5 h-5 mr-2" /> Download Ticket
                                 </button>
-                                <button onClick={handleDownloadInvoice} className="flex items-center justify-center px-8 py-4 bg-blue-500 text-white hover:bg-blue-600 rounded-xl font-bold transition shadow-lg">
+                                <button onClick={handleDownloadInvoice} className="flex items-center justify-center px-8 py-4 bg-blue-500 text-white hover:bg-blue-600 rounded-xl font-normal transition shadow-lg">
                                     <Download className="w-5 h-5 mr-2" /> View Invoice
                                 </button>
-                                <button className="flex items-center justify-center px-8 py-4 bg-white/10 text-white hover:bg-white/20 border border-white/20 rounded-xl font-bold transition backdrop-blur-md" onClick={() => window.open('https://maps.google.com', '_blank')}>
+                                <button className="flex items-center justify-center px-8 py-4 bg-white/10 text-white hover:bg-white/20 border border-white/20 rounded-xl font-normal transition backdrop-blur-md" onClick={() => window.open('https://maps.google.com', '_blank')}>
                                     <MapPin className="w-5 h-5 mr-2" /> Start the Adventure
                                 </button>
                             </div>
 
                             <div className="mt-8">
-                                <button onClick={() => window.location.href = '/explore'} className="text-white/60 hover:text-white transition font-bold border-b border-transparent hover:border-white">
+                                <button onClick={() => window.location.href = '/explore'} className="text-white/60 hover:text-white transition font-normal border-b border-transparent hover:border-white">
                                     Return to Home
                                 </button>
                             </div>
@@ -959,11 +1044,11 @@ export function BookingPage() {
 
             {/* Floating Action Buttons */}
             <div className="fixed bottom-6 right-6 flex flex-col gap-4 z-[200]">
-                <a href="tel:+918087968502" className="bg-[#2E7CCB] hover:bg-blue-600 text-white shadow-[0_4px_15px_rgba(46,124,203,0.4)] transition-transform hover:scale-110 p-5 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                <a href="tel:+918087968502" className="bg-[#2E7CCB] hover:bg-blue-600 text-white transition-transform hover:scale-110 p-3 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                 </a>
-                <a href="https://wa.me/918087968502" target="_blank" rel="noopener noreferrer" className="bg-[#25D366] hover:bg-green-600 text-white shadow-[0_4px_15px_rgba(37,211,102,0.4)] transition-transform hover:scale-110 p-5 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
-                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
+                <a href="https://wa.me/918087968502" target="_blank" rel="noopener noreferrer" className="bg-[#25D366] hover:bg-green-600 text-white transition-transform hover:scale-110 p-3 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
                 </a>
             </div>
 

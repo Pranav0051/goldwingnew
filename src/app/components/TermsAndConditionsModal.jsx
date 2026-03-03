@@ -24,7 +24,7 @@ export function TermsAndConditionsModal({ isOpen, onClose }) {
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between p-5 md:p-6 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5">
-                            <h2 className="text-xl md:text-2xl font-black flex items-center gap-3 text-gray-900 dark:text-white">
+                            <h2 className="text-xl md:text-2xl font-normal flex items-center gap-3 text-gray-900 dark:text-white">
                                 <FileText className="w-6 h-6 text-yellow-500" />
                                 Terms & Conditions
                             </h2>
@@ -40,7 +40,7 @@ export function TermsAndConditionsModal({ isOpen, onClose }) {
                         <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-8 text-gray-700 dark:text-white/80 select-text">
 
                             <section>
-                                <h3 className="text-lg font-bold mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
+                                <h3 className="text-lg font-normal mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
                                     <ShieldCheck className="w-5 h-5 text-green-500" />
                                     1. Medical & Fitness Requirements
                                 </h3>
@@ -52,7 +52,7 @@ export function TermsAndConditionsModal({ isOpen, onClose }) {
                             </section>
 
                             <section>
-                                <h3 className="text-lg font-bold mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
+                                <h3 className="text-lg font-normal mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
                                     <AlertCircle className="w-5 h-5 text-red-500" />
                                     2. Weight & Age Restrictions
                                 </h3>
@@ -60,14 +60,14 @@ export function TermsAndConditionsModal({ isOpen, onClose }) {
                                     <p>• <strong>Solo & Sharing Packages:</strong> Maximum permitted weight is <strong>75 KG</strong> per person.</p>
                                     <p>• <strong>Couple Package:</strong> Combined maximum permitted weight is <strong>150 KG</strong>.</p>
                                     <p>• <strong>Age Limit:</strong> Minimum age limit is 12 years. Minors must have written parental consent.</p>
-                                    <p className="text-red-500 font-semibold mt-2 text-xs uppercase tracking-wide">
+                                    <p className="text-red-500 font-normal mt-2 text-xs uppercase tracking-wide">
                                         Note: We weigh passengers individually before flights. Submitting false weight information during booking will result in immediate cancellation without refund.
                                     </p>
                                 </div>
                             </section>
 
                             <section>
-                                <h3 className="text-lg font-bold mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
+                                <h3 className="text-lg font-normal mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
                                     <RefreshCw className="w-5 h-5 text-blue-500" />
                                     3. Rescheduling & Weather Policy
                                 </h3>
@@ -79,7 +79,7 @@ export function TermsAndConditionsModal({ isOpen, onClose }) {
                             </section>
 
                             <section>
-                                <h3 className="text-lg font-bold mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
+                                <h3 className="text-lg font-normal mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
                                     <MapPin className="w-5 h-5 text-yellow-500" />
                                     4. Reporting & General Guidelines
                                 </h3>
@@ -92,7 +92,7 @@ export function TermsAndConditionsModal({ isOpen, onClose }) {
                             </section>
 
                             <div className="bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/30 p-4 rounded-xl mt-6">
-                                <p className="text-sm font-semibold text-gray-900 dark:text-white text-center">
+                                <p className="text-sm font-normal text-gray-900 dark:text-white text-center">
                                     By proceeding with the booking, you acknowledge that you have read, understood, and agreed to all the terms listed above.
                                 </p>
                             </div>
@@ -102,7 +102,7 @@ export function TermsAndConditionsModal({ isOpen, onClose }) {
                         <div className="p-5 md:p-6 border-t border-gray-200 dark:border-white/10 flex justify-end">
                             <button
                                 onClick={onClose}
-                                className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl transition-colors shadow-lg"
+                                className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-normal rounded-xl transition-colors shadow-lg"
                             >
                                 I Understand & Agree
                             </button>
