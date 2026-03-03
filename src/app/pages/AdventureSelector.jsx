@@ -580,17 +580,33 @@ export function AdventureSelector() {
             {/* Dynamic Background Image Layer */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <AnimatePresence mode="wait">
-                    <motion.img
-                        key={backgroundIndex}
-                        src={backgroundIndex}
-                        initial={{ opacity: 0, scale: 1.05 }}
-                        animate={{ opacity: 0.85, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 1 }}
-                        className="w-full h-full object-cover"
-                    />
+                    {!selectedCat ? (
+                        <motion.video
+                            key="bg-video"
+                            src="/video/homepage.mp4"
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.85 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 1.5 }}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <motion.img
+                            key={backgroundIndex}
+                            src={backgroundIndex}
+                            initial={{ opacity: 0, scale: 1.05 }}
+                            animate={{ opacity: 0.85, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 1 }}
+                            className="w-full h-full object-cover"
+                        />
+                    )}
                 </AnimatePresence>
-                <div className="absolute inset-0 bg-black/10 dark:bg-[#0B0F19]/40" />
+                <div className="absolute inset-0 bg-black/20 dark:bg-[#0B0F19]/60" />
             </div>
 
             {/* Error Toast */}
