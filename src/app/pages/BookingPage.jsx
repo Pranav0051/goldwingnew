@@ -534,7 +534,7 @@ export function BookingPage() {
 
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0B0F19] text-gray-900 dark:text-white font-sans overflow-y-auto overflow-x-hidden relative selection-bg transition-colors duration-300">
+        <div className="min-h-screen bg-white dark:bg-[#0B0F19] text-gray-900 dark:text-white font-sans overflow-x-hidden relative selection-bg transition-colors duration-300">
             {/* Dynamic Background Image Layer */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <AnimatePresence mode="wait">
@@ -591,23 +591,28 @@ export function BookingPage() {
                         {step > 1 && step < 7 ? (
                             <button
                                 onClick={() => setStep(step === 5 ? 3 : step - 1)}
-                                className="flex items-center text-white/70 hover:text-white transition bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10"
+                                className="flex items-center justify-center w-10 h-10 text-white/70 hover:text-white transition bg-white/10 rounded-full backdrop-blur-md border border-white/10 shadow-lg group"
+                                title="Back"
                             >
-                                <ArrowLeft className="w-4 h-4 mr-2" /> Back
+                                <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
                             </button>
                         ) : step === 7 ? (
                             <button
-                                onClick={() => navigate('/')}
-                                className="flex items-center text-white/70 hover:text-white transition bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10"
+                                onClick={() => navigate('/explore?skipLoader=true')}
+                                className="flex items-center justify-center w-10 h-10 text-white/70 hover:text-white transition bg-white/10 rounded-full backdrop-blur-md border border-white/10 shadow-lg group"
+                                title="Back to Home"
                             >
-                                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
+                                <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
                             </button>
                         ) : (
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 backdrop-blur-md bg-white/10 rounded-xl border border-white/20">
-                                    <img src="/images/logo.png" alt="Logo" className="h-6" />
-                                </div>
-                                <div className="text-white font-black text-xs uppercase tracking-[0.2em] hidden md:block">Goldwing</div>
+                            <div className="flex items-center gap-2 md:gap-4">
+                                <button
+                                    onClick={() => navigate('/explore?skipLoader=true')}
+                                    className="flex items-center justify-center w-10 h-10 text-white/70 hover:text-white transition bg-white/10 rounded-full backdrop-blur-md border border-white/10 shadow-lg group"
+                                    title="Back to Website"
+                                >
+                                    <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+                                </button>
                             </div>
                         )}
                     </div>

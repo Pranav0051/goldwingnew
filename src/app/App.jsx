@@ -1,7 +1,17 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import "./theme.css";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router";
 import { PageLoader } from "./components/PageLoader";
+
+// Scroll to Top Wrapper
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 // Lazy Load All Pages
 const LandingPage = React.lazy(() => import("./pages/LandingPage").then(m => ({ default: m.LandingPage })));
 const AdventureSelector = React.lazy(() => import("./pages/AdventureSelector").then(m => ({ default: m.AdventureSelector })));
@@ -16,6 +26,7 @@ const PilotDashboard = React.lazy(() => import("./pages/PilotDashboard").then(m 
 
 export default function App() {
   return (<BrowserRouter>
+    <ScrollToTop />
     <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/" element={<AdventureSelector />} />

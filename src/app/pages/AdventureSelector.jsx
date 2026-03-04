@@ -592,7 +592,7 @@ export function AdventureSelector() {
 
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0B0F19] text-gray-900 dark:text-white font-sans overflow-y-auto overflow-x-hidden relative selection-bg transition-colors duration-300">
+        <div className="min-h-screen bg-white dark:bg-[#0B0F19] text-gray-900 dark:text-white font-sans overflow-x-hidden relative selection-bg transition-colors duration-300">
             {/* Dynamic Background Image Layer */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <AnimatePresence mode="wait">

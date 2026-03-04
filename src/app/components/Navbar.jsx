@@ -8,10 +8,22 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLightTheme, setIsLightTheme] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [dashboardUrl, setDashboardUrl] = useState("/login");
   useEffect(() => {
     // Check initial login state
-    setIsAdmin(localStorage.getItem("isAdminLoggedIn") === "true");
+    const isAdmin = localStorage.getItem("isAdminLoggedIn") === "true";
+    const isStaff = localStorage.getItem("isStaffLoggedIn") === "true";
+    const isPilot = localStorage.getItem("isPilotLoggedIn") === "true";
+    const isAgent = localStorage.getItem("isAgentLoggedIn") === "true";
+
+    setIsLoggedIn(isAdmin || isStaff || isPilot || isAgent);
+
+    if (isAdmin) setDashboardUrl("/admin");
+    else if (isStaff) setDashboardUrl("/staff");
+    else if (isPilot) setDashboardUrl("/pilot");
+    else if (isAgent) setDashboardUrl("/agent");
+    else setDashboardUrl("/login");
     // Initial check
     setIsLightTheme(document.documentElement.classList.contains("light-theme"));
     // Watch for theme changes
@@ -68,6 +80,11 @@ export function Navbar() {
             </motion.div>
             <span>+91 123 456 7890</span>
           </a>
+
+          <Link to={dashboardUrl} className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 group backdrop-blur-md border shadow-lg ${(isScrolled && isLightTheme) ? "bg-black/5 border-black/10 text-[#0B0F19] hover:bg-[#D4AF37] hover:border-[#D4AF37] hover:text-[#0B0F19]" : "bg-white/10 border-white/20 text-white hover:bg-[#D4AF37] hover:border-[#D4AF37] hover:text-black"}`} title={isLoggedIn ? "Dashboard" : "Login"}>
+            <User className={`w-5 h-5 transition-transform group-hover:scale-110 ${isLoggedIn ? "text-[#D4AF37] fill-[#D4AF37]/20" : ""}`} />
+          </Link>
+
           <ThemeToggle className={(isScrolled && isLightTheme) ? "ring-1 ring-black/10 shadow-sm" : ""} />
         </div>
 
@@ -106,6 +123,10 @@ export function Navbar() {
             </motion.div>
             <span>+91 123 456 7890</span>
           </a>
+          <Link to={dashboardUrl} onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center justify-center gap-3 transition-colors px-6 py-4 rounded-2xl font-normal w-full shadow-lg ${isLightTheme ? "bg-[#0B0F19] text-white" : "bg-white text-[#0B0F19]"}`}>
+            <User className="w-6 h-6" />
+            <span className="text-xl">{isLoggedIn ? "Dashboard" : "Log In"}</span>
+          </Link>
         </div>
       </motion.div>)}
     </div>

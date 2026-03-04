@@ -22,6 +22,8 @@ export function LoginPage() {
             navigate("/staff");
         } else if (localStorage.getItem("isPilotLoggedIn") === "true") {
             navigate("/pilot");
+        } else if (localStorage.getItem("isAgentLoggedIn") === "true") {
+            navigate("/agent");
         }
     });
     const handleLogin = (e) => {
@@ -53,6 +55,7 @@ export function LoginPage() {
             }
         } else {
             if (!email.includes("admin") && !email.includes("staff") && !email.includes("pilot")) {
+                localStorage.setItem("isAgentLoggedIn", "true");
                 navigate("/agent");
             } else {
                 showError("Please select the correct role access to login.");
