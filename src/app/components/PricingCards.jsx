@@ -5,7 +5,7 @@ const packages = [
   {
     id: "basic",
     name: "Basic Ride",
-    price: "₹3,499",
+    price: "₹ 3,499",
     popular: false,
     duration: "5-7 Minutes",
     height: "500 ft",
@@ -24,7 +24,7 @@ const packages = [
   {
     id: "premium",
     name: "Premium Ride",
-    price: "₹5,999",
+    price: "₹ 5,999",
     popular: true,
     duration: "10-15 Minutes",
     height: "1000 ft",
@@ -43,7 +43,7 @@ const packages = [
   {
     id: "sunrise",
     name: "Sunrise Special",
-    price: "₹8,999",
+    price: "₹ 8,999",
     popular: false,
     duration: "15-20 Minutes",
     height: "1200 ft",
@@ -161,7 +161,7 @@ export function PricingCards({ onBookClick }) {
           <span className="text-[#16A34A]">✓</span> Full Refund Available · Weather Monitored Daily
         </p>
         <p className="text-white/60 text-sm">
-          Pay ₹500 to reserve your slot · Balance on arrival
+          Pay ₹ 500 to reserve your slot · Balance on arrival
         </p>
       </motion.div>
     </div>

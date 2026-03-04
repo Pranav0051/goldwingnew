@@ -11,6 +11,7 @@ const AgentDashboard = React.lazy(() => import("./pages/AgentDashboard").then(m 
 const LoginPage = React.lazy(() => import("./pages/LoginPage").then(m => ({ default: m.LoginPage })));
 const ScannerPage = React.lazy(() => import("./pages/ScannerPage").then(m => ({ default: m.ScannerPage })));
 const StaffDashboard = React.lazy(() => import("./pages/StaffDashboard").then(m => ({ default: m.StaffDashboard })));
+const AboutPage = React.lazy(() => import("./pages/AboutPage").then(m => ({ default: m.AboutPage })));
 const PilotDashboard = React.lazy(() => import("./pages/PilotDashboard").then(m => ({ default: m.PilotDashboard })));
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/" element={<AdventureSelector />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/explore" element={<LandingPage />} />
         <Route path="/book" element={<BookingPage />} />
         <Route path="/login" element={<LoginPage />} />

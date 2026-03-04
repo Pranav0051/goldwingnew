@@ -230,7 +230,7 @@ export function AdminDashboard() {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className={`${isLightTheme ? "text-amber-700/80" : "text-[#D4AF37]/80"} text-xs font-normal uppercase`}>Total Revenue</p>
-                            <p className={`text-2xl font-normal mt-1 ${isLightTheme ? "text-amber-700" : "text-[#D4AF37]"}`}>₹{stats.revenue.toLocaleString()}</p>
+                            <p className={`text-2xl font-normal mt-1 ${isLightTheme ? "text-amber-700" : "text-[#D4AF37]"}`}>₹ {stats.revenue.toLocaleString('en-IN')}</p>
                         </div>
                         <div className="p-2 bg-[#D4AF37]/20 text-[#D4AF37] rounded-lg"><Banknote className="w-5 h-5" /></div>
                     </div>
@@ -323,7 +323,7 @@ export function AdminDashboard() {
                                     <td className={`px-6 py-4 font-normal ${isLightTheme ? "text-gray-900" : "text-white"} whitespace-nowrap`}>{agent.agentRef}</td>
                                     <td className={`px-6 py-4 font-normal ${isLightTheme ? "text-gray-900" : "text-white"}`}>{agent.totalBookings} Tickets</td>
                                     <td className={`px-6 py-4 font-normal ${isLightTheme ? "text-gray-900" : "text-white"}`}>{agent.persons} Pax</td>
-                                    <td className="px-6 py-4 text-[#D4AF37] tabular-nums font-normal">₹{agent.revenue.toLocaleString()}</td>
+                                    <td className="px-6 py-4 text-[#D4AF37] tabular-nums font-normal">₹ {agent.revenue.toLocaleString('en-IN')}</td>
                                 </tr>
                             )) : (
                                 <tr>
@@ -422,7 +422,7 @@ export function AdminDashboard() {
                                             <option value="Cancelled" className={isLightTheme ? "bg-white text-black" : "bg-[#111827] text-white"}>Cancelled</option>
                                         </select>
                                     </td>
-                                    <td className="px-6 py-4 text-[#D4AF37] tabular-nums font-normal">₹{booking.price}</td>
+                                    <td className="px-6 py-4 text-[#D4AF37] tabular-nums font-normal">₹ {booking.price.toLocaleString('en-IN')}</td>
                                     <td className="px-6 py-4 text-right flex justify-end gap-2 text-white">
                                         <button className={`${isLightTheme ? "text-gray-400 hover:text-gray-600 hover:bg-gray-100" : "text-white/50 hover:text-white hover:bg-white/10"} p-2 rounded-lg transition`} title="Print Ticket"><Ticket className="w-4 h-4" /></button>
                                         <button className={`${isLightTheme ? "text-gray-400 hover:text-gray-600 hover:bg-gray-100" : "text-white/50 hover:text-white hover:bg-white/10"} p-2 rounded-lg transition`} title="Edit (Disabled)"><Edit className="w-4 h-4" /></button>
@@ -499,7 +499,7 @@ export function AdminDashboard() {
                                 <div className="mt-1">
                                     <span className={`font-normal ${isLightTheme ? "text-gray-800" : "text-white"}`}>{booking.slot}</span>
                                     <span className="mx-1.5 opacity-30 text-white">|</span>
-                                    <span className="text-[#D4AF37] font-normal">₹{booking.price}</span>
+                                    <span className="text-[#D4AF37] font-normal">₹ {booking.price.toLocaleString('en-IN')}</span>
                                 </div>
                             </div>
                         </div>

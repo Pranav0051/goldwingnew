@@ -66,7 +66,7 @@ export function SafetySection() {
         {/* Right: Safety Points */}
         <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="space-y-8">
           <div className="space-y-4">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal text-white">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white">
               Safety First, Thrills Always
             </h2>
             <p className="text-white/70 text-lg">

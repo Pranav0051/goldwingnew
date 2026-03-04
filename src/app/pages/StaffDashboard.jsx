@@ -243,6 +243,10 @@ export function StaffDashboard() {
         setCenteredText("This is a computer-generated ticket.", "normal", 10, 6);
         setCenteredText("Mandatory insurance included.", "normal", 10, 6);
         setCenteredText("Report 30 minutes before slot time.", "normal", 10, 8);
+        drawDivider();
+        setCenteredText("We accept per wedding shoot orders and", "bolditalic", 9, 5);
+        setCenteredText("special booking for whole day", "bolditalic", 9, 8);
+        drawDivider();
         if (b.category === "SHARING") {
             setCenteredText("SHARING DISCLAIMER:", "bold", 9, 5);
             setCenteredText("You may share the flight with another rider.", "normal", 8, 4);

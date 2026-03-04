@@ -6,6 +6,17 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 import { bookingStore } from "../utils/bookingStore";
+import { Navbar } from "../components/Navbar";
+import { Hero } from "../components/Hero";
+import { ExperienceHighlights } from "../components/ExperienceHighlights";
+import { FlightTimeline } from "../components/FlightTimeline";
+import { SafetySection } from "../components/SafetySection";
+import { ThingsToCarry } from "../components/ThingsToCarry";
+import { FAQ } from "../components/FAQ";
+import { Testimonials } from "../components/Testimonials";
+import { FutureAdventures } from "../components/FutureAdventures";
+import { FloatingCTA } from "../components/FloatingCTA";
+import { Footer } from "../components/Footer";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { LiveNotifications } from "../components/LiveNotifications";
 import { TermsAndConditionsModal } from "../components/TermsAndConditionsModal";
@@ -59,8 +70,8 @@ const CATEGORIES = [
     {
         id: "SINGLE",
         title: "Single",
-        icon: "/images/icon/single-person.png",
-        bg: "/images/background/solo.png",
+        icon: "/images/icon/new_single-removebg.png",
+        bg: "/images/background/single para.webp",
         tagline: "High Fly Adventure",
         microText: "Single Flight Experience",
         cta: "Book Now",
@@ -69,7 +80,7 @@ const CATEGORIES = [
     {
         id: "COUPLE",
         title: "Couple",
-        icon: "/images/icon/couple.png",
+        icon: "/images/icon/couple-removebg.png",
         bg: "/images/background/couple.png",
         tagline: "Share the Sky",
         microText: "Romantic Sky Tour",
@@ -79,7 +90,7 @@ const CATEGORIES = [
     {
         id: "FAMILY",
         title: "Family",
-        icon: "/images/icon/family.png",
+        icon: "/images/icon/familynew.png",
         bg: "/images/background/3 seat para.jpg",
         tagline: "Sky Safari",
         microText: "Family Bonding",
@@ -89,7 +100,7 @@ const CATEGORIES = [
     {
         id: "SHARING",
         title: "Sharing",
-        icon: "/images/icon/share-ride-new.png",
+        icon: "/images/icon/sharing.png",
         bg: "/images/background/2 seater para.avif",
         tagline: "Economical Fly",
         microText: "Team Experience",
@@ -99,7 +110,7 @@ const CATEGORIES = [
     {
         id: "PREMIUM",
         title: "Premium",
-        icon: "/images/icon/crown.png",
+        icon: "/images/icon/premium_new.png",
         bg: "/images/background/premium.png",
         tagline: "Luxury Expedition",
         ribbon: "Exclusive",
@@ -117,7 +128,7 @@ export function AdventureSelector() {
     const [searchParams] = useSearchParams();
     const refCode = searchParams.get("ref");
     // Form & UI States
-    const [step, setStep] = useState(0); // 0=Splash, 1=Category, 2=Packages, 3=Details, 4=Location, 5=Slot, 6=Payment, 7=Confirmation
+    const [step, setStep] = useState(() => (sessionStorage.getItem("hasSeenSplash") ? 1 : 0)); // 0=Splash, 1=Category, 2=Packages, 3=Details, 4=Location, 5=Slot, 6=Payment, 7=Confirmation
     const [backgroundIndex, setBackgroundIndex] = useState("/images/background/solo.png");
     const [showSplash, setShowSplash] = useState(true);
     const [showTermsModal, setShowTermsModal] = useState(false);
@@ -157,11 +168,14 @@ export function AdventureSelector() {
             document.body.style.overflow = "hidden";
             const timer = setTimeout(() => {
                 setStep(1);
+                sessionStorage.setItem("hasSeenSplash", "true");
                 document.body.style.overflow = "auto";
             }, 3000);
             return () => clearTimeout(timer);
         }
     }, [step]);
+
+
 
     // Dynamic Background transition effect
     useEffect(() => {
@@ -575,6 +589,8 @@ export function AdventureSelector() {
         );
     }
 
+
+
     return (
         <div className="min-h-screen bg-white dark:bg-[#0B0F19] text-gray-900 dark:text-white font-sans overflow-y-auto overflow-x-hidden relative selection-bg transition-colors duration-300">
             {/* Dynamic Background Image Layer */}
@@ -642,7 +658,7 @@ export function AdventureSelector() {
                                 onClick={() => navigate('/')}
                                 className="flex items-center text-white/70 hover:text-white transition bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10"
                             >
-                                <Globe className="w-4 h-4 mr-2" /> Explore Website
+                                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
                             </button>
                         ) : (
                             <div className="flex items-center gap-3">
@@ -655,6 +671,8 @@ export function AdventureSelector() {
                     </div>
                     {step > 0 && <ThemeToggle />}
                     <div className="flex items-center gap-4">
+
+
                         <Link to={isAdmin ? "/admin" : "/login"} className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 dark:bg-black/20 hover:bg-white/20 dark:hover:bg-black/40 text-gray-900 dark:text-white backdrop-blur-md transition border border-gray-200 dark:border-white/10 shadow-sm group">
                             <User className={`w-5 h-5 transition-transform group-hover:scale-110 ${isAdmin ? "text-yellow-500 fill-yellow-500" : ""}`} />
                         </Link>
@@ -699,11 +717,11 @@ export function AdventureSelector() {
                                             {/* FRONT SIDE (Ultimate-transparent glass) */}
                                             <div className="absolute inset-0 backface-hidden w-full h-full rounded-[2rem] border border-white/[0.03] bg-transparent backdrop-blur-[2px] flex flex-col items-center justify-center shadow-2xl overflow-hidden">
                                                 <div className="relative z-10 flex flex-col items-center justify-center h-full w-full gap-y-6">
-                                                    <div className="w-36 h-36 rounded-full bg-white/[0.04] flex items-center justify-center p-6 border border-white/[0.05] shadow-[0_0_20px_rgba(255,255,255,0.05)]">
+                                                    <div className="w-36 h-36 rounded-full bg-white/[0.04] flex items-center justify-center border border-white/[0.05] shadow-[0_0_20px_rgba(255,255,255,0.05)] transition-all duration-300">
                                                         <img
                                                             src={cat.icon}
                                                             alt={cat.title}
-                                                            className="w-full h-full object-contain"
+                                                            className={`w-full h-full object-contain transition-transform duration-300 ${['SINGLE', 'COUPLE', 'FAMILY', 'SHARING'].includes(cat.id) ? 'scale-[1.7] translate-y-[-5%]' : cat.id === 'PREMIUM' ? 'scale-[1.2]' : 'p-6'}`}
                                                         />
                                                     </div>
                                                     <h3 className="text-4xl font-black text-white/90 uppercase tracking-widest font-sans">
@@ -715,8 +733,8 @@ export function AdventureSelector() {
                                             {/* BACK SIDE (Black & Gold Premium Focus) */}
                                             <div className="absolute inset-0 backface-hidden w-full h-full rounded-[2rem] border border-[#F4B400]/60 bg-black flex flex-col items-center justify-center overflow-hidden shadow-[0_0_50px_rgba(244,180,0,0.2)] [transform:rotateY(180deg)]">
                                                 <div className="relative z-10 w-full h-full flex flex-col p-8 items-center text-center justify-between">
-                                                    <div className="w-24 h-24 mt-4 opacity-[0.15]">
-                                                        <img src={cat.icon} alt={cat.title} className="w-full h-full object-contain invert" />
+                                                    <div className="w-32 h-32 mt-4 opacity-40">
+                                                        <img src={cat.icon} alt={cat.title} className="w-full h-full object-contain" />
                                                     </div>
 
                                                     <div className="flex flex-col items-center mb-6">
@@ -738,7 +756,7 @@ export function AdventureSelector() {
                                 ))}
                             </div>
 
-                            <div className="mt-16 text-center">
+                            <div className="mt-16 text-center flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <button
                                     onClick={() => navigate('/explore?skipLoader=true')}
                                     className="px-10 py-4 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 transition-all text-white font-black inline-flex items-center gap-3 group"
@@ -793,7 +811,7 @@ export function AdventureSelector() {
                                                 {pkg.name}
                                             </h3>
                                             <div className="flex items-baseline gap-1 mt-1">
-                                                <span className="text-2xl md:text-3xl font-black text-[#F4B400]">₹{pkg.price.toLocaleString()}</span>
+                                                <span className="text-2xl md:text-3xl font-black text-[#F4B400]">₹ {pkg.price.toLocaleString('en-IN')}</span>
                                                 <span className="text-white/40 text-[9px] font-black uppercase">/ Slot</span>
                                             </div>
                                         </div>
@@ -1309,7 +1327,7 @@ export function AdventureSelector() {
                                         </div>
                                         <div className="pt-4 mt-4 border-t border-white/5 flex justify-between items-center">
                                             <span className="text-sm font-black text-[#F4B400]">PAYMENT SETTLED</span>
-                                            <span className="font-black text-xl text-white">₹{calculateTotal().total.toLocaleString()}</span>
+                                            <span className="font-black text-xl text-white">₹ {calculateTotal().total.toLocaleString('en-IN')}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1325,8 +1343,8 @@ export function AdventureSelector() {
                                 <button onClick={() => window.open('https://maps.apple.com/maps?daddr=19.0760,72.8777', '_blank')} className="flex items-center justify-center py-5 bg-white/5 text-white hover:bg-white/10 border border-white/10 rounded-[2rem] font-black transition-all">
                                     <MapPin className="w-5 h-5 mr-3" /> Office Directions
                                 </button>
-                                <button onClick={() => navigate('/explore')} className="flex items-center justify-center py-5 bg-white text-black hover:scale-[1.05] rounded-[2rem] font-black transition-all">
-                                    <Globe className="w-5 h-5 mr-3" /> Explore More
+                                <button onClick={() => navigate('/')} className="flex items-center justify-center py-5 bg-white text-black hover:scale-[1.05] rounded-[2rem] font-black transition-all">
+                                    <ArrowLeft className="w-5 h-5 mr-3" /> Back to Home
                                 </button>
                             </div>
                         </motion.div>

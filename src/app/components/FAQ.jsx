@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     question: "Is booking compulsory?",
-    answer: "Yes, advance booking is required to reserve your slot. Pay ₹500 to confirm your booking, with the balance due on arrival. This ensures availability and proper planning.",
+    answer: "Yes, advance booking is required to reserve your slot. Pay ₹ 500 to confirm your booking, with the balance due on arrival. This ensures availability and proper planning.",
   },
   {
     question: "What should I wear?",
@@ -49,7 +49,7 @@ export function FAQ() {
 
     <div className="container mx-auto px-4 relative z-10">
       <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal text-white mb-4">
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4">
           Frequently Asked Questions
         </h2>
         <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto">

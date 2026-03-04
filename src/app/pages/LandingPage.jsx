@@ -2,7 +2,6 @@
 import { Navbar } from "../components/Navbar";
 import { Hero } from "../components/Hero";
 import { ExperienceHighlights } from "../components/ExperienceHighlights";
-import { PricingCards } from "../components/PricingCards";
 import { FlightTimeline } from "../components/FlightTimeline";
 import { SafetySection } from "../components/SafetySection";
 import { ThingsToCarry } from "../components/ThingsToCarry";
@@ -28,9 +27,6 @@ export function LandingPage() {
 
         {/* Experience Highlights */}
         <ExperienceHighlights />
-
-        {/* Pricing Cards */}
-        <PricingCards onBookClick={handleBookClick} />
 
         {/* Flight Timeline */}
         <FlightTimeline />

@@ -124,8 +124,8 @@ export function AgentDashboard() {
 
                     <motion.div whileHover={{ y: -5 }} className="bg-[#111827] border border-white/10 rounded-2xl p-5 md:p-6 shadow-lg">
                         <h3 className="text-white/60 text-[10px] md:text-sm font-normal mb-1 uppercase tracking-wider">Total Earned</h3>
-                        <p className="text-xl md:text-2xl font-normal text-white mb-2">₹{agentData.commissionEarned.toLocaleString()}</p>
-                        <p className="text-white/40 text-[10px]">Pending: ₹{agentData.pendingCommission.toLocaleString()}</p>
+                        <p className="text-xl md:text-2xl font-normal text-white mb-2">₹ {agentData.commissionEarned.toLocaleString('en-IN')}</p>
+                        <p className="text-white/40 text-[10px]">Pending: ₹ {agentData.pendingCommission.toLocaleString('en-IN')}</p>
                     </motion.div>
 
                     <motion.div whileHover={{ y: -5 }} className="bg-[#111827] border border-white/10 rounded-2xl p-5 md:p-6 shadow-lg">
