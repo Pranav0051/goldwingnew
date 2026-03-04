@@ -616,8 +616,11 @@ export function BookingPage() {
                             </div>
                         )}
                     </div>
-                    {step > 0 && <ThemeToggle />}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <Link to={isAdmin ? "/admin" : "/login"} className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 dark:bg-black/20 hover:bg-white/20 dark:hover:bg-black/40 text-gray-900 dark:text-white backdrop-blur-md transition border border-gray-200 dark:border-white/10 shadow-sm group">
+                            <User className={`w-5 h-5 transition-transform group-hover:scale-110 ${isAdmin ? "text-yellow-500 fill-yellow-500" : ""}`} />
+                        </Link>
+                        {step > 0 && <ThemeToggle />}
                     </div>
                 </div>
 
@@ -632,56 +635,57 @@ export function BookingPage() {
                             exit={{ opacity: 0, x: -50 }}
                             className="w-full"
                         >
-                            <div className="text-center mb-8 md:mb-12">
-                                <h1 className="text-4xl md:text-7xl font-black mb-4 tracking-tighter text-white">
+                            <div className="text-center mb-6 md:mb-12 px-4">
+                                <h1 className="text-3xl sm:text-4xl md:text-7xl font-black mb-3 md:mb-4 tracking-tighter text-white">
                                     Choose Your Adventure Style
                                 </h1>
-                                <p className="text-lg md:text-2xl text-white/80 font-medium">Pick how you want to experience the skies.</p>
+                                <p className="text-base sm:text-lg md:text-2xl text-white/80 font-medium">Pick how you want to experience the skies.</p>
                             </div>
 
-                            <div className="flex flex-wrap lg:flex-nowrap items-stretch justify-center gap-4 md:gap-6 px-4 w-full">
+                            <div className="flex flex-wrap lg:flex-nowrap items-stretch justify-center gap-4 md:gap-6 px-4 w-auto max-w-full mx-auto">
                                 {CATEGORIES.map((cat, idx) => (
                                     <motion.div
                                         key={cat.id}
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         transition={{ delay: idx * 0.1 }}
-                                        className="perspective-1000 group h-[360px] w-full min-w-[240px] lg:min-w-0 lg:flex-1 cursor-pointer"
+                                        className="perspective-1000 group h-[320px] sm:h-[360px] w-full sm:w-[calc(50%-1rem)] lg:w-auto lg:min-w-0 lg:flex-1 cursor-pointer"
                                         onHoverStart={() => setBackgroundIndex(cat.bg)}
                                         onClick={() => handleProceedToDetails(cat.id)}
                                     >
                                         <motion.div
                                             whileHover={{ rotateY: 180 }}
+                                            whileTap={{ rotateY: 180 }}
                                             transition={{ duration: 0.8, ease: "backOut" }}
                                             style={{ transformStyle: "preserve-3d" }}
                                             className="relative w-full h-full"
                                         >
-                                            {/* FRONT SIDE (Ultimate-transparent glass) */}
-                                            <div className="absolute inset-0 backface-hidden w-full h-full rounded-[2rem] border border-white/[0.03] bg-transparent backdrop-blur-[2px] flex flex-col items-center justify-center shadow-2xl overflow-hidden">
-                                                <div className="relative z-10 flex flex-col items-center justify-center h-full w-full gap-y-6">
-                                                    <div className="w-36 h-36 rounded-full bg-white/[0.04] flex items-center justify-center border border-white/[0.05] shadow-[0_0_20px_rgba(255,255,255,0.05)] transition-all duration-300">
+                                            {/* FRONT SIDE */}
+                                            <div className="absolute inset-0 backface-hidden w-full h-full rounded-[1.5rem] md:rounded-[2rem] border border-white/[0.03] bg-transparent backdrop-blur-[2px] flex flex-col items-center justify-center shadow-2xl overflow-hidden">
+                                                <div className="relative z-10 flex flex-col items-center justify-center h-full w-full gap-y-4 md:gap-y-6 p-4">
+                                                    <div className="w-24 h-24 sm:w-36 sm:h-36 rounded-full bg-white/[0.04] flex items-center justify-center border border-white/[0.05] shadow-[0_0_20px_rgba(255,255,255,0.05)] transition-all duration-300">
                                                         <img
                                                             src={cat.icon}
                                                             alt={cat.title}
-                                                            className={`w-full h-full object-contain transition-transform duration-300 ${['SINGLE', 'COUPLE', 'FAMILY', 'SHARING'].includes(cat.id) ? 'scale-[1.7] translate-y-[-5%]' : cat.id === 'PREMIUM' ? 'scale-[1.2]' : 'p-6'}`}
+                                                            className={`w-full h-full object-contain transition-transform duration-300 ${['SINGLE', 'COUPLE', 'FAMILY', 'SHARING'].includes(cat.id) ? 'scale-[1.5] sm:scale-[1.7] translate-y-[-5%]' : cat.id === 'PREMIUM' ? 'scale-[1.1] sm:scale-[1.2]' : 'p-4 sm:p-6'}`}
                                                         />
                                                     </div>
-                                                    <h3 className="text-4xl font-black text-white/90 uppercase tracking-widest font-sans">
+                                                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white/90 uppercase tracking-widest font-sans">
                                                         {cat.title}
                                                     </h3>
                                                 </div>
                                             </div>
 
-                                            {/* BACK SIDE (Black & Gold Premium Focus) */}
-                                            <div className="absolute inset-0 backface-hidden w-full h-full rounded-[2rem] border border-[#F4B400]/60 bg-black flex flex-col items-center justify-center overflow-hidden shadow-[0_0_50px_rgba(244,180,0,0.2)] [transform:rotateY(180deg)]">
-                                                <div className="relative z-10 w-full h-full flex flex-col p-8 items-center text-center justify-between">
-                                                    <div className="w-32 h-32 mt-4 opacity-40">
+                                            {/* BACK SIDE */}
+                                            <div className="absolute inset-0 backface-hidden w-full h-full rounded-[1.5rem] md:rounded-[2rem] border border-[#F4B400]/60 bg-black flex flex-col items-center justify-center overflow-hidden shadow-[0_0_50px_rgba(244,180,0,0.2)] [transform:rotateY(180deg)]">
+                                                <div className="relative z-10 w-full h-full flex flex-col p-6 md:p-8 items-center text-center justify-between">
+                                                    <div className="w-24 h-24 sm:w-32 sm:h-32 mt-2 md:mt-4 opacity-40">
                                                         <img src={cat.icon} alt={cat.title} className="w-full h-full object-contain" />
                                                     </div>
 
-                                                    <div className="flex flex-col items-center mb-6">
-                                                        <h3 className="text-4xl font-black text-white mb-1 tracking-tighter uppercase">{cat.title}</h3>
-                                                        <p className="text-xl font-black text-[#F4B400] italic leading-tight">{cat.tagline}</p>
+                                                    <div className="flex flex-col items-center mb-4 md:mb-6">
+                                                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-1 tracking-tighter uppercase">{cat.title}</h3>
+                                                        <p className="text-base sm:text-lg md:text-xl font-black text-[#F4B400] italic leading-tight">{cat.tagline}</p>
                                                     </div>
 
                                                     <div className="w-full mb-2 px-2">

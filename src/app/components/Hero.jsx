@@ -24,41 +24,42 @@ export function Hero({ onBookClick }) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 text-center pt-24 md:pt-32">
-        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease: "easeOut" }} className="space-y-6 md:space-y-8 max-w-4xl mx-auto">
+      <div className="relative z-10 container mx-auto px-4 text-center pt-20 md:pt-32 pb-12">
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease: "easeOut" }} className="space-y-6 md:space-y-8 max-w-4xl mx-auto items-center flex flex-col">
           {/* Location Badge */}
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.5 }} className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2">
-            <div className="w-8 h-8">
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.5 }} className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1.5 md:px-4 md:py-2">
+            <div className="w-6 h-6 md:w-8 md:h-8">
               <DotLottieReact src="https://lottie.host/20ac7946-ea2b-43a7-ab94-26bdf16b4f3e/WqmDmw9IXK.lottie" loop autoplay />
             </div>
-            <span className="text-white/90 text-sm">Shirdi, Maharashtra</span>
+            <span className="text-white/90 text-xs md:text-sm">Shirdi, Maharashtra</span>
           </motion.div>
 
           {/* Main Heading */}
-          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 1 }} className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-normal tracking-tight wave-text" style={{
+          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 1 }} className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-normal tracking-tight wave-text px-2" style={{
             fontFamily: "'Pacifico', cursive",
             color: '#FFFFFF',
             textShadow: '0 2px 8px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 255, 255, 0.3)',
+            lineHeight: '1.2'
           }}>
             <span>Own&nbsp;</span><span>The&nbsp;</span><span>Sky</span>
           </motion.h1>
 
           {/* Subheading */}
-          <motion.p initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 1 }} className="text-lg md:text-2xl text-white/90 max-w-2xl mx-auto px-4">
+          <motion.p initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 1 }} className="text-base sm:text-lg md:text-2xl text-white/90 max-w-2xl mx-auto px-4 leading-relaxed">
             Premium Paramotor Adventures with Certified Pilots
           </motion.p>
 
           {/* Rating Badge */}
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, duration: 0.5 }} className="inline-flex items-center gap-4 bg-white/10 backdrop-blur-lg border border-[#D4AF37]/30 rounded-full px-8 h-16 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-            <div className="w-32 h-32 -mx-4 flex items-center justify-center">
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, duration: 0.5 }} className="inline-flex items-center gap-2 md:gap-4 bg-white/10 backdrop-blur-lg border border-[#D4AF37]/30 rounded-full pl-2 pr-6 md:pl-4 md:pr-8 h-12 md:h-16 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+            <div className="w-20 h-20 md:w-32 md:h-32 -mx-2 md:-mx-4 flex items-center justify-center">
               <DotLottieReact src="https://lottie.host/68d8ce56-89c9-4a71-b947-64c0f2786540/q7l6dX887n.lottie" loop autoplay />
             </div>
-            <div className="flex flex-col items-start text-left pt-1">
-              <div className="flex items-center gap-2">
-                <span className="text-white font-extrabold text-2xl tracking-tight">4.9</span>
-                <span className="text-[#D4AF37] text-xs font-normal uppercase tracking-[0.2em]">Excellent</span>
+            <div className="flex flex-col items-start text-left">
+              <div className="flex items-center gap-1.5 md:gap-2">
+                <span className="text-white font-extrabold text-lg md:text-2xl tracking-tight">4.9</span>
+                <span className="text-[#D4AF37] text-[10px] md:text-xs font-normal uppercase tracking-[0.1em] md:tracking-[0.2em]">Excellent</span>
               </div>
-              <span className="text-white/70 text-xs font-normal whitespace-nowrap">2,000+ Adventure Seekers</span>
+              <span className="text-white/70 text-[10px] md:text-xs font-normal whitespace-nowrap">2,000+ Adventure Seekers</span>
             </div>
           </motion.div>
 

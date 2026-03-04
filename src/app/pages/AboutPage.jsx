@@ -13,7 +13,7 @@ export function AboutPage() {
             <Navbar />
 
             {/* Hero Section */}
-            <section className="relative h-[70vh] flex items-center justify-center overflow-hidden">
+            <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <img
                         src="/artifacts/about_hero_bg_1772603421107.png"
@@ -29,10 +29,10 @@ export function AboutPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <h1 className="text-5xl md:text-8xl font-black mb-6 tracking-tighter uppercase italic">
+                        <h1 className="text-4xl sm:text-5xl md:text-8xl font-black mb-4 md:mb-6 tracking-tighter uppercase italic leading-none">
                             Redefining <span className="text-[#F4B400]">Adventure</span>
                         </h1>
-                        <p className="text-xl md:text-2xl text-white/80 font-medium leading-relaxed max-w-2xl mx-auto">
+                        <p className="text-lg md:text-2xl text-white/80 font-medium leading-relaxed max-w-2xl mx-auto">
                             Goldwing Adventure Tours brings you the ultimate sky-high experience with world-class safety and premium luxury.
                         </p>
                     </motion.div>
@@ -40,18 +40,18 @@ export function AboutPage() {
             </section>
 
             {/* Our Story */}
-            <section className="py-24 px-4 bg-[#0B0F19]">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <section className="py-16 md:py-24 px-4 bg-[#0B0F19]">
+                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
                     <motion.div
-                        initial={{ opacity: 0, x: -50 }}
+                        initial={{ opacity: 0, x: -30 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
                     >
-                        <h2 className="text-4xl md:text-5xl font-black mb-8 tracking-tight uppercase">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 md:mb-8 tracking-tight uppercase">
                             Our <span className="text-[#F4B400]">Story</span>
                         </h2>
-                        <div className="space-y-6 text-lg text-white/70 leading-relaxed">
+                        <div className="space-y-4 md:space-y-6 text-base sm:text-lg text-white/70 leading-relaxed">
                             <p>
                                 Founded in 2020, Goldwing Adventure Tours started with a single mission: to make the dream of flying accessible to everyone while maintaining the highest standards of luxury and safety.
                             </p>
@@ -65,21 +65,21 @@ export function AboutPage() {
                     </motion.div>
 
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
                         className="relative"
                     >
-                        <div className="aspect-square rounded-[3rem] overflow-hidden border-2 border-[#F4B400]/20 shadow-[0_0_50px_rgba(244,180,0,0.15)] group">
+                        <div className="aspect-square rounded-[2rem] md:rounded-[3rem] overflow-hidden border-2 border-[#F4B400]/20 shadow-[0_0_50px_rgba(244,180,0,0.15)] group">
                             <img
                                 src="/images/background/premium.png"
                                 alt="Our Story"
                                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                             />
                         </div>
-                        {/* Stats Floating Card */}
-                        <div className="absolute -bottom-10 -left-10 bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-2xl hidden md:block">
+                        {/* Stats Floating Card - Desktop Only */}
+                        <div className="absolute -bottom-10 -left-10 bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-2xl hidden lg:block">
                             <div className="grid grid-cols-2 gap-8">
                                 <div className="text-center">
                                     <h4 className="text-3xl font-black text-[#F4B400]">10K+</h4>
@@ -96,46 +96,46 @@ export function AboutPage() {
             </section>
 
             {/* Why Choose Us */}
-            <section className="py-24 px-4 bg-white/5 backdrop-blur-sm">
+            <section className="py-16 md:py-24 px-4 bg-white/5 backdrop-blur-sm">
                 <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl md:text-6xl font-black mb-4 tracking-tighter uppercase">
+                    <div className="text-center mb-12 md:mb-16">
+                        <h2 className="text-3xl sm:text-4xl md:text-6xl font-black mb-3 md:mb-4 tracking-tighter uppercase">
                             Why <span className="text-[#F4B400]">Goldwing?</span>
                         </h2>
-                        <p className="text-white/60 text-lg max-w-2xl mx-auto">Discover what makes our sky adventures truly world-class.</p>
+                        <p className="text-white/60 text-base md:text-lg max-w-2xl mx-auto">Discover what makes our sky adventures truly world-class.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                         {[
                             {
-                                icon: <Shield className="w-10 h-10 text-[#F4B400]" />,
+                                icon: <Shield className="w-8 h-8 md:w-10 md:h-10 text-[#F4B400]" />,
                                 title: "Uncompromised Safety",
                                 desc: "We use state-of-the-art paramotoring gear and every pilot is certified with over 500+ hours of flight time."
                             },
                             {
-                                icon: <Heart className="w-10 h-10 text-[#F4B400]" />,
+                                icon: <Heart className="w-8 h-8 md:w-10 md:h-10 text-[#F4B400]" />,
                                 title: "Premium Experience",
                                 desc: "From luxury pick-ups to 4K video recording, we ensure every detail of your journey feels premium."
                             },
                             {
-                                icon: <Star className="w-10 h-10 text-[#F4B400]" />,
+                                icon: <Star className="w-8 h-8 md:w-10 md:h-10 text-[#F4B400]" />,
                                 title: "Expert Pilots",
                                 desc: "Our team consists of national-level paramotoring champions and highly trained safety professionals."
                             }
                         ].map((feature, idx) => (
                             <motion.div
                                 key={idx}
-                                initial={{ opacity: 0, y: 30 }}
+                                initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: idx * 0.2 }}
-                                className="bg-white/5 border border-white/10 p-10 rounded-[2.5rem] hover:border-[#F4B400]/40 transition-colors group"
+                                className="bg-white/5 border border-white/10 p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] hover:border-[#F4B400]/40 transition-colors group"
                             >
-                                <div className="mb-6 bg-white/10 w-20 h-20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                                <div className="mb-5 md:mb-6 bg-white/10 w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
                                     {feature.icon}
                                 </div>
-                                <h3 className="text-2xl font-black mb-4 text-white uppercase tracking-tight">{feature.title}</h3>
-                                <p className="text-white/60 leading-relaxed font-medium">{feature.desc}</p>
+                                <h3 className="text-xl md:text-2xl font-black mb-3 md:mb-4 text-white uppercase tracking-tight">{feature.title}</h3>
+                                <p className="text-white/60 text-sm md:text-base leading-relaxed font-medium">{feature.desc}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -143,31 +143,31 @@ export function AboutPage() {
             </section>
 
             {/* Call to Action */}
-            <section className="py-24 px-4 text-center">
+            <section className="py-16 md:py-24 px-4 text-center">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="max-w-4xl mx-auto bg-gradient-to-r from-[#F4B400] to-[#FF9F1C] p-12 md:p-20 rounded-[3rem] shadow-[0_20px_60px_rgba(244,180,0,0.3)] relative overflow-hidden"
+                    className="max-w-4xl mx-auto bg-gradient-to-r from-[#F4B400] to-[#FF9F1C] p-10 md:p-20 rounded-[2rem] md:rounded-[3rem] shadow-[0_20px_60px_rgba(244,180,0,0.3)] relative overflow-hidden"
                 >
                     {/* Decorative Circles */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
+                    <div className="absolute top-0 right-0 w-48 h-48 md:w-64 md:h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+                    <div className="absolute bottom-0 left-0 w-48 h-48 md:w-64 md:h-64 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
 
                     <div className="relative z-10">
-                        <h2 className="text-4xl md:text-6xl font-black text-black mb-8 tracking-tighter uppercase leading-none">
+                        <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-black mb-6 md:mb-8 tracking-tighter uppercase leading-none">
                             Ready to Write <br />Your Own Story?
                         </h2>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <button
                                 onClick={() => navigate('/')}
-                                className="px-10 py-5 bg-black text-white font-black rounded-2xl flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl"
+                                className="px-8 py-4 md:px-10 md:py-5 bg-black text-white font-black rounded-xl md:rounded-2xl flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl w-full sm:w-auto"
                             >
                                 BOOK YOUR FLIGHT <ArrowRight className="w-5 h-5" />
                             </button>
                             <button
                                 onClick={() => navigate('/explore')}
-                                className="px-10 py-5 bg-white/20 backdrop-blur-md text-black font-black rounded-2xl flex items-center justify-center gap-3 hover:bg-white/30 transition-all border border-black/10"
+                                className="px-8 py-4 md:px-10 md:py-5 bg-white/20 backdrop-blur-md text-black font-black rounded-xl md:rounded-2xl flex items-center justify-center gap-3 hover:bg-white/30 transition-all border border-black/10 w-full sm:w-auto"
                             >
                                 EXPLORE PACKAGES
                             </button>

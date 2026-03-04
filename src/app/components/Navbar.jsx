@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Menu, X, Phone, User } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Link } from "react-router";
 export function Navbar() {
@@ -89,6 +89,9 @@ export function Navbar() {
         </div>
 
         <div className="md:hidden flex items-center gap-2">
+          <Link to={dashboardUrl} className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 group backdrop-blur-md border shadow-lg ${(isScrolled && isLightTheme) ? "bg-black/5 border-black/10 text-[#0B0F19] hover:bg-[#D4AF37] hover:border-[#D4AF37] hover:text-[#0B0F19]" : "bg-white/10 border-white/20 text-white hover:bg-[#D4AF37] hover:border-[#D4AF37] hover:text-black"}`} title={isLoggedIn ? "Dashboard" : "Login"}>
+            <User className={`w-5 h-5 transition-transform group-hover:scale-110 ${isLoggedIn ? "text-[#D4AF37] fill-[#D4AF37]/20" : ""}`} />
+          </Link>
           <ThemeToggle className={(isScrolled && isLightTheme) ? "ring-1 ring-black/10 shadow-sm" : ""} />
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={`p-2 transition-colors ${isScrolled && isLightTheme ? "text-[#0B0F19]" : "text-white"}`}>
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -97,38 +100,40 @@ export function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && (<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className={`md:hidden mt-4 pb-4 space-y-4 max-h-[80vh] overflow-y-auto rounded-2xl p-4 transition-colors ${isLightTheme ? "bg-white shadow-xl border border-black/5" : "bg-[#0B0F19] shadow-xl border border-white/5"}`}>
-        <div className="flex flex-col gap-6 text-lg">
-          <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-normal ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
-            About
-          </Link>
-          <a href="#experiences" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-normal ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
-            Experiences
-          </a>
-          <a href="#safety" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-normal ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
-            Safety
-          </a>
-          <a href="#testimonials" onClick={() => setIsMobileMenuOpen(false)} className={`transition-colors font-normal ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
-            Reviews
-          </a>
-          <a href="tel:+911234567890" className={`flex items-center gap-3 transition-colors group font-normal ${isLightTheme ? "text-[#0B0F19]/80" : "text-white/80"}`}>
-            <motion.div animate={{
-              rotate: [0, -10, 10, -10, 10, 0],
-            }} transition={{
-              duration: 2,
-              repeat: Infinity,
-              repeatDelay: 3
-            }} className="w-10 h-10 flex items-center justify-center">
-              <Phone className="w-6 h-6 text-[#D4AF37]" />
-            </motion.div>
-            <span>+91 123 456 7890</span>
-          </a>
-          <Link to={dashboardUrl} onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center justify-center gap-3 transition-colors px-6 py-4 rounded-2xl font-normal w-full shadow-lg ${isLightTheme ? "bg-[#0B0F19] text-white" : "bg-white text-[#0B0F19]"}`}>
-            <User className="w-6 h-6" />
-            <span className="text-xl">{isLoggedIn ? "Dashboard" : "Log In"}</span>
-          </Link>
-        </div>
-      </motion.div>)}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`md:hidden absolute top-full left-4 right-4 mt-2 overflow-hidden rounded-3xl z-50 border shadow-2xl transition-colors duration-300 ${isLightTheme ? "bg-white/95 border-black/5" : "bg-[#0B0F19]/95 border-white/5"} backdrop-blur-xl`}
+          >
+            <div className="p-6 flex flex-col gap-6">
+              <div className="grid grid-cols-2 gap-4">
+                <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all ${isLightTheme ? "bg-black/5 hover:bg-black/10" : "bg-white/5 hover:bg-white/10"}`}>
+                  <span className={`text-base font-normal ${isLightTheme ? "text-[#0B0F19]" : "text-white"}`}>About</span>
+                </Link>
+                <a href="#experiences" onClick={() => setIsMobileMenuOpen(false)} className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all ${isLightTheme ? "bg-black/5 hover:bg-black/10" : "bg-white/5 hover:bg-white/10"}`}>
+                  <span className={`text-base font-normal ${isLightTheme ? "text-[#0B0F19]" : "text-white"}`}>Experiences</span>
+                </a>
+                <a href="#safety" onClick={() => setIsMobileMenuOpen(false)} className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all ${isLightTheme ? "bg-black/5 hover:bg-black/10" : "bg-white/5 hover:bg-white/10"}`}>
+                  <span className={`text-base font-normal ${isLightTheme ? "text-[#0B0F19]" : "text-white"}`}>Safety</span>
+                </a>
+                <a href="#testimonials" onClick={() => setIsMobileMenuOpen(false)} className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all ${isLightTheme ? "bg-black/5 hover:bg-black/10" : "bg-white/5 hover:bg-white/10"}`}>
+                  <span className={`text-base font-normal ${isLightTheme ? "text-[#0B0F19]" : "text-white"}`}>Reviews</span>
+                </a>
+              </div>
+
+              <div className="h-px w-full bg-current opacity-10"></div>
+
+              <a href="tel:+911234567890" className={`flex items-center justify-center gap-3 p-4 rounded-2xl transition-all ${isLightTheme ? "bg-black/5 hover:bg-black/10" : "bg-white/5 hover:bg-white/10"}`}>
+                <Phone className="w-5 h-5 text-[#D4AF37]" />
+                <span className={`text-sm font-normal ${isLightTheme ? "text-[#0B0F19]" : "text-white"}`}>Call Now</span>
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   </motion.nav>);
 }
