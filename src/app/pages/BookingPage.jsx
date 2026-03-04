@@ -755,8 +755,8 @@ export function BookingPage() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-2 text-sm md:text-base font-black mb-4 py-2 border-y border-white/10">
-                                            <span className="text-lg md:text-xl">ðŸ“</span> {pkg.duration}
+                                        <div className="flex items-center gap-2 text-sm md:text-base font-black mb-4 py-2 border-y border-white/10 uppercase tracking-tight">
+                                            <MapPin className="w-4 h-4 text-[#F4B400]" /> {pkg.duration}
                                         </div>
 
                                         <div className="space-y-2 mb-6">
