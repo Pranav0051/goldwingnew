@@ -49,7 +49,17 @@
 
 /* Hero overlay - very light and transparent for clear image */
 .light-theme .bg-gradient-to-b {
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.0) 50%, rgba(255, 255, 255, 0.15) 100%) !important;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.2) 100%) !important;
+}
+
+/* Hero text colors for light theme */
+.light-theme .hero-text {
+    color: #1a1a1a !important;
+}
+
+/* Hero text shadows for light theme */
+.light-theme .hero-text-shadow {
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6) !important;
 }
 
 /* Navigation */
@@ -163,6 +173,35 @@
 
 .light-theme .bg-white\/20 {
     background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Light theme adjustments for About Vinod section */
+.light-theme .about-vinod-section {
+    background-color: #f3f4f6 !important;
+}
+.light-theme .about-vinod-section .bg-white\/5 {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+.light-theme .about-vinod-section .bg-\[\#0B0F19\]\/80 {
+    background-color: rgba(255, 255, 255, 0.88) !important;
+}
+.light-theme .about-vinod-section .border-white\/10,
+.light-theme .about-vinod-section .border-white\/20 {
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+.light-theme .about-vinod-section .text-white,
+.light-theme .about-vinod-section .text-white\/70,
+.light-theme .about-vinod-section .text-white\/60 {
+    color: #1a1a1a !important;
+}
+.light-theme .about-vinod-section h3,
+.light-theme .about-vinod-section h2,
+.light-theme .about-vinod-section h1,
+.light-theme .about-vinod-section p {
+    color: #1a1a1a !important;
+}
+.light-theme .about-vinod-section .text-\[\#F4B400\] {
+    color: #B8860B !important;
 }
 
 /* Dark section backgrounds to light */

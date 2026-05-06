@@ -1,38 +1,72 @@
 "use client";
-import { useState } from "react";
-import { Link } from "react-router";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { QrCode, ShieldCheck, XCircle, Search, ArrowLeft, Ticket, CheckCircle, X } from "lucide-react";
-import { bookingStore } from "../utils/bookingStore";
+import { QrCode, ShieldCheck, XCircle, Search, ArrowLeft, Ticket, CheckCircle, X, Camera } from "lucide-react";
+import { Scanner } from '@yudiel/react-qr-scanner';
+import { bookingService } from "../services/api";
 export function ScannerPage() {
     const [scanData, setScanData] = useState("");
     const [result, setResult] = useState(null);
     const [error, setError] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const [searchParams] = useSearchParams();
+
+    useEffect(() => {
+        const idParam = searchParams.get("id");
+        const dataParam = searchParams.get("data");
+        if (idParam || dataParam) {
+            const finalData = dataParam || idParam;
+            setScanData(finalData);
+            processScan(finalData);
+        }
+    }, [searchParams]);
     const showSuccess = (msg) => {
         setSuccessMsg(msg);
         setTimeout(() => setSuccessMsg(""), 4000);
     };
-    const handleSimulateScan = (e) => {
+    const handleSimulateScan = async (e) => {
         e.preventDefault();
+        processScan(scanData);
+    };
+
+    const processScan = async (data) => {
         setError("");
         setResult(null);
-        const allBookings = bookingStore.getBookings();
-        // Allow scanning by booking ID directly or the mock QR data (VERIFY:GW-1234|PAY...)
-        const extractedId = scanData.includes("|") ? scanData.split("|")[0].replace("VERIFY:", "") : scanData;
-        const booking = allBookings.find(b => b.id === extractedId.toUpperCase());
-        if (booking) {
-            setResult(booking);
-        }
-        else {
+
+        try {
+            // Allow scanning by booking ID directly or the mock QR data (VERIFY:GW-1234|PAY...)
+            const extractedId = data.includes("|") ? data.split("|")[0].replace("VERIFY:", "") : data;
+            const b = await bookingService.getBooking(extractedId.toUpperCase());
+
+            // Map backend model to frontend expected format
+            const mapped = {
+                id: b.bookingId,
+                customerName: b.customerName,
+                customerPhone: b.customerPhone,
+                persons: b.persons,
+                slot: b.slot,
+                date: b.bookingDate,
+                status: b.status.charAt(0).toUpperCase() + b.status.slice(1).toLowerCase(),
+                paymentMethod: b.paymentId ? "Online" : "Offline",
+                category: b.category
+            };
+            setResult(mapped);
+        } catch (err) {
             setError("Invalid Ticket or Booking Not Found");
         }
     };
-    const handleAdmit = () => {
+
+    const handleAdmit = async () => {
         if (result && result.status !== "Cancelled") {
-            bookingStore.updateStatus(result.id, "Completed");
-            setResult({ ...result, status: "Completed" });
-            showSuccess(`✅ ${result.customerName} marked as ATTENDED!`);
+            try {
+                await bookingService.updateStatus(result.id, "COMPLETED");
+                setResult({ ...result, status: "Completed" });
+                showSuccess(`✅ ${result.customerName} marked as ATTENDED!`);
+            } catch (err) {
+                setError("Failed to update status.");
+            }
         }
     };
     return (<div className="min-h-screen bg-[#0B0F19] text-white p-4 font-sans flex flex-col items-center">
@@ -68,11 +102,47 @@ export function ScannerPage() {
             </div>
 
             <form onSubmit={handleSimulateScan} className="mb-6 relative">
-                <input type="text" placeholder="e.g. GW-847291" value={scanData} onChange={(e) => setScanData(e.target.value)} className="w-full bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-2xl pl-4 pr-12 py-4 text-center font-mono text-lg uppercase focus:outline-none transition-colors" autoFocus />
+                <input type="text" placeholder="e.g. GW-847291" value={scanData} onChange={(e) => setScanData(e.target.value)} className="w-full bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-2xl pl-4 pr-12 py-4 text-center font-mono text-lg uppercase focus:outline-none transition-colors" autoFocus={!isCameraOpen} />
                 <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-500 hover:bg-blue-600 rounded-xl text-white transition">
                     <Search className="w-5 h-5" />
                 </button>
             </form>
+
+            {!isCameraOpen ? (
+                <button 
+                    onClick={() => setIsCameraOpen(true)}
+                    className="w-full mb-6 py-4 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-normal rounded-xl flex justify-center items-center gap-2 transition-all"
+                >
+                    <Camera className="w-5 h-5" /> Open Camera to Scan QR
+                </button>
+            ) : (
+                <div className="mb-6 relative bg-black rounded-2xl overflow-hidden border border-blue-500/30">
+                    <button 
+                        onClick={() => setIsCameraOpen(false)}
+                        className="absolute top-2 right-2 z-10 p-2 bg-black/50 hover:bg-red-500 rounded-full text-white backdrop-blur-sm transition"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                    <Scanner
+                        onScan={(result) => {
+                            if (result && result.length > 0) {
+                                const text = result[0].rawValue;
+                                setScanData(text);
+                                processScan(text);
+                                setIsCameraOpen(false);
+                            }
+                        }}
+                        onError={(error) => console.log(error?.message)}
+                        components={{
+                            audio: false,
+                            finder: true
+                        }}
+                    />
+                    <div className="p-3 text-center text-sm text-white/50 bg-black/80">
+                        Point camera at the QR code
+                    </div>
+                </div>
+            )}
 
             {error && (<motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-2xl flex items-start gap-3">
                 <XCircle className="w-6 h-6 shrink-0" />

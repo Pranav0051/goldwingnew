@@ -29,7 +29,7 @@ const MOCK_SLOTS = [
 ];
 
 const SOLO_PACKAGES = [
-    { id: "solo_basic", name: "Single Basic", duration: "5-7 KM", price: 3499, points: ["Certified Pilot", "Safety Gear", "Ground Photos", "Basic Insurance"] },
+    { id: "solo_basic", name: "Single Basic", duration: "5-7 KM", price: 2500, points: ["Certified Pilot", "Safety Gear", "Ground Photos", "Basic Insurance"] },
     { id: "solo_explorer", name: "Single Explorer", duration: "10-12 KM", price: 5499, points: ["HD Video", "Extended Route", "Premium Gear", "Full Insurance"] },
     { id: "solo_pro", name: "Single Pro Flight", duration: "15 KM", price: 7999, points: ["4K Video", "Acrobatic Moves", "Merchandise Package", "Priority Slot"] },
 ];
@@ -42,9 +42,9 @@ const COUPLE_PACKAGES = [
 ];
 
 const FAMILY_PACKAGES = [
-    { id: "family_fun", name: "Family Fun Ride", duration: "5-7 KM", price: 8999, points: ["3 Pilots", "Group Memories", "Fun for Kids", "Standard Insurance"] },
-    { id: "family_deluxe", name: "Family Deluxe Experience", duration: "10-12 KM", price: 13999, points: ["Family Montage Video", "Themed Gear", "Gift Bags", "Full Insurance"] },
-    { id: "family_celebration", name: "Family Celebration Package", duration: "15 KM", price: 19999, points: ["Extended Sky Tour", "Professional Video", "Custom Apparel", "VIP Lounge Access"] },
+    { id: "family_fun", name: "Group Fun Ride", duration: "5-7 KM", price: 8999, points: ["3 Pilots", "Group Memories", "Fun for Kids", "Standard Insurance"] },
+    { id: "family_deluxe", name: "Group Deluxe Experience", duration: "10-12 KM", price: 13999, points: ["Group Montage Video", "Themed Gear", "Gift Bags", "Full Insurance"] },
+    { id: "family_celebration", name: "Group Celebration Package", duration: "15 KM", price: 19999, points: ["Extended Sky Tour", "Professional Video", "Custom Apparel", "VIP Lounge Access"] },
 ];
 
 const SHARING_PACKAGES = [
@@ -75,7 +75,7 @@ const CATEGORIES = [
         tagline: "High Fly Adventure",
         microText: "Single Flight Experience",
         cta: "Book Now",
-        weightRule: "Max 75 KG"
+        weightRule: "Max 150 KG"
     },
     {
         id: "COUPLE",
@@ -89,11 +89,11 @@ const CATEGORIES = [
     },
     {
         id: "FAMILY",
-        title: "Family",
+        title: "Group",
         icon: "/images/icon/familynew.png",
         bg: "/images/background/3 seat para.jpg",
         tagline: "Sky Safari",
-        microText: "Family Bonding",
+        microText: "Group Bonding",
         cta: "Book Now",
         weightRule: "Combined Max 150 KG"
     },
@@ -126,7 +126,7 @@ const INSURANCE_PRICE = 200;
 export function AdventureSelector() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const refCode = searchParams.get("ref");
+    const refCode = searchParams.get("ref") || sessionStorage.getItem("agentRef");
     // Form & UI States
     const [step, setStep] = useState(() => (sessionStorage.getItem("hasSeenSplash") ? 1 : 0)); // 0=Splash, 1=Category, 2=Packages, 3=Details, 4=Location, 5=Slot, 6=Payment, 7=Confirmation
     const [backgroundIndex, setBackgroundIndex] = useState("/images/background/solo.png");
@@ -157,10 +157,11 @@ export function AdventureSelector() {
     const [formData, setFormData] = useState({ name: "", email: "", phone: "", address: "", state: "", city: "" });
     const [selectedPkg, setSelectedPkg] = useState(null);
     const [selectedCat, setSelectedCat] = useState(null);
-    const [selectedLocation, setSelectedLocation] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState("Shirdi");
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState("UPI");
+    const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
 
     // Flash Screen Auto-Transition
     useEffect(() => {
@@ -221,11 +222,18 @@ export function AdventureSelector() {
             if (!age || age < 12) return showError(`Passenger ${i + 1} must be at least 12 years old.`);
         }
 
-        if (selectedCat === "SINGLE" || selectedCat === "SHARING") {
+        if (selectedCat === "SINGLE") {
+            const w = parseInt(passengers[0].weight);
+            if (!w || w <= 0) return showError("Please enter a valid weight.");
+            if (w > 150) {
+                showError("Weight limit is 150 KG for Single rides.");
+                return false;
+            }
+        } else if (selectedCat === "SHARING") {
             const w = parseInt(passengers[0].weight);
             if (!w || w <= 0) return showError("Please enter a valid weight.");
             if (w > 75) {
-                showError("Weight limit is 75 KG for this category. Please select Couple option.");
+                showError("Weight limit is 75 KG per person for Sharing rides. For higher weight, please book a Single ride.");
                 return false;
             }
         } else if (selectedCat === "COUPLE") {
@@ -233,18 +241,33 @@ export function AdventureSelector() {
             const w2 = parseInt(passengers[1].weight) || 0;
             if (!w1 || !w2) return showError("Please enter weight for both individuals.");
             if (!passengers[1].coPassengerName?.trim()) return showError("Please enter Co-Passenger Name.");
+            
+            if (w1 > 75 || w2 > 75) {
+                return showError("Individual weight limit is 75 KG for Couple rides. Please book separate Single rides if anyone exceeds 75 KG.");
+            }
+
             if (w1 + w2 > 150) {
-                showError("Combined weight exceeds 150 KG limit for Couple ride.");
+                showError("Your combined weight is more than 150 kg, you have to share ride with another people.");
                 return false;
             }
         } else if (selectedCat === "FAMILY") {
             for (let i = 0; i < passengers.length; i++) {
                 const w = parseInt(passengers[i].weight);
                 if (!w || w <= 0) return showError(`Please enter weight for Member ${i + 1}`);
+                if (w > 75) {
+                    return showError(`Member ${i + 1} exceeds the 75 KG limit for Group rides. Please book a separate Single ride.`);
+                }
             }
-            const totalW = passengers.reduce((sum, p) => sum + (parseInt(p.weight) || 0), 0);
-            if (totalW > 150) {
-                showError("Combined weight exceeds 150 KG. Members should share ride with another person or fly separately.");
+            
+            // Check if any two passengers combined exceed 150
+            for (let i = 0; i < passengers.length; i++) {
+                for (let j = i + 1; j < passengers.length; j++) {
+                    const wSum = (parseInt(passengers[i].weight) || 0) + (parseInt(passengers[j].weight) || 0);
+                    if (wSum > 150) {
+                        showError("Your combined weight is more than 150 kg, you have to share ride with another people.");
+                        return false;
+                    }
+                }
             }
         }
 
@@ -315,9 +338,16 @@ export function AdventureSelector() {
             consentMedia: consent.media,
             userIpAddress: "Client-IP-Logged",
             isFemaleSharing: passengers[0]?.isFemaleSharing || false, // Added female sharing preference
-            agent: refCode || "Direct",
+            agentRef: refCode || "Direct",
         };
         bookingStore.addBooking(newBooking);
+
+        // Generate QR for UI
+        const qrContent = `${window.location.origin}/gate?data=VERIFY:${id}|PAY_INTERNAL`;
+        QRCode.toDataURL(qrContent, { width: 300, margin: 2 })
+            .then(url => setQrCodeDataUrl(url))
+            .catch(err => console.error("QR Generation failed", err));
+
         setStep(7); // Go to confirmation
     };
 
@@ -421,8 +451,11 @@ export function AdventureSelector() {
         doc.text("Sub Total", 15, y);
         doc.text(calc.sub.toString(), 85, y, { align: "right" });
         y += 6;
-        doc.text("GST (18%)", 15, y);
-        doc.text(calc.gst.toFixed(0), 85, y, { align: "right" });
+        doc.text("CGST (9%)", 15, y);
+        doc.text((calc.gst/2).toFixed(0), 85, y, { align: "right" });
+        y += 6;
+        doc.text("SGST (9%)", 15, y);
+        doc.text((calc.gst/2).toFixed(0), 85, y, { align: "right" });
         y += 8;
         drawDivider();
         doc.text("GRAND TOTAL", 15, y);
@@ -434,7 +467,8 @@ export function AdventureSelector() {
         drawDivider();
         setCenteredText("Scan QR for Verification", "normal", 10, 6);
         try {
-            const qrDataUrl = await QRCode.toDataURL(`VERIFY:${bookingId}|${payId}`, { width: 150, margin: 1 });
+            const qrContent = `${window.location.origin}/gate?data=VERIFY:${bookingId}|${payId}`;
+            const qrDataUrl = await QRCode.toDataURL(qrContent, { width: 150, margin: 1 });
             doc.addImage(qrDataUrl, "PNG", 35, y, 30, 30);
             y += 35;
         } catch (err) {
@@ -529,8 +563,11 @@ export function AdventureSelector() {
         doc.text("Sub Total", 15, y);
         doc.text(`Rs. ${calc.sub.toFixed(2)}`, 85, y, { align: "right" });
         y += 6;
-        doc.text("GST (18%)", 15, y);
-        doc.text(`Rs. ${calc.gst.toFixed(2)}`, 85, y, { align: "right" });
+        doc.text("CGST (9%)", 15, y);
+        doc.text(`Rs. ${(calc.gst/2).toFixed(2)}`, 85, y, { align: "right" });
+        y += 6;
+        doc.text("SGST (9%)", 15, y);
+        doc.text(`Rs. ${(calc.gst/2).toFixed(2)}`, 85, y, { align: "right" });
         y += 8;
         drawDivider();
         doc.setFont("times", "bold");
@@ -757,7 +794,7 @@ export function AdventureSelector() {
 
                             <div className="mt-16 text-center flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <button
-                                    onClick={() => navigate('/explore?skipLoader=true')}
+                                    onClick={() => navigate('/?skipLoader=true')}
                                     className="px-10 py-4 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 transition-all text-white font-black inline-flex items-center gap-3 group"
                                 >
                                     Explore Website <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -960,8 +997,8 @@ export function AdventureSelector() {
                                                     const newP = [...passengers];
                                                     newP[0].weight = e.target.value;
                                                     setPassengers(newP);
-                                                    if (selectedCat === "SINGLE" && parseInt(e.target.value) > 75) {
-                                                        showError("Single ride limit is 75 KG. We recommend Couple option.");
+                                                    if (selectedCat === "SINGLE" && parseInt(e.target.value) > 150) {
+                                                        showError("Single ride limit is 150 KG.");
                                                     }
                                                 }}
                                             />
@@ -1061,7 +1098,7 @@ export function AdventureSelector() {
                                             className="w-full py-4 border border-dashed border-yellow-500/50 rounded-2xl text-yellow-500 hover:bg-yellow-500/5 transition-colors font-black flex items-center justify-center gap-2"
                                             onClick={() => setPassengers([...passengers, { gender: "M", weight: "", age: "", coPassengerName: "" }])}
                                         >
-                                            <Users className="w-5 h-5" /> Add Family Member
+                                            <Users className="w-5 h-5" /> Add Group Member
                                         </button>
                                     )}
 
@@ -1297,18 +1334,35 @@ export function AdventureSelector() {
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#F4B400]/5 blur-[80px] -mr-32 -mt-32" />
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                    <div className="space-y-8">
-                                        <div>
+                                    <div className="space-y-8 flex flex-col md:flex-row items-center md:items-start gap-8">
+                                        <div className="flex-1">
                                             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#F4B400] mb-3">Booking Identifier</p>
                                             <p className="text-4xl md:text-5xl font-mono font-black text-white tracking-widest">{bookingId}</p>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-6">
-
-                                            <div>
-                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">Slot Time</p>
-                                                <p className="font-black text-white text-lg">{MOCK_SLOTS.find(s => s.id === selectedSlot)?.time}</p>
+                                            
+                                            <div className="grid grid-cols-2 gap-6 mt-8">
+                                                <div>
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">Slot Time</p>
+                                                    <p className="font-black text-white text-lg">{MOCK_SLOTS.find(s => s.id === selectedSlot)?.time}</p>
+                                                </div>
                                             </div>
                                         </div>
+
+                                        {qrCodeDataUrl && (
+                                            <div className="bg-white p-3 rounded-2xl shadow-2xl shrink-0 group/qr relative">
+                                                <img src={qrCodeDataUrl} alt="Booking QR" className="w-32 h-32 md:w-40 md:h-40" />
+                                                <div className="text-center mt-2">
+                                                    <span className="text-[8px] font-black text-black/40 uppercase tracking-widest">Verification QR</span>
+                                                </div>
+                                                <a 
+                                                    href={qrCodeDataUrl} 
+                                                    download={`Goldwing_QR_${bookingId}.png`}
+                                                    className="absolute -bottom-2 -right-2 bg-[#F4B400] text-black p-2 rounded-full shadow-lg opacity-0 group-hover/qr:opacity-100 transition-opacity hover:scale-110"
+                                                    title="Save QR Image"
+                                                >
+                                                    <Download className="w-4 h-4" />
+                                                </a>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-6 pt-6 md:pt-0 md:pl-12 md:border-l border-white/10">
@@ -1352,15 +1406,8 @@ export function AdventureSelector() {
                 </AnimatePresence>
             </div>
 
-            {/* Floating Action Buttons */}
-            <div className="fixed bottom-6 right-6 flex flex-col gap-4 z-[200]">
-                <a href="tel:+918087968502" className="bg-[#2E7CCB] hover:bg-blue-600 text-white transition-transform hover:scale-110 p-3 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                </a>
-                <a href="https://wa.me/918087968502" target="_blank" rel="noopener noreferrer" className="bg-[#25D366] hover:bg-green-600 text-white transition-transform hover:scale-110 p-3 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
-                </a>
-            </div>
+            {/* Floating CTA */}
+            <FloatingCTA onBookClick={() => setStep(3)} />
 
             {/* Live Notifications */}
             <LiveNotifications />

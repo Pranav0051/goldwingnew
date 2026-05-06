@@ -3,7 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Calendar, Check } from "lucide-react";
 const packages = [
-  { id: "basic", name: "Basic Ride", price: 3499 },
+  { id: "basic", name: "Basic Ride", price: 2500 },
   { id: "premium", name: "Premium Ride", price: 5999 },
   { id: "sunrise", name: "Sunrise Special", price: 8999 },
 ];

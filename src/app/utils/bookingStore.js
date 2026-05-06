@@ -1,7 +1,8 @@
 const STORAGE_KEY = 'goldwing_bookings';
 const MOCK_INITIAL_BOOKINGS = [
-    { id: "GW-102934", customerName: "Rahul Sharma", persons: 1, slot: "06:00 AM", category: "Solo", type: "ONLINE", date: new Date().toISOString().split('T')[0], status: "Confirmed", price: 4365, location: "Goa" },
-    { id: "GW-837462", customerName: "Priya Desai", persons: 2, slot: "07:30 AM", category: "Couple", type: "ONLINE", date: new Date().toISOString().split('T')[0], status: "Confirmed", price: 8730, location: "Goa" },
+    { id: "GW-102934", customerName: "Rahul Sharma", persons: 1, slot: "06:00 AM", category: "Solo", type: "ONLINE", date: new Date().toISOString().split('T')[0], status: "Confirmed", price: 4365, location: "Shirdi" },
+    { id: "GW-837462", customerName: "Priya Desai", persons: 2, slot: "07:30 AM", category: "Couple", type: "ONLINE", date: new Date().toISOString().split('T')[0], status: "Confirmed", price: 8730, location: "Shirdi" },
+    { id: "GW-552211", customerName: "Amit Patel", persons: 3, slot: "04:30 PM", category: "Group", type: "OFFLINE", date: new Date().toISOString().split('T')[0], status: "Confirmed", price: 12500, location: "Goa" },
 ];
 export const bookingStore = {
     getBookings: () => {

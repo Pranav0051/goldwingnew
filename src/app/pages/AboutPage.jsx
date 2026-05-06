@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 import { ArrowRight, Star, Shield, Users, Heart, MapPin, Phone, Mail, Instagram, Facebook, Twitter } from "lucide-react";
 import { Navbar } from "../components/Navbar";
@@ -7,6 +7,17 @@ import { useNavigate } from "react-router";
 
 export function AboutPage() {
     const navigate = useNavigate();
+    const [isCarouselPaused, setIsCarouselPaused] = useState(false);
+    const vinodImage = new URL("../../assets/vinod ghodavat.jpeg", import.meta.url).href;
+    const directors = [
+        "Mithilesh Bhandari",
+        "Sanket Luhiya",
+        "Sandeep Ghodawat",
+        "Ronak Ghodawat",
+        "Prateek Lodha",
+        "Mayur Lodha",
+    ];
+    const carouselItems = [...directors, ...directors];
 
     return (
         <div className="min-h-screen bg-[#0B0F19] text-white font-sans overflow-x-hidden">
@@ -16,9 +27,9 @@ export function AboutPage() {
             <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="/artifacts/about_hero_bg_1772603421107.png"
+                        src="/hero-paramotor.jpg"
                         alt="About Hero"
-                        className="w-full h-full object-cover opacity-60 scale-105"
+                        className="w-full h-full object-cover opacity-70 scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19]/40 via-transparent to-[#0B0F19]" />
                 </div>
@@ -53,7 +64,7 @@ export function AboutPage() {
                         </h2>
                         <div className="space-y-4 md:space-y-6 text-base sm:text-lg text-white/70 leading-relaxed">
                             <p>
-                                Founded in 2020, Goldwing Adventure Tours started with a single mission: to make the dream of flying accessible to everyone while maintaining the highest standards of luxury and safety.
+                                Founded in 2020 by Vinod Sir, Goldwing Adventure Tours started with a single mission: to make the dream of flying accessible to everyone while maintaining the highest standards of luxury and safety.
                             </p>
                             <p>
                                 What began as a passion project for a small group of pilots has now grown into India's premier paramotoring adventure company, operating in multiple locations and serving thousands of thrill-seekers every year.
@@ -102,7 +113,7 @@ export function AboutPage() {
                         <h2 className="text-3xl sm:text-4xl md:text-6xl font-black mb-3 md:mb-4 tracking-tighter uppercase">
                             Why <span className="text-[#F4B400]">Goldwing?</span>
                         </h2>
-                        <p className="text-white/60 text-base md:text-lg max-w-2xl mx-auto">Discover what makes our sky adventures truly world-class.</p>
+                        <p className="text-white/60 text-base md:text-lg max-w-2xl mx-auto">India's Biggest & Safest paramotoring adventure company.</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -142,6 +153,99 @@ export function AboutPage() {
                 </div>
             </section>
 
+            {/* About Vinod Danchand Ghodawat */}
+            <section className="about-vinod-section py-16 md:py-24 px-4 bg-[#0B0F19]">
+                <div className="max-w-7xl mx-auto space-y-12">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                        className="text-center mb-12"
+                    >
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight uppercase">
+                            About <span className="text-[#F4B400]">MR. Vinod Danchand Ghodawat</span>
+                        </h2>
+                        <p className="mt-4 text-white/70 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+                            Discover the leadership behind Goldwing Adventure Tours.
+                        </p>
+                    </motion.div>
+
+                    <div className="flex flex-col gap-8 items-stretch">
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8 }}
+                            className="bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.35)] p-6 md:p-10"
+                        >
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                                <div className="relative w-56 h-56 md:w-80 md:h-80 rounded-3xl overflow-hidden border border-[#F4B400]/30 shadow-[0_30px_90px_rgba(244,180,0,0.25)] flex-shrink-0">
+                                    <img src={vinodImage} alt="MR. Vinod Danchand Ghodawat" className="w-full h-full object-cover" />
+                                </div>
+                                <div className="min-w-0 text-center sm:text-left space-y-4">
+                                    <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white break-words">MR. Vinod Danchand Ghodawat</h3>
+                                    <p className="text-white/75 text-sm md:text-lg leading-relaxed break-words font-medium">
+                                        With over 28 years of distinguished experience in corporate governance, MR. Vinod Danchand Ghodawat is a visionary leader holding key positions as a Designated Partner and Director across multiple sectors.
+                                    </p>
+                                    <p className="text-white/75 text-sm md:text-lg leading-relaxed break-words">
+                                        He currently oversees a diverse portfolio of 13 companies, including prominent ventures like <strong>V Ghodawat Realtors & Consultants LLP</strong> and <strong>V. Ghodawat Fabrics LLP</strong>.
+                                    </p>
+                                    <p className="text-white/75 text-sm md:text-lg leading-relaxed break-words">
+                                        His extensive background spans technology, general business, and manufacturing, having previously served on the boards of 7 esteemed organizations. His leadership continues to drive innovation and excellence across all his business endeavors.
+                                    </p>
+                                </div>
+                            </div>
+
+                           
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8 }}
+                            className="bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.35)] p-6 md:p-10"
+                        >
+                            <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white mb-6">Directors</h3>
+                            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#0B0F19]/80 p-4">
+                                <div
+                                    onMouseEnter={() => setIsCarouselPaused(true)}
+                                    onMouseLeave={() => setIsCarouselPaused(false)}
+                                    className={`flex gap-4 py-2 min-w-full ${isCarouselPaused ? "carousel-paused" : "carousel-running"}`}
+                                >
+                                    {carouselItems.map((name, index) => (
+                                        <div key={`${name}-${index}`} className="min-w-[180px] sm:min-w-[200px] bg-white/5 border border-white/10 rounded-[2rem] p-4 flex flex-col items-center gap-3 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+                                            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-[#111827] border border-white/10 flex items-center justify-center">
+                                                <img
+                                                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0B0F19&color=F4B400&rounded=true&size=256`}
+                                                    alt={name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <p className="text-base sm:text-lg font-black text-white text-center leading-tight">{name}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>
+
+                <style>{`
+                    @keyframes scroll-left {
+                        0% { transform: translateX(0); }
+                        100% { transform: translateX(-50%); }
+                    }
+                    .carousel-running {
+                        animation: scroll-left 24s linear infinite;
+                    }
+                    .carousel-paused {
+                        animation-play-state: paused;
+                    }
+                `}</style>
+            </section>
+
             {/* Call to Action */}
             <section className="py-16 md:py-24 px-4 text-center">
                 <motion.div
@@ -160,13 +264,13 @@ export function AboutPage() {
                         </h2>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <button
-                                onClick={() => navigate('/')}
+                                onClick={() => navigate('/book')}
                                 className="px-8 py-4 md:px-10 md:py-5 bg-black text-white font-black rounded-xl md:rounded-2xl flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl w-full sm:w-auto"
                             >
                                 BOOK YOUR FLIGHT <ArrowRight className="w-5 h-5" />
                             </button>
                             <button
-                                onClick={() => navigate('/explore')}
+                                onClick={() => navigate('/')}
                                 className="px-8 py-4 md:px-10 md:py-5 bg-white/20 backdrop-blur-md text-black font-black rounded-xl md:rounded-2xl flex items-center justify-center gap-3 hover:bg-white/30 transition-all border border-black/10 w-full sm:w-auto"
                             >
                                 EXPLORE PACKAGES

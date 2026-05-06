@@ -57,8 +57,7 @@ export function TermsAndConditionsModal({ isOpen, onClose }) {
                                     2. Weight & Age Restrictions
                                 </h3>
                                 <div className="pl-7 space-y-2 text-sm leading-relaxed">
-                                    <p>• <strong>Solo & Sharing Packages:</strong> Maximum permitted weight is <strong>75 KG</strong> per person.</p>
-                                    <p>• <strong>Couple Package:</strong> Combined maximum permitted weight is <strong>150 KG</strong>.</p>
+                                    <p>• Maximum permitted weight is <strong>75 KG</strong> per person.</p>
                                     <p>• <strong>Age Limit:</strong> Minimum age limit is 12 years. Minors must have written parental consent.</p>
                                     <p className="text-red-500 font-normal mt-2 text-xs uppercase tracking-wide">
                                         Note: We weigh passengers individually before flights. Submitting false weight information during booking will result in immediate cancellation without refund.

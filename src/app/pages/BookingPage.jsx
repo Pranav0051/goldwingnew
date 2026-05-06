@@ -1,11 +1,12 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { Users, User, CreditCard, Check, Shield, Download, MapPin, Globe, ArrowLeft, ArrowRight, X, AlertCircle } from "lucide-react";
+import { Users, User, CreditCard, Check, Shield, Download, MapPin, Globe, ArrowLeft, ArrowRight, X, AlertCircle, BadgePercent } from "lucide-react";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 import { bookingStore } from "../utils/bookingStore";
+import { bookingService, authService, slotService } from "../services/api";
 import { Navbar } from "../components/Navbar";
 import { Hero } from "../components/Hero";
 import { ExperienceHighlights } from "../components/ExperienceHighlights";
@@ -21,15 +22,10 @@ import { ThemeToggle } from "../components/ThemeToggle";
 import { LiveNotifications } from "../components/LiveNotifications";
 import { TermsAndConditionsModal } from "../components/TermsAndConditionsModal";
 
-const MOCK_SLOTS = [
-    { id: 1, date: new Date().toISOString().split("T")[0], time: "06:00 AM", totalSeats: 20, bookedSeats: 20 },
-    { id: 2, date: new Date().toISOString().split("T")[0], time: "07:30 AM", totalSeats: 20, bookedSeats: 15 },
-    { id: 3, date: new Date().toISOString().split("T")[0], time: "04:30 PM", totalSeats: 20, bookedSeats: 5 },
-    { id: 4, date: new Date(Date.now() + 86400000).toISOString().split("T")[0], time: "06:00 AM", totalSeats: 20, bookedSeats: 0 },
-];
+// Slots are now fetched dynamically from the API.
 
 const SOLO_PACKAGES = [
-    { id: "solo_basic", name: "Single Basic", duration: "5-7 KM", price: 3499, points: ["Certified Pilot", "Safety Gear", "Ground Photos", "Basic Insurance"] },
+    { id: "solo_basic", name: "Single Basic", duration: "5-7 KM", price: 2500, points: ["Certified Pilot", "Safety Gear", "Ground Photos", "Basic Insurance"] },
     { id: "solo_explorer", name: "Single Explorer", duration: "10-12 KM", price: 5499, points: ["HD Video", "Extended Route", "Premium Gear", "Full Insurance"] },
     { id: "solo_pro", name: "Single Pro Flight", duration: "15 KM", price: 7999, points: ["4K Video", "Acrobatic Moves", "Merchandise Package", "Priority Slot"] },
 ];
@@ -42,9 +38,9 @@ const COUPLE_PACKAGES = [
 ];
 
 const FAMILY_PACKAGES = [
-    { id: "family_fun", name: "Family Fun Ride", duration: "5-7 KM", price: 8999, points: ["3 Pilots", "Group Memories", "Fun for Kids", "Standard Insurance"] },
-    { id: "family_deluxe", name: "Family Deluxe Experience", duration: "10-12 KM", price: 13999, points: ["Family Montage Video", "Themed Gear", "Gift Bags", "Full Insurance"] },
-    { id: "family_celebration", name: "Family Celebration Package", duration: "15 KM", price: 19999, points: ["Extended Sky Tour", "Professional Video", "Custom Apparel", "VIP Lounge Access"] },
+    { id: "family_fun", name: "Group Fun Ride", duration: "5-7 KM", price: 8999, points: ["3 Pilots", "Group Memories", "Fun for Kids", "Standard Insurance"] },
+    { id: "family_deluxe", name: "Group Deluxe Experience", duration: "10-12 KM", price: 13999, points: ["Group Montage Video", "Themed Gear", "Gift Bags", "Full Insurance"] },
+    { id: "family_celebration", name: "Group Celebration Package", duration: "15 KM", price: 19999, points: ["Extended Sky Tour", "Professional Video", "Custom Apparel", "VIP Lounge Access"] },
 ];
 
 const SHARING_PACKAGES = [
@@ -75,7 +71,7 @@ const CATEGORIES = [
         tagline: "High Fly Adventure",
         microText: "Single Flight Experience",
         cta: "Book Now",
-        weightRule: "Max 75 KG"
+        weightRule: "Max 150 KG"
     },
     {
         id: "COUPLE",
@@ -89,11 +85,11 @@ const CATEGORIES = [
     },
     {
         id: "FAMILY",
-        title: "Family",
+        title: "Group",
         icon: "/images/icon/familynew.png",
         bg: "/images/background/3 seat para.jpg",
         tagline: "Sky Safari",
-        microText: "Family Bonding",
+        microText: "Group Bonding",
         cta: "Book Now",
         weightRule: "Combined Max 150 KG"
     },
@@ -126,9 +122,12 @@ const INSURANCE_PRICE = 200;
 export function BookingPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const refCode = searchParams.get("ref");
+    const refCode = searchParams.get("ref") || sessionStorage.getItem("agentRef");
+    const pkgParam = searchParams.get("pkg");
+
     // Form & UI States
     const [step, setStep] = useState(1); // 1=Category, 2=Packages, 3=Details, 4=Location, 5=Slot, 6=Payment, 7=Confirmation
+    const [availableSlots, setAvailableSlots] = useState([]);
     const [backgroundIndex, setBackgroundIndex] = useState("/images/background/solo.png");
     const [showSplash, setShowSplash] = useState(true);
     const [showTermsModal, setShowTermsModal] = useState(false);
@@ -141,6 +140,8 @@ export function BookingPage() {
 
     const [bookingId, setBookingId] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
+    const [userProfile, setUserProfile] = useState(null);
+    const [isAgent, setIsAgent] = useState(false);
 
     // Error handling
     const showError = (msg) => {
@@ -150,17 +151,78 @@ export function BookingPage() {
 
     useEffect(() => {
         setIsAdmin(localStorage.getItem("isAdminLoggedIn") === "true");
+        setIsAgent(localStorage.getItem("isAgentLoggedIn") === "true");
+        
+        if (localStorage.getItem("isAgentLoggedIn") === "true") {
+            authService.getUserProfile().then(profile => {
+                setUserProfile(profile);
+            }).catch(err => {
+                console.error("Failed to fetch agent profile", err);
+            });
+        }
     }, []);
+
+    useEffect(() => {
+        if (step === 5 && selectedDate) {
+            slotService.getAvailability(selectedDate)
+                .then(data => {
+                    setAvailableSlots(data);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch slots", err);
+                    showError("Failed to fetch available slots.");
+                });
+        }
+    }, [step, selectedDate]);
+
+    // Handle URL parameters for pre-selection
+    useEffect(() => {
+        if (pkgParam) {
+            // Find which category this package belongs to
+            let foundCategory = null;
+            let foundPackage = null;
+
+            // Check SOLO_PACKAGES
+            foundPackage = SOLO_PACKAGES.find(p => p.id === pkgParam);
+            if (foundPackage) {
+                foundCategory = "SINGLE";
+            }
+
+            // Check COUPLE_PACKAGES if not found
+            if (!foundPackage) {
+                foundPackage = COUPLE_PACKAGES.find(p => p.id === pkgParam);
+                if (foundPackage) {
+                    foundCategory = "COUPLE";
+                }
+            }
+
+            // Check FAMILY_PACKAGES if not found
+            if (!foundPackage) {
+                foundPackage = FAMILY_PACKAGES.find(p => p.id === pkgParam);
+                if (foundPackage) {
+                    foundCategory = "FAMILY";
+                }
+            }
+
+            if (foundCategory && foundPackage) {
+                setSelectedCat(foundCategory);
+                setSelectedPkg(pkgParam);
+                setStep(3); // Skip to details step
+            }
+        }
+    }, [pkgParam]);
 
     // Passenger Detail state
     const [passengers, setPassengers] = useState([{ gender: "M", weight: "", age: "", coPassengerName: "" }]);
     const [formData, setFormData] = useState({ name: "", email: "", phone: "", address: "", state: "", city: "" });
     const [selectedPkg, setSelectedPkg] = useState(null);
     const [selectedCat, setSelectedCat] = useState(null);
-    const [selectedLocation, setSelectedLocation] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState("Shirdi");
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState("UPI");
+    const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+    const [isVipCheckin, setIsVipCheckin] = useState(false);
 
 
 
@@ -208,11 +270,18 @@ export function BookingPage() {
             if (!age || age < 12) return showError(`Passenger ${i + 1} must be at least 12 years old.`);
         }
 
-        if (selectedCat === "SINGLE" || selectedCat === "SHARING") {
+        if (selectedCat === "SINGLE") {
+            const w = parseInt(passengers[0].weight);
+            if (!w || w <= 0) return showError("Please enter a valid weight.");
+            if (w > 150) {
+                showError("Weight limit is 150 KG for Single rides.");
+                return false;
+            }
+        } else if (selectedCat === "SHARING") {
             const w = parseInt(passengers[0].weight);
             if (!w || w <= 0) return showError("Please enter a valid weight.");
             if (w > 75) {
-                showError("Weight limit is 75 KG for this category. Please select Couple option.");
+                showError("Weight limit is 75 KG per person for Sharing rides. For higher weight, please book a Single ride.");
                 return false;
             }
         } else if (selectedCat === "COUPLE") {
@@ -220,18 +289,33 @@ export function BookingPage() {
             const w2 = parseInt(passengers[1].weight) || 0;
             if (!w1 || !w2) return showError("Please enter weight for both individuals.");
             if (!passengers[1].coPassengerName?.trim()) return showError("Please enter Co-Passenger Name.");
+            
+            if (w1 > 75 || w2 > 75) {
+                return showError("Individual weight limit is 75 KG for Couple rides. Please book separate Single rides if anyone exceeds 75 KG.");
+            }
+
             if (w1 + w2 > 150) {
-                showError("Combined weight exceeds 150 KG limit for Couple ride.");
+                showError("Your combined weight is more than 150 kg, you have to share ride with another people.");
                 return false;
             }
         } else if (selectedCat === "FAMILY") {
             for (let i = 0; i < passengers.length; i++) {
                 const w = parseInt(passengers[i].weight);
                 if (!w || w <= 0) return showError(`Please enter weight for Member ${i + 1}`);
+                if (w > 75) {
+                    return showError(`Member ${i + 1} exceeds the 75 KG limit for Group rides. Please book a separate Single ride.`);
+                }
             }
-            const totalW = passengers.reduce((sum, p) => sum + (parseInt(p.weight) || 0), 0);
-            if (totalW > 150) {
-                showError("Combined weight exceeds 150 KG. Members should share ride with another person or fly separately.");
+            
+            // Check if any two passengers combined exceed 150
+            for (let i = 0; i < passengers.length; i++) {
+                for (let j = i + 1; j < passengers.length; j++) {
+                    const wSum = (parseInt(passengers[i].weight) || 0) + (parseInt(passengers[j].weight) || 0);
+                    if (wSum > 150) {
+                        showError("Your combined weight is more than 150 kg, you have to share ride with another people.");
+                        return false;
+                    }
+                }
             }
         }
 
@@ -255,7 +339,8 @@ export function BookingPage() {
         }
 
         const ins = INSURANCE_PRICE * travelersCount;
-        const sub = basePrice + ins;
+        const vip = isVipCheckin ? 500 * travelersCount : 0;
+        const sub = basePrice + ins + vip;
         const gst = sub * GST_RATE;
         const total = sub + gst;
 
@@ -264,17 +349,180 @@ export function BookingPage() {
             sub: Math.round(sub),
             gst: Math.round(gst),
             ins: Math.round(ins),
+            vip: Math.round(vip),
             travelers: travelersCount,
-            base: Math.round(basePrice)
+            base: Math.round(basePrice),
+            cgst: Math.round(gst / 2),
+            sgst: Math.round(gst / 2)
         };
     };
 
-    const handlePayment = () => {
-        const id = `GW-${Math.floor(Math.random() * 900000 + 100000)}`;
+
+
+    const handlePayment = async () => {
+        console.log("handlePayment initiated. Current Payment Method:", paymentMethod);
+        
+        if (paymentMethod === "Pay Later" || paymentMethod === "Cash") {
+            console.log("Processing as Offline/Pay Later");
+            confirmBooking("OFFLINE_PAY", "OFFLINE");
+            return;
+        }
+
+        if (paymentMethod === "Points") {
+            if (!userProfile || userProfile.walletBalance < calculateTotal().total) {
+                showError("Insufficient points balance. You have ₹" + (userProfile?.walletBalance || 0));
+                return;
+            }
+            
+            try {
+                const calc = calculateTotal();
+                const slotObj = availableSlots.find(s => s.id === selectedSlot);
+                const bookingRequest = {
+                    customerName: formData.name,
+                    customerPhone: formData.phone,
+                    customerEmail: formData.email,
+                    customerCity: formData.city,
+                    category: selectedCat,
+                    packageId: selectedPkg,
+                    packageName: PACKAGES_DATA[selectedCat]?.find(p => p.id === selectedPkg)?.name,
+                    bookingDate: selectedDate,
+                    slot: slotObj ? slotObj.time : "06:00 AM",
+                    location: selectedLocation,
+                    amount: calc.total,
+                    paymentMethod: "POINTS",
+                    agentRef: refCode,
+                    passengers: passengers.map(p => ({
+                        name: p.coPassengerName || "Passenger",
+                        age: parseInt(p.age),
+                        weight: parseInt(p.weight),
+                        gender: p.gender
+                    }))
+                };
+
+                const backendBooking = await bookingService.createBooking(bookingRequest);
+                confirmBooking("POINTS_PAY", "POINTS", backendBooking.bookingId);
+                return;
+            } catch (error) {
+                showError(error.response?.data?.message || error.message);
+                return;
+            }
+        }
+
+        if (!window.Razorpay) {
+            const scriptLoaded = await new Promise((resolve) => {
+                const script = document.createElement("script");
+                script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                script.onload = () => resolve(true);
+                script.onerror = () => resolve(false);
+                document.body.appendChild(script);
+            });
+            
+            if (!scriptLoaded || !window.Razorpay) {
+                console.error("Razorpay SDK not found on window object and failed to load dynamically");
+                showError("Razorpay SDK is not loaded. Please refresh the page, disable adblockers, or check your connection.");
+                return;
+            }
+        }
+
+        try {
+            const calc = calculateTotal();
+            const slotObj = availableSlots.find(s => s.id === selectedSlot);
+
+            console.log("Creating pending booking in backend...");
+            // Step 1: Create a PENDING booking in backend to get Razorpay Order ID
+            const bookingRequest = {
+                customerName: formData.name,
+                customerPhone: formData.phone,
+                customerEmail: formData.email,
+                customerCity: formData.city,
+                category: selectedCat,
+                packageId: selectedPkg,
+                packageName: PACKAGES_DATA[selectedCat]?.find(p => p.id === selectedPkg)?.name,
+                bookingDate: selectedDate,
+                slot: slotObj ? slotObj.time : "06:00 AM",
+                location: selectedLocation,
+                amount: calc.total,
+                paymentMethod: paymentMethod,
+                agentRef: refCode,
+                passengers: passengers.map(p => ({
+                    name: p.coPassengerName || "Passenger",
+                    age: parseInt(p.age),
+                    weight: parseInt(p.weight),
+                    gender: p.gender
+                }))
+            };
+
+            const backendBooking = await bookingService.createBooking(bookingRequest);
+            console.log("Backend booking created:", backendBooking);
+            
+            const orderId = backendBooking.transactionId; 
+
+            if (!orderId) {
+                console.error("No transactionId (Order ID) returned from backend");
+                throw new Error("Failed to create Razorpay Order ID.");
+            }
+
+            console.log("Opening Razorpay Modal with Order ID:", orderId);
+
+            const options = {
+                key: "rzp_test_SgqwRbbG5qnBvy",
+                amount: calc.total * 100,
+                currency: "INR",
+                name: "Goldwing Adventure Tours",
+                description: selectedCat + " Booking",
+                image: "/images/icon/premium_new.png",
+                order_id: orderId,
+                handler: async function (response) {
+                    console.log("Razorpay payment success handler triggered", response);
+                    try {
+                        console.log("Verifying payment on backend...");
+                        await bookingService.verifyPayment({
+                            transactionId: orderId,
+                            paymentId: response.razorpay_payment_id,
+                            signature: response.razorpay_signature,
+                            status: "SUCCESS"
+                        });
+                        console.log("Payment verified. Confirming booking...");
+                        confirmBooking(response.razorpay_payment_id, "ONLINE", backendBooking.bookingId);
+                    } catch (verifyError) {
+                        console.error("Verification error:", verifyError);
+                        showError("Payment verification failed. Please contact support.");
+                    }
+                },
+                prefill: {
+                    name: formData.name,
+                    email: formData.email || "",
+                    contact: formData.phone
+                },
+                theme: {
+                    color: "#F4B400"
+                },
+                modal: {
+                    ondismiss: function() {
+                        console.log("Razorpay modal dismissed by user");
+                    }
+                }
+            };
+
+            const rzp1 = new window.Razorpay(options);
+            rzp1.on('payment.failed', function (response){
+                console.error("Razorpay payment failed:", response.error);
+                showError("Payment Failed: " + response.error.description);
+            });
+            rzp1.open();
+        } catch (error) {
+            console.error("Payment initiation error:", error);
+            showError("Error: " + (error.response?.data?.message || error.message));
+        }
+    };
+
+    const confirmBooking = (paymentId, type, backendId = null) => {
+        console.log("confirmBooking called. Type:", type, "ID:", backendId);
+        const id = backendId || `GW-${Math.floor(Math.random() * 900000 + 100000)}`;
         setBookingId(id);
 
         const calc = calculateTotal();
-        const slotObj = MOCK_SLOTS.find(s => s.id === selectedSlot);
+        const slotObj = availableSlots.find(s => s.id === selectedSlot);
 
         const newBooking = {
             id,
@@ -291,21 +539,42 @@ export function BookingPage() {
             })),
             slot: slotObj ? slotObj.time : "06:00 AM",
             category: selectedCat,
-            type: "ONLINE",
+            type: type,
             location: selectedLocation,
             date: selectedDate,
             status: "Confirmed",
             price: calc.total,
             paymentMethod: paymentMethod,
+            paymentId: paymentId,
             consentAccepted: true,
             consentTimestamp: new Date().toISOString(),
             consentMedia: consent.media,
             userIpAddress: "Client-IP-Logged",
-            isFemaleSharing: passengers[0]?.isFemaleSharing || false, // Added female sharing preference
+            isFemaleSharing: passengers[0]?.isFemaleSharing || false,
+            isVipCheckin,
             agent: refCode || "Direct",
+            amount: calc.total,
+            packageId: selectedPkg,
+            packageName: PACKAGES_DATA[selectedCat]?.find(p => p.id === selectedPkg)?.name,
+            bookingDate: selectedDate
         };
+        
         bookingStore.addBooking(newBooking);
+        
+        // Generate QR for UI
+        const qrContent = `${window.location.origin}/gate?data=VERIFY:${id}|PAY_INTERNAL`;
+        QRCode.toDataURL(qrContent, { width: 300, margin: 2 })
+            .then(url => setQrCodeDataUrl(url))
+            .catch(err => console.error("QR Generation failed", err));
+
         setStep(7); // Go to confirmation
+        console.log("Navigation to Step 7 complete");
+        
+        setTimeout(() => {
+            if (typeof handleDownloadTicket === 'function') {
+                handleDownloadTicket();
+            }
+        }, 1000);
     };
 
     const handleDownloadTicket = async () => {
@@ -319,7 +588,7 @@ export function BookingPage() {
         const pkgObj = PACKAGES_DATA[selectedCat]?.find(p => p.id === selectedPkg);
         const tourDate = selectedDate;
         const pkgName = pkgObj?.name || "Tour Package";
-        const slotObj = MOCK_SLOTS.find((s) => s.id === selectedSlot);
+        const slotObj = availableSlots.find((s) => s.id === selectedSlot);
         const slotTime = slotObj ? slotObj.time : "N/A";
         let y = 15;
         const centerX = 50;
@@ -371,6 +640,14 @@ export function BookingPage() {
             }
             doc.setFont("times", "normal");
         }
+        if (isVipCheckin) {
+            doc.setFont("times", "bolditalic");
+            doc.setTextColor(255, 150, 0);
+            doc.text(`SERVICE: EXPRESS CHECK-IN`, 15, y);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont("times", "normal");
+            y += 6;
+        }
         drawDivider();
         setCenteredText("Passenger Details", "bold", 10, 8);
         doc.setFont("times", "bold");
@@ -408,8 +685,11 @@ export function BookingPage() {
         doc.text("Sub Total", 15, y);
         doc.text(calc.sub.toString(), 85, y, { align: "right" });
         y += 6;
-        doc.text("GST (18%)", 15, y);
-        doc.text(calc.gst.toFixed(0), 85, y, { align: "right" });
+        doc.text("CGST (9%)", 15, y);
+        doc.text(calc.cgst.toString(), 85, y, { align: "right" });
+        y += 6;
+        doc.text("SGST (9%)", 15, y);
+        doc.text(calc.sgst.toString(), 85, y, { align: "right" });
         y += 8;
         drawDivider();
         doc.text("GRAND TOTAL", 15, y);
@@ -421,7 +701,8 @@ export function BookingPage() {
         drawDivider();
         setCenteredText("Scan QR for Verification", "normal", 10, 6);
         try {
-            const qrDataUrl = await QRCode.toDataURL(`VERIFY:${bookingId}|${payId}`, { width: 150, margin: 1 });
+            const qrContent = `${window.location.origin}/gate?data=VERIFY:${bookingId}|${payId}`;
+            const qrDataUrl = await QRCode.toDataURL(qrContent, { width: 150, margin: 1 });
             doc.addImage(qrDataUrl, "PNG", 35, y, 30, 30);
             y += 35;
         } catch (err) {
@@ -509,6 +790,7 @@ export function BookingPage() {
         const pkgObj = PACKAGES_DATA[selectedCat]?.find(p => p.id === selectedPkg);
         addRow(`${pkgObj?.name || 'Package'}`, "1", `Rs. ${calc.base}`, `Rs. ${calc.base}`);
         addRow(`Insurance`, calc.travelers.toString(), `Rs. ${INSURANCE_PRICE}`, `Rs. ${calc.ins}`);
+        if (isVipCheckin) addRow(`Express Check-in`, calc.travelers.toString(), `Rs. 500`, `Rs. ${calc.vip}`);
 
         y += 2;
         drawDivider();
@@ -516,8 +798,11 @@ export function BookingPage() {
         doc.text("Sub Total", 15, y);
         doc.text(`Rs. ${calc.sub.toFixed(2)}`, 85, y, { align: "right" });
         y += 6;
-        doc.text("GST (18%)", 15, y);
-        doc.text(`Rs. ${calc.gst.toFixed(2)}`, 85, y, { align: "right" });
+        doc.text("CGST (9%)", 15, y);
+        doc.text(`Rs. ${calc.cgst.toFixed(2)}`, 85, y, { align: "right" });
+        y += 6;
+        doc.text("SGST (9%)", 15, y);
+        doc.text(`Rs. ${calc.sgst.toFixed(2)}`, 85, y, { align: "right" });
         y += 8;
         drawDivider();
         doc.setFont("times", "bold");
@@ -598,7 +883,7 @@ export function BookingPage() {
                             </button>
                         ) : step === 7 ? (
                             <button
-                                onClick={() => navigate('/explore?skipLoader=true')}
+                                onClick={() => navigate('/?skipLoader=true')}
                                 className="flex items-center justify-center w-10 h-10 text-white/70 hover:text-white transition bg-white/10 rounded-full backdrop-blur-md border border-white/10 shadow-lg group"
                                 title="Back to Home"
                             >
@@ -607,7 +892,7 @@ export function BookingPage() {
                         ) : (
                             <div className="flex items-center gap-2 md:gap-4">
                                 <button
-                                    onClick={() => navigate('/explore?skipLoader=true')}
+                                    onClick={() => navigate('/?skipLoader=true')}
                                     className="flex items-center justify-center w-10 h-10 text-white/70 hover:text-white transition bg-white/10 rounded-full backdrop-blur-md border border-white/10 shadow-lg group"
                                     title="Back to Website"
                                 >
@@ -836,10 +1121,10 @@ export function BookingPage() {
                                                 <option value="Other" className="text-black">Other</option>
                                             </select>
                                             <div className="flex gap-2 bg-gray-200 dark:bg-white/5 p-1 rounded-xl items-center">
-                                                {['M', 'F'].map(g => (
+                                                {['M', 'F', 'O'].map(g => (
                                                     <button
                                                         key={g}
-                                                        className={`flex-1 py-2 px-2 rounded-lg font-black flex items-center justify-center gap-2 transition-all text-xs ${passengers[0].gender === g ? 'bg-yellow-500 text-black shadow-md' : 'text-gray-600 dark:text-white/50 hover:text-gray-900 dark:hover:text-white'}`}
+                                                        className={`flex-1 py-2 px-2 rounded-lg font-black flex items-center justify-center gap-2 transition-all text-xs group ${passengers[0].gender === g ? 'bg-yellow-500 text-black shadow-md' : 'text-gray-600 dark:text-white/50 hover:text-gray-900 dark:hover:text-white'}`}
                                                         onClick={() => {
                                                             const newP = [...passengers];
                                                             newP[0].gender = g;
@@ -847,12 +1132,16 @@ export function BookingPage() {
                                                             setPassengers(newP);
                                                         }}
                                                     >
-                                                        <img
-                                                            src={g === 'M' ? '/images/sign/male.png' : '/images/sign/female.png'}
-                                                            className={`w-4 h-4 transition-all ${passengers[0].gender === g ? 'brightness-0' : 'invert opacity-40 group-hover:opacity-100'}`}
-                                                            alt={g}
-                                                        />
-                                                        {g === 'M' ? 'Male' : 'Female'}
+                                                        {g === 'M' || g === 'F' ? (
+                                                            <img
+                                                                src={g === 'M' ? '/images/sign/male.png' : '/images/sign/female.png'}
+                                                                className={`w-4 h-4 transition-all ${passengers[0].gender === g ? 'brightness-0' : 'invert opacity-40 group-hover:opacity-100'}`}
+                                                                alt={g}
+                                                            />
+                                                        ) : (
+                                                            <User className={`w-4 h-4 transition-all ${passengers[0].gender === g ? 'text-black' : 'text-current opacity-40 group-hover:opacity-100'}`} />
+                                                        )}
+                                                        {g === 'M' ? 'Male' : g === 'F' ? 'Female' : 'Other'}
                                                     </button>
                                                 ))}
                                             </div>
@@ -900,8 +1189,8 @@ export function BookingPage() {
                                                     const newP = [...passengers];
                                                     newP[0].weight = e.target.value;
                                                     setPassengers(newP);
-                                                    if (selectedCat === "SINGLE" && parseInt(e.target.value) > 75) {
-                                                        showError("Single ride limit is 75 KG. We recommend Couple option.");
+                                                    if (selectedCat === "SINGLE" && parseInt(e.target.value) > 150) {
+                                                        showError("Single ride limit is 150 KG.");
                                                     }
                                                 }}
                                             />
@@ -945,22 +1234,26 @@ export function BookingPage() {
                                                 />
 
                                                 <div className="flex bg-gray-200 dark:bg-white/5 p-1 rounded-xl items-center">
-                                                    {['M', 'F'].map(g => (
+                                                    {['M', 'F', 'O'].map(g => (
                                                         <button
                                                             key={g}
-                                                            className={`flex-1 py-3 px-2 rounded-lg font-black flex items-center justify-center gap-2 transition-all ${p.gender === g ? 'bg-yellow-500 text-black shadow-lg' : 'text-gray-600 dark:text-white/50 hover:text-gray-900 dark:hover:text-white'}`}
+                                                            className={`flex-1 py-3 px-2 rounded-lg font-black flex items-center justify-center gap-2 transition-all group ${p.gender === g ? 'bg-yellow-500 text-black shadow-lg' : 'text-gray-600 dark:text-white/50 hover:text-gray-900 dark:hover:text-white'}`}
                                                             onClick={() => {
                                                                 const newP = [...passengers];
                                                                 newP[idx].gender = g;
                                                                 setPassengers(newP);
                                                             }}
                                                         >
-                                                            <img
-                                                                src={g === 'M' ? '/images/sign/male.png' : '/images/sign/female.png'}
-                                                                className={`w-5 h-5 transition-all ${p.gender === g ? 'brightness-0' : 'invert opacity-40 group-hover:opacity-100'}`}
-                                                                alt={g}
-                                                            />
-                                                            {g === 'M' ? 'Male' : 'Female'}
+                                                            {g === 'M' || g === 'F' ? (
+                                                                <img
+                                                                    src={g === 'M' ? '/images/sign/male.png' : '/images/sign/female.png'}
+                                                                    className={`w-5 h-5 transition-all ${p.gender === g ? 'brightness-0' : 'invert opacity-40 group-hover:opacity-100'}`}
+                                                                    alt={g}
+                                                                />
+                                                            ) : (
+                                                                <User className={`w-5 h-5 transition-all ${p.gender === g ? 'text-black' : 'text-current opacity-40 group-hover:opacity-100'}`} />
+                                                            )}
+                                                            {g === 'M' ? 'Male' : g === 'F' ? 'Female' : 'Other'}
                                                         </button>
                                                     ))}
                                                 </div>
@@ -1001,7 +1294,7 @@ export function BookingPage() {
                                             className="w-full py-4 border border-dashed border-yellow-500/50 rounded-2xl text-yellow-500 hover:bg-yellow-500/5 transition-colors font-black flex items-center justify-center gap-2"
                                             onClick={() => setPassengers([...passengers, { gender: "M", weight: "", age: "", coPassengerName: "" }])}
                                         >
-                                            <Users className="w-5 h-5" /> Add Family Member
+                                            <Users className="w-5 h-5" /> Add Group Member
                                         </button>
                                     )}
 
@@ -1063,29 +1356,33 @@ export function BookingPage() {
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Available Slots</label>
                                         <div className="grid grid-cols-1 gap-3">
-                                            {MOCK_SLOTS.map(slot => {
-                                                const available = slot.totalSeats - slot.bookedSeats;
-                                                const isFull = available <= 0;
-                                                return (
-                                                    <button
-                                                        key={slot.id}
-                                                        disabled={isFull}
-                                                        onClick={() => setSelectedSlot(slot.id)}
-                                                        className={`p-5 rounded-2xl border-2 flex justify-between items-center transition-all ${isFull ? 'opacity-30 bg-red-900/20 border-red-500/30 cursor-not-allowed' :
-                                                            selectedSlot === slot.id ? 'bg-[#F4B400] border-[#F4B400] text-black font-black shadow-glow-amber' :
-                                                                'bg-white/5 border-white/10 hover:border-[#F4B400]/40'
-                                                            }`}
-                                                    >
-                                                        <div className="flex flex-col items-start">
-                                                            <span className="text-xl font-black">{slot.time}</span>
-                                                            <span className={`text-[10px] font-black uppercase ${selectedSlot === slot.id ? 'text-black/60' : 'text-white/40'}`}>
-                                                                {isFull ? 'Sold Out' : `${available} Wings Left`}
-                                                            </span>
-                                                        </div>
-                                                        {!isFull && selectedSlot === slot.id && <Check className="w-5 h-5" />}
-                                                    </button>
-                                                )
-                                            })}
+                                            {availableSlots.length === 0 ? (
+                                                <div className="text-center text-white/50 p-4">No slots available for this date</div>
+                                            ) : (
+                                                availableSlots.map(slot => {
+                                                    const available = slot.availableSeats;
+                                                    const isFull = available <= 0;
+                                                    return (
+                                                        <button
+                                                            key={slot.id}
+                                                            disabled={isFull}
+                                                            onClick={() => setSelectedSlot(slot.id)}
+                                                            className={`p-5 rounded-2xl border-2 flex justify-between items-center transition-all ${isFull ? 'opacity-30 bg-red-900/20 border-red-500/30 cursor-not-allowed' :
+                                                                selectedSlot === slot.id ? 'bg-[#F4B400] border-[#F4B400] text-black font-black shadow-glow-amber' :
+                                                                    'bg-white/5 border-white/10 hover:border-[#F4B400]/40'
+                                                                }`}
+                                                        >
+                                                            <div className="flex flex-col items-start">
+                                                                <span className="text-xl font-black">{slot.time}</span>
+                                                                <span className={`text-[10px] font-black uppercase ${selectedSlot === slot.id ? 'text-black/60' : 'text-white/40'}`}>
+                                                                    {isFull ? 'Sold Out' : `${available} Wings Left`}
+                                                                </span>
+                                                            </div>
+                                                            {!isFull && selectedSlot === slot.id && <Check className="w-5 h-5" />}
+                                                        </button>
+                                                    )
+                                                })
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -1107,33 +1404,73 @@ export function BookingPage() {
                                         </div>
                                         <div className="flex justify-between items-center text-white/60">
                                             <span className="font-black text-sm">Base Price</span>
-                                            <span className="font-black text-white">â‚¹{calculateTotal().base.toLocaleString()}</span>
+                                            <span className="font-black text-white">₹{calculateTotal().base.toLocaleString()}</span>
                                         </div>
                                         <div className="flex justify-between items-center text-white/60">
                                             <span className="font-black text-sm">Insurance</span>
-                                            <span className="font-black text-white">â‚¹{calculateTotal().ins.toLocaleString()}</span>
+                                            <span className="font-black text-white">₹{calculateTotal().ins.toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-white/5 p-3 rounded-2xl border border-white/10">
+                                            <div className="flex flex-col">
+                                                <span className="font-black text-sm text-[#F4B400]">Express Check-in</span>
+                                                <span className="text-[10px] text-white/40 font-black">+₹500 / person</span>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input 
+                                                    type="checkbox" 
+                                                    className="sr-only peer" 
+                                                    checked={isVipCheckin} 
+                                                    onChange={(e) => setIsVipCheckin(e.target.checked)} 
+                                                />
+                                                <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#F4B400]"></div>
+                                            </label>
+                                        </div>
+                                        {isVipCheckin && (
+                                            <div className="flex justify-between items-center text-[#F4B400] px-2">
+                                                <span className="font-black text-sm">Express Check-in ({calculateTotal().travelers}x)</span>
+                                                <span className="font-black">₹{calculateTotal().vip.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        <div className="h-px bg-white/10 w-full" />
+                                        <div className="space-y-2 py-2">
+                                            <div className="flex justify-between items-center text-white/40 text-[11px] font-black uppercase tracking-wider">
+                                                <span>CGST (9%)</span>
+                                                <span>₹{calculateTotal().cgst.toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-white/40 text-[11px] font-black uppercase tracking-wider">
+                                                <span>SGST (9%)</span>
+                                                <span>₹{calculateTotal().sgst.toLocaleString()}</span>
+                                            </div>
                                         </div>
                                         <div className="h-px bg-white/10 w-full" />
                                         <div className="flex justify-between items-center">
                                             <span className="font-black text-xl text-[#F4B400]">TOTAL</span>
-                                            <span className="text-3xl font-black text-white">â‚¹{calculateTotal().total.toLocaleString()}</span>
+                                            <span className="text-3xl font-black text-white">₹{calculateTotal().total.toLocaleString()}</span>
                                         </div>
-                                        <div className="text-[10px] text-white/40 font-black text-right">(Includes 18% GST)</div>
+                                        <div className="text-[10px] text-white/40 font-black text-right">(GST 18% Applied)</div>
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-2">Payment Method</label>
+                                        <div className="flex justify-between items-center ml-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Payment Method</label>
+                                            {isAgent && userProfile && (
+                                                <span className="text-[10px] font-black text-[#F4B400] uppercase tracking-widest bg-[#F4B400]/10 px-2 py-0.5 rounded">
+                                                    Wallet: ₹{userProfile.walletBalance.toLocaleString()}
+                                                </span>
+                                            )}
+                                        </div>
                                         <div className="grid grid-cols-2 gap-3">
-                                            {['UPI', 'Card', 'NetBanking', 'Pay Later'].map(method => (
+                                            {['UPI', 'Card', 'NetBanking', 'Pay Later', ...(isAgent ? ['Points'] : [])].map(method => (
                                                 <button
                                                     key={method}
                                                     onClick={() => setPaymentMethod(method)}
                                                     className={`py-4 rounded-xl border-2 font-black text-xs transition-all ${paymentMethod === method
                                                         ? 'border-[#F4B400] bg-[#F4B400]/10 text-[#F4B400]'
                                                         : 'border-white/5 text-white/30 hover:border-white/20'
-                                                        }`}
+                                                        } ${method === 'Points' ? 'relative overflow-hidden' : ''}`}
                                                 >
                                                     {method}
+                                                    {method === 'Points' && <BadgePercent className="w-3 h-3 absolute top-1 right-1 opacity-50" />}
                                                 </button>
                                             ))}
                                         </div>
@@ -1237,18 +1574,20 @@ export function BookingPage() {
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#F4B400]/5 blur-[80px] -mr-32 -mt-32" />
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                    <div className="space-y-8">
-                                        <div>
+                                    <div className="space-y-8 flex flex-col md:flex-row items-center md:items-start gap-8">
+                                        <div className="flex-1">
                                             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#F4B400] mb-3">Booking Identifier</p>
                                             <p className="text-4xl md:text-5xl font-mono font-black text-white tracking-widest">{bookingId}</p>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-6">
-
-                                            <div>
-                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">Slot Time</p>
-                                                <p className="font-black text-white text-lg">{MOCK_SLOTS.find(s => s.id === selectedSlot)?.time}</p>
+                                            
+                                            <div className="grid grid-cols-2 gap-6 mt-8">
+                                                <div>
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">Slot Time</p>
+                                                    <p className="font-black text-white text-lg">{availableSlots.find(s => s.id === selectedSlot)?.time}</p>
+                                                </div>
                                             </div>
                                         </div>
+
+
                                     </div>
 
                                     <div className="space-y-6 pt-6 md:pt-0 md:pl-12 md:border-l border-white/10">
@@ -1292,15 +1631,8 @@ export function BookingPage() {
                 </AnimatePresence>
             </div>
 
-            {/* Floating Action Buttons */}
-            <div className="fixed bottom-6 right-6 flex flex-col gap-4 z-[200]">
-                <a href="tel:+918087968502" className="bg-[#2E7CCB] hover:bg-blue-600 text-white transition-transform hover:scale-110 p-3 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                </a>
-                <a href="https://wa.me/918087968502" target="_blank" rel="noopener noreferrer" className="bg-[#25D366] hover:bg-green-600 text-white transition-transform hover:scale-110 p-3 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
-                </a>
-            </div>
+            {/* Floating CTA */}
+            <FloatingCTA onBookClick={() => setStep(3)} />
 
             {/* Live Notifications */}
             <LiveNotifications />

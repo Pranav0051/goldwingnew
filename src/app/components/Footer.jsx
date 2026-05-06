@@ -8,7 +8,7 @@ export function Footer() {
         {/* Brand */}
         <div className="space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
           <div className="flex items-center gap-3">
-            <img src="/goldwing-logo.png" alt="Goldwing Adventure Tour" className="h-14 md:h-16 w-auto object-contain" />
+            <img src="/goldwing-logo.png" alt="Goldwing Adventure Tour" className="h-20 md:h-28 w-auto object-contain" />
             <div>
               <h1 className="text-white font-normal tracking-tight text-base md:text-lg">
                 GOLDWING
@@ -106,13 +106,13 @@ export function Footer() {
             <li className="flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-3">
               <MapPin className="w-5 h-5 text-[#D4AF37] flex-shrink-0" />
               <span className="text-white/70 text-sm max-w-[200px]">
-                Arambol Beach, North Goa, India - 403524
+                Corporate: Jaysingpur <br/> Site: Shirdi
               </span>
             </li>
             <li className="flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-3">
               <Phone className="w-5 h-5 text-[#D4AF37] flex-shrink-0" />
-              <a href="tel:+911234567890" className="text-white/70 hover:text-[#D4AF37] transition-colors text-sm">
-                +91 123 456 7890
+              <a href="tel:+919165659595" className="text-white/70 hover:text-[#D4AF37] transition-colors text-sm">
+                +91 91656 59595
               </a>
             </li>
             <li className="flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-3">

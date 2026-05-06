@@ -33,7 +33,7 @@ const faqs = [
   },
   {
     question: "What is the weather cancellation policy?",
-    answer: "Safety first! If weather conditions are unsuitable, we'll reschedule your flight or provide a 100% refund. We monitor weather conditions daily and will notify you in advance.",
+    answer: "Safety first! If weather conditions are unsuitable, we'll reschedule your flight or provide a 100% refund. We monitor weather conditions daily.",
   },
 ];
 export function FAQ() {

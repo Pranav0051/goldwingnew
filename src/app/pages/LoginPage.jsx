@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { EyeOff, Eye, ArrowRight, AlertCircle, X } from "lucide-react";
+import { authService } from "../services/api";
+import { ThemeToggle } from "../components/ThemeToggle";
 export function LoginPage() {
     const navigate = useNavigate();
     const [loginRole, setLoginRole] = useState("agent");
@@ -14,55 +16,60 @@ export function LoginPage() {
         setErrorMsg(msg);
         setTimeout(() => setErrorMsg(""), 4000);
     };
-    // Persist login state
-    useState(() => {
-        if (localStorage.getItem("isAdminLoggedIn") === "true") {
-            navigate("/admin");
-        } else if (localStorage.getItem("isStaffLoggedIn") === "true") {
-            navigate("/staff");
-        } else if (localStorage.getItem("isPilotLoggedIn") === "true") {
-            navigate("/pilot");
-        } else if (localStorage.getItem("isAgentLoggedIn") === "true") {
-            navigate("/agent");
-        }
-    });
-    const handleLogin = (e) => {
+    // Removed auto-redirect logic to prevent stale redirects
+    // User should only be redirected after a successful login attempt
+    const handleLogin = async (e) => {
         e.preventDefault();
         if (!email.trim() || !password.trim()) {
-            showError("Please enter both email and password.");
+            showError("Please enter both username and password.");
             return;
         }
-        if (loginRole === "admin") {
-            if ((password === "admin123" || email.includes("admin"))) {
+
+        try {
+            console.log(`Attempting login for ${email} with role ${loginRole}`);
+            const data = await authService.login(email, password);
+            console.log("Login successful, received data:", data);
+            const roles = data.roles || [];
+            
+            // Check if user has the authority for the selected panel
+            if (loginRole === "admin" && roles.includes("ROLE_ADMIN")) {
                 localStorage.setItem("isAdminLoggedIn", "true");
                 navigate("/admin");
-            } else {
-                showError("Incorrect password for Admin access.");
-            }
-        } else if (loginRole === "staff") {
-            if (password === "staff123" || email.includes("staff")) {
+            } else if (loginRole === "staff" && (roles.includes("ROLE_STAFF") || roles.includes("ROLE_MODERATOR") || roles.includes("ROLE_ADMIN"))) {
                 localStorage.setItem("isStaffLoggedIn", "true");
                 navigate("/staff");
-            } else {
-                showError("Incorrect password for Staff access.");
-            }
-        } else if (loginRole === "pilot") {
-            if (password === "pilot123" || email.includes("pilot")) {
+            } else if (loginRole === "pilot" && (roles.includes("ROLE_PILOT") || roles.includes("ROLE_MODERATOR") || roles.includes("ROLE_ADMIN"))) {
                 localStorage.setItem("isPilotLoggedIn", "true");
                 navigate("/pilot");
-            } else {
-                showError("Incorrect password for Pilot access.");
-            }
-        } else {
-            if (!email.includes("admin") && !email.includes("staff") && !email.includes("pilot")) {
+            } else if (loginRole === "agent" && (roles.includes("ROLE_USER") || roles.includes("ROLE_ADMIN"))) {
                 localStorage.setItem("isAgentLoggedIn", "true");
                 navigate("/agent");
             } else {
-                showError("Please select the correct role access to login.");
+                console.warn("User authenticated but missing role for selected panel. Roles:", roles);
+                // If they don't have the specific role, try to redirect to their highest privilege
+                if (roles.includes("ROLE_ADMIN")) {
+                    localStorage.setItem("isAdminLoggedIn", "true");
+                    navigate("/admin");
+                } else if (roles.includes("ROLE_STAFF") || roles.includes("ROLE_MODERATOR")) {
+                    localStorage.setItem("isStaffLoggedIn", "true");
+                    navigate("/staff");
+                } else if (roles.includes("ROLE_PILOT")) {
+                    localStorage.setItem("isPilotLoggedIn", "true");
+                    navigate("/pilot");
+                } else if (roles.includes("ROLE_USER")) {
+                    localStorage.setItem("isAgentLoggedIn", "true");
+                    navigate("/agent");
+                } else {
+                    showError("Unauthorized role access.");
+                }
             }
+        } catch (err) {
+            console.error("Full Login Error Object:", err);
+            const errorDetail = err.response?.data?.message || err.message;
+            showError("Login failed: " + errorDetail);
         }
     };
-    return (<div className="min-h-[100dvh] bg-gradient-to-br from-[#9Bc2d3] to-[#e4a8c9] flex items-center justify-center p-4 md:p-12 font-sans relative overflow-x-hidden">
+    return (<div className="min-h-[100dvh] bg-gradient-to-br from-[#9Bc2d3] to-[#e4a8c9] dark:from-[#0B0F19] dark:to-[#111827] flex items-center justify-center p-4 md:p-12 font-sans relative overflow-x-hidden transition-colors duration-300">
         {/* Error Toast */}
         <AnimatePresence>
             {errorMsg && (<motion.div initial={{ opacity: 0, y: -20, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: -20, x: "-50%" }} className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl font-normal max-w-sm w-[90%]">
@@ -74,92 +81,103 @@ export function LoginPage() {
             </motion.div>)}
         </AnimatePresence>
 
-        <Link to="/?skipLoader=true" className="absolute top-6 left-6 inline-flex items-center text-white/90 font-normal hover:text-white transition drop-shadow-md">
+        <Link to="/?skipLoader=true" className="absolute top-6 left-6 inline-flex items-center text-white/90 dark:text-white/70 font-normal hover:text-white dark:hover:text-white transition drop-shadow-md z-50">
             ← Back to Home
         </Link>
 
-        <div className="w-full max-w-5xl bg-white rounded-[30px] md:rounded-[40px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-0">
+        <div className="absolute top-6 right-6 z-50">
+            <ThemeToggle />
+        </div>
 
+        <div className="w-full max-w-5xl bg-white dark:bg-[#1A2235] rounded-[30px] md:rounded-[40px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-0 transition-colors duration-300">
             {/* Left Form Section */}
-            <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center bg-white relative">
+            <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-white dark:bg-[#1A2235] relative items-center transition-colors duration-300">
+                
+                <div className="w-full max-w-[420px]">
+                    <div className="mb-6">
+                        <h1 className="text-4xl md:text-5xl text-[#1a1a1a] dark:text-white tracking-tight flex items-center whitespace-nowrap transition-colors duration-300" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: "italic", fontWeight: 700 }}>
+                            Welcome Back <span className="text-[#d98cb3] ml-3 text-3xl md:text-4xl mt-1">✨</span>
+                        </h1>
+                    </div>
+                    
+                    <p className="text-base text-gray-600 dark:text-gray-400 mb-8 font-medium tracking-wide transition-colors duration-300">Please select your role and log in</p>
 
-                {/* Admin/Agent/Staff Toggle via small pills at top right for functionality */}
-                <div className="absolute top-8 right-8 flex gap-2">
-                    <button onClick={() => setLoginRole("agent")} className={`px-3 py-1 text-xs rounded-full font-normal transition ${loginRole === "agent" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
-                        Agent
-                    </button>
-                    <button onClick={() => setLoginRole("pilot")} className={`px-3 py-1 text-xs rounded-full font-normal transition ${loginRole === "pilot" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
-                        Pilot
-                    </button>
-                    <button onClick={() => setLoginRole("staff")} className={`px-3 py-1 text-xs rounded-full font-normal transition ${loginRole === "staff" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
-                        Staff
-                    </button>
-                    <button onClick={() => setLoginRole("admin")} className={`px-3 py-1 text-xs rounded-full font-normal transition ${loginRole === "admin" ? 'bg-[#d98cb3] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
-                        Admin
-                    </button>
-                </div>
-
-                <div className="mb-2">
-                    <h2 className="text-2xl font-normal text-[#d98cb3]">Goldwing</h2>
-                </div>
-
-                <p className="text-sm text-gray-400 mb-6 font-normal">Welcome back !!!</p>
-
-                <h1 className="text-5xl font-extrabold text-[#1a1a1a] mb-8 tracking-tight">Log In</h1>
-
-                <form onSubmit={handleLogin} className="space-y-5">
-                    <div className="space-y-1">
-                        <label className="text-xs font-normal text-gray-500">Email</label>
-                        <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#dae9f2] text-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#d98cb3]" placeholder="login@gmail.com" />
+                    <div className="mb-10 p-1.5 bg-[#dae9f2]/40 dark:bg-black/20 rounded-2xl flex flex-wrap shadow-inner border border-[#dae9f2]/60 dark:border-white/5 transition-colors duration-300">
+                        <button 
+                            type="button" 
+                            onClick={() => setLoginRole("admin")} 
+                            className={`flex-1 min-w-[70px] py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${loginRole === "admin" ? 'bg-white dark:bg-gray-800 text-[#cc7a9c] dark:text-[#d98cb3] shadow-sm transform scale-[1.02]' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                        >
+                            Admin
+                        </button>
+                        <button 
+                            type="button" 
+                            onClick={() => setLoginRole("agent")} 
+                            className={`flex-1 min-w-[70px] py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${loginRole === "agent" ? 'bg-white dark:bg-gray-800 text-[#cc7a9c] dark:text-[#d98cb3] shadow-sm transform scale-[1.02]' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                        >
+                            Agent
+                        </button>
+                        <button 
+                            type="button" 
+                            onClick={() => setLoginRole("pilot")} 
+                            className={`flex-1 min-w-[70px] py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${loginRole === "pilot" ? 'bg-white dark:bg-gray-800 text-[#cc7a9c] dark:text-[#d98cb3] shadow-sm transform scale-[1.02]' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                        >
+                            Pilot
+                        </button>
+                        <button 
+                            type="button" 
+                            onClick={() => setLoginRole("staff")} 
+                            className={`flex-1 min-w-[70px] py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${loginRole === "staff" ? 'bg-white dark:bg-gray-800 text-[#cc7a9c] dark:text-[#d98cb3] shadow-sm transform scale-[1.02]' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                        >
+                            Staff
+                        </button>
                     </div>
 
-                    <div className="space-y-1 relative">
-                        <div className="flex justify-between items-center">
-                            <label className="text-xs font-normal text-gray-500">Password</label>
-                            <a href="#" onClick={(e) => { e.preventDefault(); showError("Password reset link sent to your email!"); }} className="text-[10px] text-gray-400 hover:text-[#d98cb3]">Forgot Password ?</a>
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 tracking-wide block transition-colors duration-300">Username</label>
+                            <input 
+                                type="text" 
+                                required 
+                                value={email} 
+                                onChange={(e) => setEmail(e.target.value)} 
+                                autoComplete="off"
+                                className="w-full bg-[#dae9f2]/60 dark:bg-black/30 text-gray-800 dark:text-gray-100 rounded-xl px-5 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-[#d98cb3] transition-all border border-transparent focus:border-[#d98cb3] focus:bg-white dark:focus:bg-[#0B0F19] placeholder-gray-400 dark:placeholder-gray-500" 
+                                placeholder="Enter your username" 
+                            />
                         </div>
-                        <div className="relative">
-                            <input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-[#dae9f2] text-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#d98cb3]" placeholder="••••••••••••" />
-                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#d98cb3]/70 hover:text-[#d98cb3]">
-                                {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+
+                        <div className="space-y-2 relative">
+                            <div className="flex justify-between items-center">
+                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 tracking-wide transition-colors duration-300">Password</label>
+                                <a href="#" onClick={(e) => { e.preventDefault(); showError("Password reset link sent to your email!"); }} className="text-[11px] font-medium text-gray-400 dark:text-gray-500 hover:text-[#d98cb3] dark:hover:text-[#d98cb3] transition-colors">Forgot Password ?</a>
+                            </div>
+                            <div className="relative">
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    required 
+                                    value={password} 
+                                    onChange={(e) => setPassword(e.target.value)} 
+                                    autoComplete="new-password"
+                                    className="w-full bg-[#dae9f2]/60 dark:bg-black/30 text-gray-800 dark:text-gray-100 rounded-xl px-5 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-[#d98cb3] transition-all border border-transparent focus:border-[#d98cb3] focus:bg-white dark:focus:bg-[#0B0F19] placeholder-gray-400 dark:placeholder-gray-500" 
+                                    placeholder="••••••••••••" 
+                                />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d98cb3]/70 hover:text-[#d98cb3] transition-colors">
+                                    {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="pt-4">
+                            <button type="submit" className="w-full sm:w-auto bg-[#cc7a9c] hover:bg-[#b06181] text-white text-base font-semibold py-3.5 px-10 rounded-full flex items-center justify-center transition-all shadow-lg shadow-[#cc7a9c]/30 hover:shadow-xl hover:shadow-[#cc7a9c]/40 hover:-translate-y-0.5">
+                                LOGIN <ArrowRight className="w-5 h-5 ml-2.5" />
                             </button>
                         </div>
-                    </div>
-
-                    <div className="pt-2">
-                        <button type="submit" className="bg-[#cc7a9c] hover:bg-[#b06181] text-white text-sm font-normal py-3 px-8 rounded-full flex items-center justify-center transition shadow-lg shadow-[#cc7a9c]/30">
-                            LOGIN <ArrowRight className="w-4 h-4 ml-2" />
-                        </button>
-                    </div>
-                </form>
-
-                <div className="mt-8">
-                    <div className="flex items-center justify-center space-x-2 text-center text-xs text-[#8fb4ce] mb-6">
-                        <span className="h-px w-8 bg-[#dae9f2]"></span>
-                        <span>or continue with</span>
-                        <span className="h-px w-8 bg-[#dae9f2]"></span>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-4">
-                        <button className="w-12 h-12 rounded-full border border-[#dae9f2] flex items-center justify-center hover:bg-[#dae9f2]/50 transition">
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <p className="text-center text-xs text-gray-400 mt-8">
-                        Don't have an account yet? <a href="#" className="text-[#cc7a9c] font-normal">Sign up for free</a>
-                    </p>
+                    </form>
                 </div>
-            </div>
-
-            {/* Right Image Section */}
-            <div className="hidden md:block w-1/2 bg-[#c2e0ee] rounded-[30px] p-2 m-4 shadow-inner relative overflow-hidden">
-                <img src="/login-illustration.png" alt="Login Illustration" className="w-full h-full object-cover object-center rounded-[20px]" />
+            </div>            {/* Right Image Section */}
+            <div className="hidden md:block w-1/2 bg-[#c2e0ee] dark:bg-[#0B0F19] rounded-[30px] p-2 m-4 shadow-inner relative overflow-hidden transition-colors duration-300">
+                <img src="/login-illustration.png" alt="Login Illustration" className="w-full h-full object-cover object-center rounded-[20px] dark:brightness-75 dark:contrast-125 transition-all duration-300" />
             </div>
 
         </div>

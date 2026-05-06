@@ -4,10 +4,11 @@ import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Users, Banknote, Ticket, CalendarClock, TrendingUp, X, Plus, Edit, Trash2, AlertCircle, Home, LogOut, ChevronDown, ChevronUp, Check, QrCode } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
-import { bookingStore } from "../utils/bookingStore";
+import { bookingService, authService, slotService } from "../services/api";
+
 // --- CONSTANTS ---
 const PACKAGES = [
-    { id: "basic", name: "Basic Ride", price: 3499 },
+    { id: "basic", name: "Basic Ride", price: 2500 },
     { id: "premium", name: "Premium Ride", price: 5999 },
     { id: "sunrise", name: "Sunrise Special", price: 8999 },
 ];
@@ -18,6 +19,15 @@ const PIE_COLORS = ["#3b82f6", "#f97316"]; // Online = Blue, Offline = Orange
 export function AdminDashboard() {
     const navigate = useNavigate();
     const [isLightTheme, setIsLightTheme] = useState(false);
+
+    // Authentication check
+    useEffect(() => {
+        if (localStorage.getItem("isAdminLoggedIn") !== "true") {
+            navigate("/login");
+            return;
+        }
+    }, [navigate]);
+
     useEffect(() => {
         // Initial check
         setIsLightTheme(document.documentElement.classList.contains("light-theme"));
@@ -33,37 +43,95 @@ export function AdminDashboard() {
         const saved = localStorage.getItem("onlineBookingOpen");
         return saved !== null ? JSON.parse(saved) : true;
     });
-    const [bookings, setBookings] = useState(() => bookingStore.getBookings());
-    // Sync toggle with localStorage and listen for booking changes
+    const [bookings, setBookings] = useState([]);
+    const [slots, setSlots] = useState([]);
+
+    const fetchSlots = async () => {
+        try {
+            const data = await slotService.getAllSlots();
+            setSlots(data);
+        } catch (err) {
+            console.error("Fetch slots failed:", err);
+            showError("Failed to fetch slots.");
+        }
+    };
+
     useEffect(() => {
+        fetchSlots();
+    }, []);
+
+    const fetchBookings = async () => {
+        const token = localStorage.getItem('token');
+        console.log("Current Dashboard Token (first 10 chars):", token ? token.substring(0, 10) + "..." : "MISSING");
+        try {
+            const data = await bookingService.getAllBookings();
+            console.log("Raw Bookings from API:", data);
+            
+            // Map backend model to frontend expected format
+            const mapped = data.map(b => ({
+                id: b.bookingId,
+                customerName: b.customerName,
+                customerPhone: b.customerPhone,
+                customerEmail: b.customerEmail,
+                customerCity: b.customerCity,
+                persons: b.persons,
+                passengers: b.passengers,
+                slot: b.slot,
+                category: b.category,
+                type: b.paymentId ? "ONLINE" : "OFFLINE",
+                location: b.location,
+                date: b.bookingDate,
+                status: b.status ? (b.status.charAt(0).toUpperCase() + b.status.slice(1).toLowerCase()) : "Confirmed", 
+                price: b.totalAmount || 0,
+                agent: b.agentRef || ""
+            }));
+            console.log("Mapped Bookings:", mapped);
+            setBookings(mapped);
+        } catch (err) {
+            console.error("Fetch bookings failed:", err);
+            showError("Failed to fetch bookings.");
+        }
+    };
+
+    useEffect(() => {
+        fetchBookings();
         localStorage.setItem("onlineBookingOpen", JSON.stringify(isOnlineBookingOpen));
-        const handleUpdate = () => {
-            setBookings(bookingStore.getBookings());
-        };
-        window.addEventListener('bookingsChanged', handleUpdate);
-        return () => window.removeEventListener('bookingsChanged', handleUpdate);
     }, [isOnlineBookingOpen]);
     // Filters
     const [filterType, setFilterType] = useState("All");
     const [filterStatus, setFilterStatus] = useState("All");
     const [filterDate, setFilterDate] = useState("");
+    // Add User Modal States
+    const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+    const [newUserForm, setNewUserForm] = useState({ username: "", email: "", password: "", role: "staff" });
+    const [isCreatingUser, setIsCreatingUser] = useState(false);
+    const [successMsg, setSuccessMsg] = useState("");
+
     // Modal & Delete States
     const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
+    const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
+    const [editingSlot, setEditingSlot] = useState({ id: null, time: "", capacity: "" });
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
     const [expandedBookingId, setExpandedBookingId] = useState(null);
     const [errorMsg, setErrorMsg] = useState("");
+    
     const showError = (msg) => {
         setErrorMsg(msg);
         setTimeout(() => setErrorMsg(""), 4000);
     };
+    
+    const showSuccess = (msg) => {
+        setSuccessMsg(msg);
+        setTimeout(() => setSuccessMsg(""), 4000);
+    };
     const toggleExpand = (id) => {
         setExpandedBookingId(prev => (prev === id ? null : id));
     };
-    const [dashboardLocation, setDashboardLocation] = useState("Goa");
-    const LOCATIONS = ["Goa", "Manali", "Dubai"];
+    const [dashboardLocation, setDashboardLocation] = useState("Shirdi");
+    const LOCATIONS = ["Goa", "Manali", "Dubai", "Shirdi"];
     // Multi-Center: Filter Bookings based on Dashboard Context
     const activeBookings = useMemo(() => {
-        return bookings.filter(b => (b.location || "Goa") === dashboardLocation);
+        return bookings.filter(b => (b.location || "Shirdi") === dashboardLocation);
     }, [bookings, dashboardLocation]);
     // --- COMPUTED DATA ---
     const today = new Date().toISOString().split("T")[0];
@@ -107,7 +175,7 @@ export function AdminDashboard() {
     const agentStats = useMemo(() => {
         const agentMap = {};
         activeBookings.forEach(b => {
-            if (b.agentRef) {
+            if (b.agent && b.agent !== "Direct") {
                 if (!agentMap[b.agentRef]) {
                     agentMap[b.agentRef] = { agentRef: b.agentRef, totalBookings: 0, revenue: 0, persons: 0 };
                 }
@@ -130,20 +198,85 @@ export function AdminDashboard() {
         return true;
     });
     // --- HANDLERS ---
-    const handleStatusChange = (id, newStatus) => {
-        bookingStore.updateStatus(id, newStatus);
+    const handleStatusChange = async (id, newStatus) => {
+        try {
+            await bookingService.updateStatus(id, newStatus);
+            fetchBookings();
+        } catch (err) {
+            showError("Failed to update status.");
+        }
     };
-    const handleDelete = (id) => {
-        bookingStore.deleteBooking(id);
-        setDeleteConfirmId(null);
+    const handleDelete = async (id) => {
+        try {
+            await bookingService.deleteBooking(id);
+            fetchBookings();
+            setDeleteConfirmId(null);
+            showSuccess("Booking deleted successfully.");
+        } catch (err) {
+            showError("Failed to delete booking.");
+        }
+    };
+
+    const handleAddUser = async (e) => {
+        e.preventDefault();
+        if (!newUserForm.username.trim() || !newUserForm.email.trim() || !newUserForm.password.trim()) {
+            showError("Please fill in all fields.");
+            return;
+        }
+        setIsCreatingUser(true);
+        try {
+            await authService.signup({
+                username: newUserForm.username,
+                email: newUserForm.email,
+                password: newUserForm.password,
+                role: [newUserForm.role]
+            });
+            showSuccess(`User ${newUserForm.username} created successfully as ${newUserForm.role}!`);
+            setIsAddUserModalOpen(false);
+            setNewUserForm({ username: "", email: "", password: "", role: "staff" });
+        } catch (err) {
+            showError((err.response && err.response.data && err.response.data.message) || "Failed to create user. Ensure username and email are unique.");
+        } finally {
+            setIsCreatingUser(false);
+        }
+    };
+
+    const handleSaveSlot = async (e) => {
+        e.preventDefault();
+        try {
+            await slotService.addOrUpdateSlot(editingSlot);
+            fetchSlots();
+            setIsSlotModalOpen(false);
+            setEditingSlot({ id: null, time: "", capacity: "" });
+            showSuccess("Slot saved successfully.");
+        } catch (err) {
+            showError("Failed to save slot.");
+        }
+    };
+
+    const handleDeleteSlot = async (id) => {
+        try {
+            await slotService.deleteSlot(id);
+            fetchSlots();
+            showSuccess("Slot deleted successfully.");
+        } catch (err) {
+            showError("Failed to delete slot.");
+        }
     };
     return (<div className={`min-h-screen transition-colors duration-300 ${isLightTheme ? "bg-gray-50 text-gray-900" : "bg-[#05070A] text-white"} p-4 md:p-8 font-sans`}>
-        {/* Error Toast */}
+        {/* Error/Success Toasts */}
         <AnimatePresence>
             {errorMsg && (<motion.div initial={{ opacity: 0, y: -20, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: -20, x: "-50%" }} className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl font-normal max-w-sm w-[90%]">
                 <AlertCircle className="w-6 h-6 shrink-0" />
                 <span className="flex-1 text-sm">{errorMsg}</span>
                 <button onClick={() => setErrorMsg("")} className="shrink-0 p-1 hover:bg-white/20 rounded-full transition">
+                    <X className="w-5 h-5" />
+                </button>
+            </motion.div>)}
+            {successMsg && (<motion.div initial={{ opacity: 0, y: -20, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: -20, x: "-50%" }} className="fixed top-8 left-1/2 z-[100] flex items-center gap-3 bg-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl font-normal max-w-sm w-[90%]">
+                <Check className="w-6 h-6 shrink-0" />
+                <span className="flex-1 text-sm">{successMsg}</span>
+                <button onClick={() => setSuccessMsg("")} className="shrink-0 p-1 hover:bg-white/20 rounded-full transition">
                     <X className="w-5 h-5" />
                 </button>
             </motion.div>)}
@@ -165,7 +298,9 @@ export function AdminDashboard() {
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                     <div className="flex gap-2 order-2 sm:order-1">
-                        {/* Location Header Removed Here */}
+                        <button onClick={() => setIsAddUserModalOpen(true)} className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all shadow-sm ${isLightTheme ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600 hover:shadow-lg' : 'bg-[#D4AF37] text-black hover:bg-[#F7C948] border-[#D4AF37] hover:shadow-[0_0_15px_rgba(212,175,55,0.3)]'}`}>
+                            <Plus className="w-4 h-4" /> Add User
+                        </button>
                     </div>
                     <div className={`flex items-center justify-between sm:justify-start gap-4 ${isLightTheme ? "bg-white border-gray-200" : "bg-[#111827] border-white/10"} p-3 rounded-xl border order-1 sm:order-2`}>
                         <span className="text-sm font-normal">Online Status</span>
@@ -179,7 +314,7 @@ export function AdminDashboard() {
                         </div>
                     </div>
                     <button onClick={() => {
-                        localStorage.removeItem("isAdminLoggedIn");
+                        authService.logout();
                         navigate("/login?skipLoader=true");
                     }} className="flex items-center justify-center gap-2 px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 rounded-xl font-normal transition-all group order-3">
                         <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -237,7 +372,48 @@ export function AdminDashboard() {
                 </div>
             </div>
 
-            {/* Charts Section */}
+            {/* Slot Modal */}
+            <AnimatePresence>
+                {isSlotModalOpen && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className={`w-full max-w-md ${isLightTheme ? "bg-white text-gray-900 border-gray-200" : "bg-[#111827] text-white border-white/10"} border rounded-3xl p-6 shadow-2xl`}>
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-2xl font-black">{editingSlot.id ? 'Edit Slot' : 'Add Slot'}</h2>
+                                <button onClick={() => setIsSlotModalOpen(false)} className="p-2 hover:bg-gray-500/20 rounded-full transition-colors"><X className="w-5 h-5" /></button>
+                            </div>
+                            <form onSubmit={handleSaveSlot} className="space-y-4">
+                                <div>
+                                    <label className={`block text-xs font-black uppercase tracking-wider mb-2 ${isLightTheme ? "text-gray-600" : "text-white/60"}`}>Time (e.g. 06:00 AM)</label>
+                                    <input 
+                                        type="text" 
+                                        required 
+                                        placeholder="06:00 AM" 
+                                        value={editingSlot.time} 
+                                        onChange={(e) => setEditingSlot({ ...editingSlot, time: e.target.value })} 
+                                        className={`w-full px-4 py-3 rounded-xl border outline-none font-medium transition-colors ${isLightTheme ? "bg-gray-50 border-gray-300 focus:border-blue-500 text-gray-900" : "bg-black/50 border-white/10 focus:border-[#D4AF37] text-white"}`} 
+                                    />
+                                </div>
+                                <div>
+                                    <label className={`block text-xs font-black uppercase tracking-wider mb-2 ${isLightTheme ? "text-gray-600" : "text-white/60"}`}>Capacity (Seats)</label>
+                                    <input 
+                                        type="number" 
+                                        required 
+                                        min="1"
+                                        value={editingSlot.capacity} 
+                                        onChange={(e) => setEditingSlot({ ...editingSlot, capacity: parseInt(e.target.value) || "" })} 
+                                        className={`w-full px-4 py-3 rounded-xl border outline-none font-medium transition-colors ${isLightTheme ? "bg-gray-50 border-gray-300 focus:border-blue-500 text-gray-900" : "bg-black/50 border-white/10 focus:border-[#D4AF37] text-white"}`} 
+                                    />
+                                </div>
+                                <button type="submit" className={`w-full py-3 mt-4 rounded-xl font-black text-lg transition-all ${isLightTheme ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-gradient-to-r from-[#D4AF37] to-[#F7C948] text-black hover:shadow-glow-amber"}`}>
+                                    Save Slot
+                                </button>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Add User Modal */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className={`${isLightTheme ? "bg-white border-gray-200" : "bg-[#111827] border-white/10"} p-6 rounded-2xl shadow-sm border`}>
                     <h3 className="text-lg font-normal mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-blue-500" /> Online vs Offline</h3>
@@ -337,6 +513,54 @@ export function AdminDashboard() {
                 </div>
             </div>
 
+            {/* Slot Management Section */}
+            <div className={`${isLightTheme ? "bg-white border-gray-200" : "bg-[#111827] border-white/10"} rounded-2xl shadow-sm border overflow-hidden`}>
+                <div className={`p-6 border-b ${isLightTheme ? "border-gray-200 bg-[#F1F5F9]" : "border-white/10 bg-[#0f172a]"} flex justify-between items-center`}>
+                    <h2 className="text-xl font-normal flex items-center">
+                        <CalendarClock className="w-5 h-5 mr-2 text-blue-500" /> Slot Management
+                    </h2>
+                    <button 
+                        onClick={() => {
+                            setEditingSlot({ id: null, time: "", capacity: "" });
+                            setIsSlotModalOpen(true);
+                        }}
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all ${isLightTheme ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600' : 'bg-[#D4AF37] text-black hover:bg-[#F7C948] border-[#D4AF37]'}`}
+                    >
+                        <Plus className="w-4 h-4" /> Add Slot
+                    </button>
+                </div>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {slots.map(slot => (
+                        <div key={slot.id} className={`p-4 rounded-xl border flex justify-between items-center ${isLightTheme ? 'border-gray-200 bg-gray-50' : 'border-white/10 bg-white/5'}`}>
+                            <div>
+                                <h3 className={`text-lg font-bold ${isLightTheme ? 'text-gray-900' : 'text-white'}`}>{slot.time}</h3>
+                                <p className={`text-sm ${isLightTheme ? 'text-gray-500' : 'text-white/60'}`}>Capacity: {slot.capacity} Seats</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={() => {
+                                        setEditingSlot(slot);
+                                        setIsSlotModalOpen(true);
+                                    }}
+                                    className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-lg transition"
+                                >
+                                    <Edit className="w-4 h-4" />
+                                </button>
+                                <button 
+                                    onClick={() => handleDeleteSlot(slot.id)}
+                                    className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                    {slots.length === 0 && (
+                        <div className={`col-span-full text-center py-6 ${isLightTheme ? 'text-gray-500' : 'text-white/50'}`}>No slots configured. Add one to get started.</div>
+                    )}
+                </div>
+            </div>
+
             {/* Booking Table & Filters */}
             <div className={`${isLightTheme ? "bg-white border-gray-200" : "bg-[#111827] border-white/10"} rounded-2xl shadow-sm border overflow-hidden`}>
                 <div className={`p-6 border-b ${isLightTheme ? "border-gray-200 bg-[#F1F5F9]" : "border-white/10 bg-[#0f172a]"} flex flex-col md:flex-row justify-between items-start md:items-center gap-4`}>
@@ -411,7 +635,7 @@ export function AdminDashboard() {
                                         </span>
                                     </td>
                                     <td className={`px-6 py-4 font-normal ${isLightTheme ? "text-gray-700" : "text-white/80"}`}>
-                                        {booking.agent || "Direct"}
+                                        {booking.agent || "—"}
                                     </td>
                                     <td className={`px-6 py-4 tabular-nums ${isLightTheme ? "text-gray-600" : "text-white/80"}`}>{booking.date}</td>
                                     <td className={`px-6 py-4 font-normal ${isLightTheme ? "text-gray-700" : "text-white/80"} whitespace-nowrap`}>{booking.slot}</td>
@@ -544,6 +768,52 @@ export function AdminDashboard() {
                                 <button onClick={() => setDeleteConfirmId(null)} className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">Cancel</button>
                                 <button onClick={() => handleDelete(deleteConfirmId)} className="px-6 py-2 bg-red-500 hover:bg-red-600 font-normal rounded-xl transition">Yes, Delete</button>
                             </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Add User Modal */}
+            <AnimatePresence>
+                {isAddUserModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className={`${isLightTheme ? "bg-white border-gray-200" : "bg-[#111827] border-white/10"} border rounded-2xl shadow-2xl w-full max-w-md overflow-hidden p-6`}>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className={`text-xl font-bold ${isLightTheme ? "text-gray-900" : "text-white"}`}>Create New User</h3>
+                                <button onClick={() => setIsAddUserModalOpen(false)} className={`${isLightTheme ? "text-gray-500 hover:bg-gray-100" : "text-gray-400 hover:bg-white/10"} p-2 rounded-full transition`}>
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            
+                            <form onSubmit={handleAddUser} className="space-y-4">
+                                <div>
+                                    <label className={`block text-xs uppercase tracking-wider font-semibold mb-1.5 ${isLightTheme ? "text-gray-600" : "text-white/60"}`}>Username</label>
+                                    <input type="text" required value={newUserForm.username} onChange={(e) => setNewUserForm({...newUserForm, username: e.target.value})} className={`w-full rounded-xl px-4 py-2.5 outline-none transition-all border ${isLightTheme ? "bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-gray-900" : "bg-black/30 border-white/10 focus:border-[#D4AF37] focus:bg-[#0B0F19] text-white"}`} placeholder="e.g., john_staff" />
+                                </div>
+                                <div>
+                                    <label className={`block text-xs uppercase tracking-wider font-semibold mb-1.5 ${isLightTheme ? "text-gray-600" : "text-white/60"}`}>Email Address</label>
+                                    <input type="email" required value={newUserForm.email} onChange={(e) => setNewUserForm({...newUserForm, email: e.target.value})} className={`w-full rounded-xl px-4 py-2.5 outline-none transition-all border ${isLightTheme ? "bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-gray-900" : "bg-black/30 border-white/10 focus:border-[#D4AF37] focus:bg-[#0B0F19] text-white"}`} placeholder="email@example.com" />
+                                </div>
+                                <div>
+                                    <label className={`block text-xs uppercase tracking-wider font-semibold mb-1.5 ${isLightTheme ? "text-gray-600" : "text-white/60"}`}>Temporary Password</label>
+                                    <input type="password" required autoComplete="new-password" value={newUserForm.password} onChange={(e) => setNewUserForm({...newUserForm, password: e.target.value})} className={`w-full rounded-xl px-4 py-2.5 outline-none transition-all border ${isLightTheme ? "bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-gray-900" : "bg-black/30 border-white/10 focus:border-[#D4AF37] focus:bg-[#0B0F19] text-white"}`} placeholder="••••••••" />
+                                </div>
+                                <div>
+                                    <label className={`block text-xs uppercase tracking-wider font-semibold mb-1.5 ${isLightTheme ? "text-gray-600" : "text-white/60"}`}>Assign Role</label>
+                                    <select value={newUserForm.role} onChange={(e) => setNewUserForm({...newUserForm, role: e.target.value})} className={`w-full rounded-xl px-4 py-2.5 outline-none transition-all border ${isLightTheme ? "bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-gray-900" : "bg-black/30 border-white/10 focus:border-[#D4AF37] text-white"}`}>
+                                        <option value="staff" className={isLightTheme ? "bg-white text-black" : "bg-[#111827] text-white"}>Staff Member (App Access)</option>
+                                        <option value="agent" className={isLightTheme ? "bg-white text-black" : "bg-[#111827] text-white"}>Travel Agent</option>
+                                        <option value="pilot" className={isLightTheme ? "bg-white text-black" : "bg-[#111827] text-white"}>Flight Pilot</option>
+                                    </select>
+                                    <p className={`mt-2 text-xs ${isLightTheme ? "text-gray-500" : "text-white/50"}`}>Note: Staff, Agent, or Pilot IDs are explicitly generated automatically during account creation.</p>
+                                </div>
+                                
+                                <div className="mt-8 pt-2">
+                                    <button type="submit" disabled={isCreatingUser} className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center transition-all ${isCreatingUser ? 'opacity-70 cursor-not-allowed' : ''} ${isLightTheme ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20' : 'bg-[#D4AF37] hover:bg-[#F7C948] text-black shadow-lg shadow-[#D4AF37]/20'}`}>
+                                        {isCreatingUser ? 'Registering Account...' : 'Register User'}
+                                    </button>
+                                </div>
+                            </form>
                         </motion.div>
                     </div>
                 )}

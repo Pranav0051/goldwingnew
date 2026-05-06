@@ -4,9 +4,19 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Calendar, Users, Home, LogOut } from "lucide-react";
 import { bookingStore } from "../utils/bookingStore";
+import { authService } from "../services/api";
 
 export function PilotDashboard() {
     const navigate = useNavigate();
+
+    // Authentication check
+    useEffect(() => {
+        if (localStorage.getItem("isPilotLoggedIn") !== "true") {
+            navigate("/login");
+            return;
+        }
+    }, [navigate]);
+
     const [bookings, setBookings] = useState(() => bookingStore.getBookings());
 
     useEffect(() => {
@@ -87,7 +97,10 @@ export function PilotDashboard() {
                     </div>
 
                     <button
-                        onClick={() => navigate("/login?skipLoader=true")}
+                        onClick={() => {
+                            authService.logout();
+                            navigate("/login?skipLoader=true");
+                        }}
                         className="flex items-center gap-2 px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 rounded-xl font-normal transition-all group"
                     >
                         <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />

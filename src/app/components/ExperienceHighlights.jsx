@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Mountain, Clock, Shield, Users } from "lucide-react";
 const stats = [
-  { icon: Mountain, value: 1000, suffix: " ft", label: "Height" },
-  { icon: Clock, value: 15, suffix: " Min", label: "Flight Duration" },
+  { icon: Mountain, value: 100, suffix: "%", label: "Certified Pilots" },
+  { icon: Clock, value: 100, suffix: " %", label: "Care of Flyer" },
   { icon: Shield, value: 100, suffix: "%", label: "Safety Record" },
   { icon: Users, value: 2000, suffix: "+", label: "Happy Flyers" },
 ];

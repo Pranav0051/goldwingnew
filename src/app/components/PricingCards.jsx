@@ -54,7 +54,6 @@ const packages = [
       "4K Video Recording",
       "Professional Photoshoot",
       "Sunrise Slot",
-      "Breakfast",
       "Free Merchandise",
     ],
     excludes: [],
@@ -111,17 +110,7 @@ export function PricingCards({ onBookClick }) {
               </div>
             </div>
 
-            {/* Details */}
-            <div className="space-y-3 py-6 border-y border-white/10">
-              <div className="flex justify-between items-center">
-                <span className="text-white/70">Duration</span>
-                <span className="text-white font-normal">{pkg.duration}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-white/70">Max Height</span>
-                <span className="text-white font-normal">{pkg.height}</span>
-              </div>
-            </div>
+
 
             {/* Includes */}
             <div className="space-y-3">

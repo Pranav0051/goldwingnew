@@ -3,11 +3,11 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Users, Ticket, X, Plus, Edit, Trash2, AlertCircle, Home, LogOut, ChevronDown, ChevronUp, Check, QrCode } from "lucide-react";
-import { bookingStore } from "../utils/bookingStore";
+import { bookingService, authService } from "../services/api";
 import jsPDF from "jspdf";
 
 const PACKAGES = [
-    { id: "basic", name: "Basic Ride", price: 3499 },
+    { id: "basic", name: "Basic Ride", price: 2500 },
     { id: "premium", name: "Premium Ride", price: 5999 },
     { id: "sunrise", name: "Sunrise Special", price: 8999 },
 ];
@@ -17,6 +17,15 @@ const GST_RATE = 0.18;
 export function StaffDashboard() {
     const navigate = useNavigate();
     const [isLightTheme, setIsLightTheme] = useState(false);
+
+    // Authentication check
+    useEffect(() => {
+        if (localStorage.getItem("isStaffLoggedIn") !== "true") {
+            navigate("/login");
+            return;
+        }
+    }, [navigate]);
+
     useEffect(() => {
         setIsLightTheme(document.documentElement.classList.contains("light-theme"));
         const observer = new MutationObserver(() => {
@@ -26,13 +35,38 @@ export function StaffDashboard() {
         return () => observer.disconnect();
     }, []);
 
-    const [bookings, setBookings] = useState(() => bookingStore.getBookings());
+    const [bookings, setBookings] = useState([]);
+
+    const fetchBookings = async () => {
+        try {
+            const data = await bookingService.getAllBookings();
+            const mapped = data.map(b => ({
+                id: b.bookingId,
+                customerName: b.customerName,
+                customerPhone: b.customerPhone,
+                customerCity: b.customerCity,
+                persons: b.persons,
+                passengers: b.passengers,
+                slot: b.slot,
+                category: b.category,
+                type: b.paymentId ? "ONLINE" : "OFFLINE",
+                location: b.location,
+                date: b.bookingDate,
+                status: b.status.charAt(0).toUpperCase() + b.status.slice(1).toLowerCase(),
+                price: b.totalAmount,
+                paymentMethod: b.paymentMethod,
+                isVipCheckin: b.isVipCheckin,
+                isBreakfast: b.isBreakfast,
+                isFemaleSharing: b.isFemaleSharing
+            }));
+            setBookings(mapped);
+        } catch (err) {
+            showError("Failed to fetch bookings.");
+        }
+    };
+
     useEffect(() => {
-        const handleUpdate = () => {
-            setBookings(bookingStore.getBookings());
-        };
-        window.addEventListener('bookingsChanged', handleUpdate);
-        return () => window.removeEventListener('bookingsChanged', handleUpdate);
+        fetchBookings();
     }, []);
 
     const [filterType, setFilterType] = useState("All");
@@ -55,11 +89,11 @@ export function StaffDashboard() {
         customerName: "", customerAge: "", customerWeight: "", customerGender: "M", customerCity: "", persons: 1, slot: "06:00 AM", phone: "", date: "", package: "premium", paymentMethod: "UPI", passengers: [], isVipCheckin: false, isBreakfast: false
     });
     const [offlineBookingSuccess, setOfflineBookingSuccess] = useState(null);
-    const [dashboardLocation, setDashboardLocation] = useState("Goa");
-    const LOCATIONS = ["Goa", "Manali", "Dubai"];
+    const [dashboardLocation, setDashboardLocation] = useState("Shirdi");
+    const LOCATIONS = ["Goa", "Manali", "Dubai", "Shirdi"];
 
     const activeBookings = useMemo(() => {
-        return bookings.filter(b => (b.location || "Goa") === dashboardLocation);
+        return bookings.filter(b => (b.location || "Shirdi") === dashboardLocation);
     }, [bookings, dashboardLocation]);
 
     const today = new Date().toISOString().split("T")[0];
@@ -71,61 +105,74 @@ export function StaffDashboard() {
         return true;
     });
 
-    const handleStatusChange = (id, newStatus) => {
-        bookingStore.updateStatus(id, newStatus);
+    const handleStatusChange = async (id, newStatus) => {
+        try {
+            await bookingService.updateStatus(id, newStatus);
+            fetchBookings();
+        } catch (err) {
+            showError("Failed to update status.");
+        }
     };
-    const handleDelete = (id) => {
-        bookingStore.deleteBooking(id);
-        setDeleteConfirmId(null);
+    const handleDelete = async (id) => {
+        try {
+            await bookingService.deleteBooking(id);
+            fetchBookings();
+            setDeleteConfirmId(null);
+        } catch (err) {
+            showError("Failed to delete booking.");
+        }
     };
 
-    const handleCreateOfflineBooking = (e) => {
+    const handleCreateOfflineBooking = async (e) => {
         e.preventDefault();
         const personsCount = Number(newBooking.persons) || 1;
         const selectedPkg = PACKAGES.find((p) => p.id === newBooking.package);
-        const basicTourAmount = (selectedPkg?.price || 0) * personsCount;
-        const totalInsurance = INSURANCE_PRICE * personsCount;
-        const vipAddonPrice = newBooking.isVipCheckin ? 500 * personsCount : 0;
-        const breakfastAddonPrice = newBooking.isBreakfast ? 300 * personsCount : 0;
-        const totalAddons = vipAddonPrice + breakfastAddonPrice;
-        const amountBeforeGst = basicTourAmount + totalInsurance + totalAddons;
-        const gstAmount = amountBeforeGst * GST_RATE;
-        const finalTotalAmount = amountBeforeGst + gstAmount;
 
         if (!newBooking.customerName || !newBooking.customerAge || !newBooking.date) {
             showError("Please fill out customer name, age, and date.");
             return;
         }
-        if (personsCount > 1) {
-            for (let i = 0; i < personsCount - 1; i++) {
-                if (!newBooking.passengers[i]?.name?.trim() || !newBooking.passengers[i]?.age?.trim()) {
-                    showError(`Please fill out the name and age for Passenger ${i + 2}`);
-                    return;
-                }
-            }
-        }
-        const createdBooking = {
-            id: `GW-${Math.floor(Math.random() * 900000 + 100000)}`,
+
+        const bookingRequest = {
+            customerName: newBooking.customerName,
+            customerEmail: "", // Offline might not have email
             customerPhone: newBooking.phone,
             customerCity: newBooking.customerCity,
             persons: personsCount,
-            passengers: [
-                { name: newBooking.customerName, age: newBooking.customerAge, weight: newBooking.customerWeight, gender: newBooking.customerGender },
-                ...newBooking.passengers.slice(0, personsCount - 1)
-            ],
+            category: newBooking.category || (personsCount === 1 ? "SOLO" : personsCount === 2 ? "COUPLE" : "GROUP"),
             slot: newBooking.slot,
-            category: newBooking.category === "SHARING" ? "SHARING" : (newBooking.persons === 1 ? "SOLO" : newBooking.persons === 2 ? "COUPLE" : "GROUP"),
-            type: "OFFLINE",
-            date: newBooking.date,
-            status: "Confirmed",
-            price: Math.round(finalTotalAmount),
-            paymentMethod: newBooking.paymentMethod,
+            bookingDate: newBooking.date,
+            packageId: newBooking.package,
+            location: dashboardLocation,
+            passengers: [
+                { name: newBooking.customerName, age: parseInt(newBooking.customerAge), weight: parseFloat(newBooking.customerWeight), gender: newBooking.customerGender },
+                ...newBooking.passengers.slice(0, personsCount - 1).map(p => ({
+                    name: p.name,
+                    age: parseInt(p.age),
+                    weight: parseFloat(p.weight),
+                    gender: p.gender
+                }))
+            ],
             isVipCheckin: newBooking.isVipCheckin,
             isBreakfast: newBooking.isBreakfast,
-            isFemaleSharing: newBooking.isFemaleSharing || false
+            isFemaleSharing: newBooking.isFemaleSharing || false,
+            paymentMethod: newBooking.paymentMethod // Added to model later or handled as OFFLINE
         };
-        bookingStore.addBooking(createdBooking);
-        setOfflineBookingSuccess(createdBooking);
+
+        try {
+            const result = await bookingService.createBooking(bookingRequest);
+            // Offline bookings are usually confirmed immediately
+            await bookingService.updateStatus(result.bookingId, "CONFIRMED");
+            fetchBookings();
+            setOfflineBookingSuccess({
+                ...bookingRequest,
+                id: result.bookingId,
+                price: result.totalAmount,
+                status: "Confirmed"
+            });
+        } catch (err) {
+            showError("Failed to create offline booking.");
+        }
     };
 
     const handlePrintAdminTicket = async () => {
@@ -208,20 +255,19 @@ export function StaffDashboard() {
         const basicTourAmount = selectedPkg.price * b.persons;
         const totalInsurance = INSURANCE_PRICE * b.persons;
         const vipAddonPrice = b.isVipCheckin ? 500 * b.persons : 0;
-        const breakfastAddonPrice = b.isBreakfast ? 300 * b.persons : 0;
-        const totalAddons = vipAddonPrice + breakfastAddonPrice;
+        const totalAddons = vipAddonPrice;
         const amountBeforeGst = basicTourAmount + totalInsurance + totalAddons;
         const gstAmount = amountBeforeGst * GST_RATE;
         const finalTotalAmount = amountBeforeGst + gstAmount;
 
         doc.text("Tour Package", 15, y); doc.text(b.persons.toString(), 55, y, { align: "right" }); doc.text(selectedPkg.price.toString(), 70, y, { align: "right" }); doc.text(basicTourAmount.toString(), 85, y, { align: "right" }); y += 6;
         doc.text("Insurance", 15, y); doc.text(b.persons.toString(), 55, y, { align: "right" }); doc.text(INSURANCE_PRICE.toString(), 70, y, { align: "right" }); doc.text(totalInsurance.toString(), 85, y, { align: "right" }); y += 8;
-        if (b.isVipCheckin) { doc.text("VIP Check-in", 15, y); doc.text(b.persons.toString(), 55, y, { align: "right" }); doc.text("500", 70, y, { align: "right" }); doc.text(vipAddonPrice.toString(), 85, y, { align: "right" }); y += 6; }
-        if (b.isBreakfast) { doc.text("Breakfast", 15, y); doc.text(b.persons.toString(), 55, y, { align: "right" }); doc.text("300", 70, y, { align: "right" }); doc.text(breakfastAddonPrice.toString(), 85, y, { align: "right" }); y += 6; }
-        if (b.isVipCheckin || b.isBreakfast) y += 2;
+        if (b.isVipCheckin) { doc.text("Express Check-in", 15, y); doc.text(b.persons.toString(), 55, y, { align: "right" }); doc.text("500", 70, y, { align: "right" }); doc.text(vipAddonPrice.toString(), 85, y, { align: "right" }); y += 6; }
+        if (b.isVipCheckin) y += 2;
         drawDivider();
         doc.text("Sub Total", 15, y); doc.text(amountBeforeGst.toString(), 85, y, { align: "right" }); y += 6;
-        doc.text("GST (18%)", 15, y); doc.text(gstAmount.toFixed(0), 85, y, { align: "right" }); y += 8;
+        doc.text("CGST (9%)", 15, y); doc.text((gstAmount/2).toFixed(0), 85, y, { align: "right" }); y += 6;
+        doc.text("SGST (9%)", 15, y); doc.text((gstAmount/2).toFixed(0), 85, y, { align: "right" }); y += 8;
         drawDivider();
         doc.text("GRAND TOTAL", 15, y); doc.text(finalTotalAmount.toFixed(0), 85, y, { align: "right" }); y += 8;
         drawDivider();
@@ -257,7 +303,11 @@ export function StaffDashboard() {
         }
         setCenteredText("Thank You & Ride Safe!", "bold", 11, 8);
         drawDivider();
-        doc.save(`Goldwing_Ticket_${b.id}.pdf`);
+        doc.autoPrint();
+        const pdfBlob = doc.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        window.open(pdfUrl, '_blank');
+        // Optional fallback: doc.save(`Goldwing_Ticket_${b.id}.pdf`);
     };
 
     const closeOfflineModal = () => {
@@ -310,7 +360,7 @@ export function StaffDashboard() {
                             </select>
                         </div>
                         <button onClick={() => {
-                            localStorage.removeItem("isStaffLoggedIn");
+                            authService.logout();
                             navigate("/login?skipLoader=true");
                         }} className="flex items-center justify-center gap-2 px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 rounded-xl font-normal transition-all group">
                             <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -564,7 +614,7 @@ export function StaffDashboard() {
                                 <div className="flex gap-4 mt-4">
                                     <button onClick={closeOfflineModal} className={`px-6 py-3 rounded-xl font-normal transition border ${isLightTheme ? "border-gray-200 hover:bg-gray-50 text-gray-700" : "border-white/10 hover:bg-white/5 text-white/70"}`}>Close</button>
                                     <button onClick={handlePrintAdminTicket} className="px-6 py-3 bg-[#D4AF37] hover:bg-[#F7C948] text-black font-normal rounded-xl transition shadow-lg flex items-center">
-                                        <Ticket className="w-5 h-5 mr-2" /> Print PDF Ticket
+                                        <Ticket className="w-5 h-5 mr-2" /> Print Hard Copy
                                     </button>
                                 </div>
                             </div>) : (<form onSubmit={handleCreateOfflineBooking} className="flex-1 overflow-y-auto p-5 md:p-6 flex flex-col md:flex-row gap-6 custom-scrollbar">
@@ -597,6 +647,7 @@ export function StaffDashboard() {
                                             <select value={newBooking.customerGender} onChange={e => setNewBooking({ ...newBooking, customerGender: e.target.value })} className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:border-[#D4AF37] ${isLightTheme ? "bg-white border-gray-300 text-gray-900" : "bg-[#0B0F19] border-white/10 text-white"}`}>
                                                 <option value="M">Male</option>
                                                 <option value="F">Female</option>
+                                                <option value="O">Other</option>
                                             </select>
                                         </div>
                                         <div className="space-y-1">
@@ -630,6 +681,7 @@ export function StaffDashboard() {
                                             }}>
                                                 <option value="M">M</option>
                                                 <option value="F">F</option>
+                                                <option value="O">O</option>
                                             </select>
                                         </div>))}
                                     </div>)}
@@ -673,21 +725,11 @@ export function StaffDashboard() {
                                                 <div className="flex items-center gap-2">
                                                     <input type="checkbox" checked={newBooking.isVipCheckin} onChange={(e) => setNewBooking({ ...newBooking, isVipCheckin: e.target.checked })} className="w-4 h-4 accent-[#D4AF37]" />
                                                     <div>
-                                                        <p className={`font-normal shrink-0 text-sm ${isLightTheme ? "text-gray-800" : "text-white"}`}>VIP Check-in</p>
+                                                        <p className={`font-normal shrink-0 text-sm ${isLightTheme ? "text-gray-800" : "text-white"}`}>Express Check-in</p>
                                                         <p className={`text-[10px] ${isLightTheme ? "text-gray-500" : "text-white/50"}`}>Skip the queue</p>
                                                     </div>
                                                 </div>
                                                 <span className="font-mono font-normal text-[#D4AF37] text-sm">+₹500</span>
-                                            </label>
-                                            <label className={`flex items-center justify-between p-2.5 border rounded-xl cursor-pointer transition ${isLightTheme ? "border-gray-200 hover:bg-gray-50" : "border-white/10 hover:bg-white/5"}`}>
-                                                <div className="flex items-center gap-2">
-                                                    <input type="checkbox" checked={newBooking.isBreakfast} onChange={(e) => setNewBooking({ ...newBooking, isBreakfast: e.target.checked })} className="w-4 h-4 accent-[#D4AF37]" />
-                                                    <div>
-                                                        <p className={`font-normal shrink-0 text-sm ${isLightTheme ? "text-gray-800" : "text-white"}`}>Breakfast</p>
-                                                        <p className={`text-[10px] ${isLightTheme ? "text-gray-500" : "text-white/50"}`}>Hot beverages</p>
-                                                    </div>
-                                                </div>
-                                                <span className="font-mono font-normal text-[#D4AF37] text-sm">+₹300</span>
                                             </label>
                                         </div>
                                     </div>
@@ -700,8 +742,7 @@ export function StaffDashboard() {
                                     const basicTourAmount = (selectedPkg?.price || 0) * personsCount;
                                     const totalInsurance = INSURANCE_PRICE * personsCount;
                                     const vipAmount = newBooking.isVipCheckin ? 500 * personsCount : 0;
-                                    const breakfastAmount = newBooking.isBreakfast ? 300 * personsCount : 0;
-                                    const totalAddons = vipAmount + breakfastAmount;
+                                    const totalAddons = vipAmount;
                                     const amountBeforeGst = basicTourAmount + totalInsurance + totalAddons;
                                     const gstAmount = amountBeforeGst * GST_RATE;
                                     const finalTotalAmount = amountBeforeGst + gstAmount;
@@ -717,16 +758,17 @@ export function StaffDashboard() {
                                                     <span className={isLightTheme ? "text-gray-900" : "text-white"}>₹{totalInsurance}</span>
                                                 </div>
                                                 {newBooking.isVipCheckin && (<div className="flex justify-between text-[#D4AF37]">
-                                                    <span>VIP Check-in ({personsCount}x 500)</span>
+                                                    <span>Express Check-in ({personsCount}x 500)</span>
                                                     <span>₹{vipAmount}</span>
                                                 </div>)}
-                                                {newBooking.isBreakfast && (<div className="flex justify-between text-[#D4AF37]">
-                                                    <span>Breakfast ({personsCount}x 300)</span>
-                                                    <span>₹{breakfastAmount}</span>
-                                                </div>)}
+                                                
+                                                <div className={`flex justify-between border-t mt-2 pt-2 ${isLightTheme ? "border-gray-200" : "border-white/10"}`}>
+                                                    <span>CGST (9%)</span>
+                                                    <span className={isLightTheme ? "text-gray-900" : "text-white"}>₹{(gstAmount / 2).toFixed(0)}</span>
+                                                </div>
                                                 <div className={`flex justify-between border-b pb-4 ${isLightTheme ? "border-gray-200" : "border-white/10"}`}>
-                                                    <span>GST (18%)</span>
-                                                    <span className={isLightTheme ? "text-gray-900" : "text-white"}>₹{gstAmount.toFixed(0)}</span>
+                                                    <span>SGST (9%)</span>
+                                                    <span className={isLightTheme ? "text-gray-900" : "text-white"}>₹{(gstAmount / 2).toFixed(0)}</span>
                                                 </div>
                                                 <div className="flex justify-between pt-1 font-normal text-xl text-[#D4AF37]">
                                                     <span>Final Total</span>

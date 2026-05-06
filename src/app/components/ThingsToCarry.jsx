@@ -17,11 +17,7 @@ const items = [
     title: "Sunglasses",
     description: "Protect your eyes from glare",
   },
-  {
-    icon: Droplet,
-    title: "Water Bottle",
-    description: "Stay hydrated before flight",
-  },
+
   {
     icon: Camera,
     title: "Phone/Camera",
@@ -40,7 +36,7 @@ export function ThingsToCarry() {
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 max-w-6xl mx-auto">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 max-w-6xl mx-auto">
         {items.map((item, index) => (<motion.div key={item.title} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: index * 0.1, duration: 0.5 }} whileHover={{ y: -10, scale: 1.05 }} className="group bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-[#D4AF37]/50 transition-all text-center">
           <motion.div whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }} transition={{ duration: 0.5 }} className="w-16 h-16 mx-auto bg-gradient-to-br from-[#D4AF37] to-[#F7C948] rounded-xl flex items-center justify-center mb-4">
             <item.icon className="w-8 h-8 text-[#0B0F19]" />
