@@ -125,30 +125,38 @@ export function BookingPage() {
     const refCode = searchParams.get("ref") || sessionStorage.getItem("agentRef");
     const pkgParam = searchParams.get("pkg");
 
-    // Form & UI States
+    // --- ALL STATE HOOKS AT THE TOP ---
     const [step, setStep] = useState(1); // 1=Category, 2=Packages, 3=Details, 4=Location, 5=Slot, 6=Payment, 7=Confirmation
     const [availableSlots, setAvailableSlots] = useState([]);
     const [backgroundIndex, setBackgroundIndex] = useState("/images/background/solo.png");
     const [showSplash, setShowSplash] = useState(true);
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [consent, setConsent] = useState({
-        terms: false,
-        media: false
-    });
-    const isConsentValid = consent.terms;
-
+    const [isAgent, setIsAgent] = useState(false);
+    const [userProfile, setUserProfile] = useState(null);
     const [bookingId, setBookingId] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
-    const [userProfile, setUserProfile] = useState(null);
-    const [isAgent, setIsAgent] = useState(false);
+    const [consent, setConsent] = useState({ terms: false, media: false });
+    
+    // Booking details state
+    const [passengers, setPassengers] = useState([{ gender: "M", weight: "", age: "", coPassengerName: "" }]);
+    const [formData, setFormData] = useState({ name: "", email: "", phone: "", address: "", state: "", city: "" });
+    const [selectedPkg, setSelectedPkg] = useState(null);
+    const [selectedCat, setSelectedCat] = useState(null);
+    const [selectedLocation, setSelectedLocation] = useState("Shirdi");
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+    const [selectedSlot, setSelectedSlot] = useState(null);
+    const [paymentMethod, setPaymentMethod] = useState("UPI");
+    const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+    const [isVipCheckin, setIsVipCheckin] = useState(false);
 
-    // Error handling
+    // --- ERROR HANDLING ---
     const showError = (msg) => {
         setErrorMsg(msg);
         setTimeout(() => setErrorMsg(""), 4000);
     };
 
+    // --- EFFECTS ---
     useEffect(() => {
         setIsAdmin(localStorage.getItem("isAdminLoggedIn") === "true");
         setIsAgent(localStorage.getItem("isAgentLoggedIn") === "true");
@@ -175,66 +183,42 @@ export function BookingPage() {
         }
     }, [step, selectedDate]);
 
-    // Handle URL parameters for pre-selection
     useEffect(() => {
         if (pkgParam) {
-            // Find which category this package belongs to
             let foundCategory = null;
             let foundPackage = null;
-
-            // Check SOLO_PACKAGES
             foundPackage = SOLO_PACKAGES.find(p => p.id === pkgParam);
-            if (foundPackage) {
-                foundCategory = "SINGLE";
-            }
-
-            // Check COUPLE_PACKAGES if not found
+            if (foundPackage) foundCategory = "SINGLE";
             if (!foundPackage) {
                 foundPackage = COUPLE_PACKAGES.find(p => p.id === pkgParam);
-                if (foundPackage) {
-                    foundCategory = "COUPLE";
-                }
+                if (foundPackage) foundCategory = "COUPLE";
             }
-
-            // Check FAMILY_PACKAGES if not found
             if (!foundPackage) {
                 foundPackage = FAMILY_PACKAGES.find(p => p.id === pkgParam);
-                if (foundPackage) {
-                    foundCategory = "FAMILY";
-                }
+                if (foundPackage) foundCategory = "FAMILY";
             }
-
             if (foundCategory && foundPackage) {
                 setSelectedCat(foundCategory);
                 setSelectedPkg(pkgParam);
-                setStep(3); // Skip to details step
+                setStep(3);
             }
         }
     }, [pkgParam]);
 
-    // Passenger Detail state
-    const [passengers, setPassengers] = useState([{ gender: "M", weight: "", age: "", coPassengerName: "" }]);
-    const [formData, setFormData] = useState({ name: "", email: "", phone: "", address: "", state: "", city: "" });
-    const [selectedPkg, setSelectedPkg] = useState(null);
-    const [selectedCat, setSelectedCat] = useState(null);
-    const [selectedLocation, setSelectedLocation] = useState("Shirdi");
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
-    const [selectedSlot, setSelectedSlot] = useState(null);
-    const [paymentMethod, setPaymentMethod] = useState("UPI");
-    const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
-    const [isVipCheckin, setIsVipCheckin] = useState(false);
-
-
-
-    // Dynamic Background transition effect
     useEffect(() => {
         if (selectedCat) {
             const catInfo = CATEGORIES.find(c => c.id === selectedCat);
             if (catInfo) setBackgroundIndex(catInfo.bg);
-        } else {
-            // Loop backgrounds softly or stay black
         }
     }, [selectedCat]);
+
+    useEffect(() => {
+        if (step === 2) {
+            setSelectedPkg(null);
+        }
+    }, [step]);
+
+    const isConsentValid = consent.terms;
 
     // Handlers for selection
     const handleCategorySelect = (catId) => {
@@ -256,13 +240,6 @@ export function BookingPage() {
         handleCategorySelect(catId);
         setStep(2); // Goes to Packages now (swapped visually)
     };
-
-    // Ensure package is unselected when entering the packages step
-    useEffect(() => {
-        if (step === 2) {
-            setSelectedPkg(null);
-        }
-    }, [step]);
 
     const validateDetailsForm = () => {
         for (let i = 0; i < passengers.length; i++) {
