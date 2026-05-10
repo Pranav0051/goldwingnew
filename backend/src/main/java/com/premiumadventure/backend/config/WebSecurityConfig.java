@@ -56,15 +56,29 @@ public class WebSecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(request -> {
                     org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
-                    config.setAllowedOrigins(java.util.List.of("*"));
+                    String frontendUrl = System.getenv("FRONTEND_URL");
+                    if (frontendUrl == null || frontendUrl.isEmpty()) {
+                        config.setAllowedOrigins(java.util.List.of("*"));
+                    } else {
+                        config.setAllowedOrigins(java.util.List.of(frontendUrl.split(",")));
+                    }
                     config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(java.util.List.of("*"));
+                    config.setAllowCredentials(true);
                     return config;
                 }))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll());
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/test/**").permitAll()
+                        .requestMatchers("/api/bookings/create", "/api/bookings/verify-payment", "/api/bookings/{id}").permitAll()
+                        .requestMatchers("/api/slots/availability").permitAll()
+                        .requestMatchers("/api/bookings/all", "/api/bookings/agent/**", "/api/bookings/{id}/status").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/bookings/**").hasRole("ADMIN")
+                        .requestMatchers("/api/slots/**").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers("/api/GUser/me").authenticated()
+                        .anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());
 
