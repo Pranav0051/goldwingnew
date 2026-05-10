@@ -465,7 +465,7 @@ export function BookingPage() {
             console.log("Opening Razorpay Modal with Order ID:", orderId);
 
             const options = {
-                key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+                key: "rzp_test_SgqwRbbG5qnBvy",
                 amount: calc.total * 100,
                 currency: "INR",
                 name: "Goldwing Adventure Tours",
