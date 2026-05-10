@@ -30,15 +30,23 @@ public class DataInitializer implements CommandLineRunner {
         // Initialize Roles
         if (!roleRepository.findByName(ERole.ROLE_USER).isPresent()) {
             roleRepository.save(new Role(ERole.ROLE_USER));
+            System.out.println("Role ROLE_USER created.");
         }
         if (!roleRepository.findByName(ERole.ROLE_ADMIN).isPresent()) {
             roleRepository.save(new Role(ERole.ROLE_ADMIN));
+            System.out.println("Role ROLE_ADMIN created.");
         }
         if (!roleRepository.findByName(ERole.ROLE_STAFF).isPresent()) {
             roleRepository.save(new Role(ERole.ROLE_STAFF));
+            System.out.println("Role ROLE_STAFF created.");
         }
         if (!roleRepository.findByName(ERole.ROLE_PILOT).isPresent()) {
             roleRepository.save(new Role(ERole.ROLE_PILOT));
+            System.out.println("Role ROLE_PILOT created.");
+        }
+        if (!roleRepository.findByName(ERole.ROLE_MODERATOR).isPresent()) {
+            roleRepository.save(new Role(ERole.ROLE_MODERATOR));
+            System.out.println("Role ROLE_MODERATOR created.");
         }
 
         // Initialize Admin User
