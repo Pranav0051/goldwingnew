@@ -58,13 +58,59 @@ public class DataInitializer implements CommandLineRunner {
             admin.setWalletBalance(1000000.0);
 
             Set<Role> roles = new HashSet<>();
-            Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(adminRole);
+            roles.add(roleRepository.findByName(ERole.ROLE_ADMIN).get());
             admin.setRoles(roles);
 
             userRepository.save(admin);
             System.out.println("Default admin user created: admin/admin");
+        }
+
+        // Initialize Staff User
+        if (!userRepository.existsByUsername("staff")) {
+            GUser staff = new GUser();
+            staff.setUsername("staff");
+            staff.setEmail("staff@gmail.com");
+            staff.setPassword(encoder.encode("staff"));
+            staff.setWalletBalance(0.0);
+
+            Set<Role> roles = new HashSet<>();
+            roles.add(roleRepository.findByName(ERole.ROLE_STAFF).get());
+            staff.setRoles(roles);
+            staff.setStaffId("STF-INIT-001");
+            userRepository.save(staff);
+            System.out.println("Default staff user created: staff/staff");
+        }
+
+        // Initialize Pilot User
+        if (!userRepository.existsByUsername("pilot")) {
+            GUser pilot = new GUser();
+            pilot.setUsername("pilot");
+            pilot.setEmail("pilot@gmail.com");
+            pilot.setPassword(encoder.encode("pilot"));
+            pilot.setWalletBalance(0.0);
+
+            Set<Role> roles = new HashSet<>();
+            roles.add(roleRepository.findByName(ERole.ROLE_PILOT).get());
+            pilot.setRoles(roles);
+            pilot.setPilotId("PLT-INIT-001");
+            userRepository.save(pilot);
+            System.out.println("Default pilot user created: pilot/pilot");
+        }
+
+        // Initialize Agent User
+        if (!userRepository.existsByUsername("agent")) {
+            GUser agent = new GUser();
+            agent.setUsername("agent");
+            agent.setEmail("agent@gmail.com");
+            agent.setPassword(encoder.encode("agent"));
+            agent.setWalletBalance(1000.0);
+
+            Set<Role> roles = new HashSet<>();
+            roles.add(roleRepository.findByName(ERole.ROLE_USER).get());
+            agent.setRoles(roles);
+            agent.setAgentId("AGT-INIT-001");
+            userRepository.save(agent);
+            System.out.println("Default agent user created: agent/agent");
         }
     }
 }
