@@ -439,6 +439,7 @@ export function BookingPage() {
                 throw new Error("Failed to create Razorpay Order ID.");
             }
 
+            console.log("Opening Razorpay Modal with Key:", import.meta.env.VITE_RAZORPAY_KEY_ID);
             console.log("Opening Razorpay Modal with Order ID:", orderId);
 
             const options = {

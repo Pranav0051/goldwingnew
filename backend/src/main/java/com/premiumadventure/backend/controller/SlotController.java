@@ -28,6 +28,28 @@ public class SlotController {
         return ResponseEntity.ok(slotRepository.findAll());
     }
 
+    @PostMapping("/seed")
+    public ResponseEntity<String> seedSlots() {
+        if (slotRepository.count() > 0) {
+            return ResponseEntity.ok("Slots already exist. Count: " + slotRepository.count());
+        }
+        
+        String[] times = {
+            "06:00 AM", "07:00 AM", "08:00 AM", "09:00 AM", "10:00 AM", 
+            "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", 
+            "04:00 PM", "05:00 PM", "06:00 PM"
+        };
+        
+        for (String time : times) {
+            FlightSlot slot = new FlightSlot();
+            slot.setTime(time);
+            slot.setCapacity(20);
+            slotRepository.save(slot);
+        }
+        
+        return ResponseEntity.ok("Successfully seeded " + times.length + " slots.");
+    }
+
     @PostMapping
     public ResponseEntity<FlightSlot> addOrUpdateSlot(@RequestBody FlightSlot slot) {
         Optional<FlightSlot> existing = slotRepository.findByTime(slot.getTime());

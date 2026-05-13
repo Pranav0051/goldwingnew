@@ -61,7 +61,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers("/api/bookings/create", "/api/bookings/verify-payment", "/api/bookings/{id}").permitAll()
-                        .requestMatchers("/api/slots/availability").permitAll()
+                        .requestMatchers("/api/slots/availability", "/api/slots/seed").permitAll()
                         .requestMatchers("/api/bookings/all", "/api/bookings/agent/**", "/api/bookings/{id}/status").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/bookings/**").hasRole("ADMIN")
                         .requestMatchers("/api/slots/**").hasAnyRole("ADMIN", "STAFF")

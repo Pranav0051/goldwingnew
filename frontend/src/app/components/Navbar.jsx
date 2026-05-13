@@ -41,13 +41,13 @@ export function Navbar() {
     };
   }, []);
   return (<motion.nav initial={{ y: -100 }} animate={{ y: 0 }} className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled || isMobileMenuOpen
-    ? (isLightTheme ? "bg-white shadow-lg border-b border-black/10 py-2 md:py-1" : "bg-[#0B0F19] shadow-lg border-b border-white/10 py-2 md:py-1")
-    : "bg-transparent py-2 md:py-3"}`}>
+    ? (isLightTheme ? "bg-white shadow-lg border-b border-black/10 py-0.5" : "bg-[#0B0F19] shadow-lg border-b border-white/10 py-0.5")
+    : "bg-transparent py-0"}`}>
     <div className="w-full px-4 sm:px-6 md:px-10 lg:px-12">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between h-14 sm:h-16 md:h-20">
         {/* Logo */}
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="flex items-center gap-1 sm:gap-2 md:gap-4 flex-shrink-0">
-          <img src="/goldwing-logo.png" alt="Goldwing Adventure Tour" className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto object-contain translate-y-[-1px]" />
+          <img src="/goldwing-logo.png" alt="Goldwing Adventure Tour" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain" />
           <div className="flex flex-col justify-center min-w-0">
             <h1 className={`font-black tracking-[0.08em] text-base sm:text-lg md:text-2xl leading-none transition-colors whitespace-nowrap ${isScrolled && isLightTheme ? "text-[#0B0F19]" : "text-white"}`}>
               GOLDWING

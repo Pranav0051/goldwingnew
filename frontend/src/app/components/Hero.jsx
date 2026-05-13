@@ -46,7 +46,7 @@ export function Hero({ onBookClick }) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 text-center pt-32 md:pt-40 lg:pt-48 pb-12">
+      <div className="relative z-10 container mx-auto px-4 text-center pt-24 md:pt-32 lg:pt-36 pb-12">
         <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease: "easeOut" }} className="space-y-4 md:space-y-6 lg:space-y-8 max-w-4xl mx-auto items-center flex flex-col">
           {/* Location Badge */}
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.5 }} className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-2.5 sm:px-3 md:px-4 py-1 md:py-2">
