@@ -23,6 +23,9 @@ public class DataInitializer implements CommandLineRunner {
     UserRepository userRepository;
 
     @Autowired
+    private com.premiumadventure.backend.repository.SlotRepository slotRepository;
+
+    @Autowired
     PasswordEncoder encoder;
 
     @Override
@@ -111,6 +114,22 @@ public class DataInitializer implements CommandLineRunner {
             agent.setAgentId("AGT-INIT-001");
             userRepository.save(agent);
             System.out.println("Default agent user created: agent/agent");
+        }
+
+        // Initialize Default Flight Slots
+        if (slotRepository.count() == 0) {
+            String[] times = {
+                "06:00 AM", "07:00 AM", "08:00 AM", "09:00 AM", "10:00 AM", 
+                "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", 
+                "04:00 PM", "05:00 PM", "06:00 PM"
+            };
+            for (String time : times) {
+                com.premiumadventure.backend.model.FlightSlot slot = new com.premiumadventure.backend.model.FlightSlot();
+                slot.setTime(time);
+                slot.setCapacity(20); // Default capacity
+                slotRepository.save(slot);
+            }
+            System.out.println("Default flight slots created.");
         }
     }
 }
