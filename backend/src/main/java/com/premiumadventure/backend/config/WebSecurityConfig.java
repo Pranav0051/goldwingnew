@@ -68,7 +68,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/bookings/create", "/api/bookings/verify-payment", "/api/bookings/{id}").permitAll()
                         .requestMatchers("/api/slots/availability", "/api/slots/seed").permitAll()
                         // Protected endpoints
-                        .requestMatchers("/api/bookings/all", "/api/bookings/agent/**", "/api/bookings/{id}/status").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers("/api/bookings/all", "/api/bookings/{id}/status").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers("/api/bookings/agent/**").hasAnyRole("ADMIN", "STAFF", "USER")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/bookings/**").hasRole("ADMIN")
                         .requestMatchers("/api/slots/**").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers("/api/GUser/me").authenticated()

@@ -31,6 +31,12 @@ export function LoginPage() {
             console.log("Login successful, received data:", data);
             const roles = data.roles || [];
             
+            // Clear all role flags to prevent stale session conflicts
+            localStorage.removeItem("isAdminLoggedIn");
+            localStorage.removeItem("isStaffLoggedIn");
+            localStorage.removeItem("isPilotLoggedIn");
+            localStorage.removeItem("isAgentLoggedIn");
+
             // Check if user has the authority for the selected panel
             if (loginRole === "admin" && roles.includes("ROLE_ADMIN")) {
                 localStorage.setItem("isAdminLoggedIn", "true");

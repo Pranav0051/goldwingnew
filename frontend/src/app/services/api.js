@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Use the env variable directly — it must be the full base URL ending with /api
 // Example: https://your-backend.up.railway.app/api
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://motivated-trust-production-8b10.up.railway.app/api';
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://motivated-trust-production-1508.up.railway.app/api';
 
 // Normalize: ensure https://, strip trailing slash, ensure ends with /api
 const normalize = (url) => {
