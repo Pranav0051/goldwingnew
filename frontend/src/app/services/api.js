@@ -4,9 +4,13 @@ import axios from 'axios';
 // Example: https://your-backend.up.railway.app/api
 const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://motivated-trust-production-8b10.up.railway.app/api';
 
-// Normalize: strip trailing slash, ensure ends with /api
+// Normalize: ensure https://, strip trailing slash, ensure ends with /api
 const normalize = (url) => {
     let u = url.trim().replace(/\/+$/, ''); // remove trailing slashes
+    // If missing protocol, add https://
+    if (!u.startsWith('http://') && !u.startsWith('https://')) {
+        u = 'https://' + u;
+    }
     if (!u.endsWith('/api')) {
         u = u + '/api';
     }
