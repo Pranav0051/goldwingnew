@@ -11,6 +11,7 @@ import com.premiumadventure.backend.repository.RoleRepository;
 import com.premiumadventure.backend.repository.UserRepository;
 import com.premiumadventure.backend.security.JwtUtils;
 import com.premiumadventure.backend.security.UserDetailsImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
@@ -144,6 +146,17 @@ public class AuthController {
         userRepository.save(gUser);
 
         return ResponseEntity.ok(new MessageResponse("GUser registered successfully!"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
+        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+            String token = headerAuth.substring(7);
+            jwtUtils.invalidateToken(token);
+        }
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok(new MessageResponse("Logged out successfully."));
     }
 
     private String generateId(String prefix) {

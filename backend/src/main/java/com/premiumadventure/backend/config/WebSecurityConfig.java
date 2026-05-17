@@ -6,6 +6,7 @@ import com.premiumadventure.backend.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -58,10 +59,15 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Allow all CORS preflight OPTIONS requests — critical for cross-origin login
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Public auth endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
+                        // Public booking & slot endpoints
                         .requestMatchers("/api/bookings/create", "/api/bookings/verify-payment", "/api/bookings/{id}").permitAll()
                         .requestMatchers("/api/slots/availability", "/api/slots/seed").permitAll()
+                        // Protected endpoints
                         .requestMatchers("/api/bookings/all", "/api/bookings/agent/**", "/api/bookings/{id}/status").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/bookings/**").hasRole("ADMIN")
                         .requestMatchers("/api/slots/**").hasAnyRole("ADMIN", "STAFF")

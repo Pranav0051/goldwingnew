@@ -1,17 +1,25 @@
 import axios from 'axios';
 
-let rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://motivated-trust-production-8b10.up.railway.app/api';
-// Auto-correct: ensure the URL ends with /api
-if (rawBaseUrl && !rawBaseUrl.endsWith('/api') && !rawBaseUrl.endsWith('/api/')) {
-    rawBaseUrl = rawBaseUrl.replace(/\/$/, '') + '/api';
-}
-const API_BASE_URL = rawBaseUrl;
+// Use the env variable directly — it must be the full base URL ending with /api
+// Example: https://your-backend.up.railway.app/api
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://motivated-trust-production-8b10.up.railway.app/api';
+
+// Normalize: strip trailing slash, ensure ends with /api
+const normalize = (url) => {
+    let u = url.trim().replace(/\/+$/, ''); // remove trailing slashes
+    if (!u.endsWith('/api')) {
+        u = u + '/api';
+    }
+    return u;
+};
+const API_BASE_URL = normalize(rawBaseUrl);
 
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: false,
 });
 
 // Add JWT token to every request automatically
@@ -63,13 +71,20 @@ export const authService = {
         const response = await api.post('/auth/signup', userData);
         return response.data;
     },
-    logout: () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('isAdminLoggedIn');
-        localStorage.removeItem('isStaffLoggedIn');
-        localStorage.removeItem('isPilotLoggedIn');
-        localStorage.removeItem('isAgentLoggedIn');
+    logout: async () => {
+        try {
+            // Invalidate the token on the server so it cannot be reused
+            await api.post('/auth/logout');
+        } catch (_) {
+            // Even if server call fails, clear client-side state
+        } finally {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('isAdminLoggedIn');
+            localStorage.removeItem('isStaffLoggedIn');
+            localStorage.removeItem('isPilotLoggedIn');
+            localStorage.removeItem('isAgentLoggedIn');
+        }
     },
     getUserProfile: async () => {
         try {
